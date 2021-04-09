@@ -1,0 +1,92 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans&display=swap");
+body {
+  font-family: "DM sans", sans-serif;
+  color: black;
+  padding: 0px;
+  margin: 0px;
+}
+
+h1 {
+  font-size: 36px;
+  color: black;
+}
+
+h2 {
+  font-size: 36px;
+  color: black;
+  margin: 0.5rem;
+}
+
+h3 {
+  font-size: large;
+  font-weight: bold;
+  color: black;
+  margin: 0.1rem;
+}
+
+h4 {
+  font-size: large;
+  font-weight: lighter;
+  color: black;
+  margin: 0.1rem;
+}
+
+p {
+  font-size: large;
+  font-weight: normal;
+  margin: 0px;
+}
+
+a {
+  text-decoration: none;
+}
+
+.header_home {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+.header_home .logo {
+  margin: 1rem;
+  width: 50%;
+}
+@media screen and (min-width: 1000px) {
+  .header_home .logo {
+    width: 40%;
+  }
+}
+.header_home .main_nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 23rem;
+  margin: 1rem auto;
+}
+@media screen and (min-width: 1000px) {
+  .header_home .main_nav {
+    flex-wrap: nowrap;
+    width: 60%;
+  }
+}
+.header_home .main_nav__item {
+  text-decoration: none;
+  color: #901C1C;
+  font-weight: bold;
+  border-radius: 20px;
+  border: solid 1px #c4c4c4;
+  padding: 0.2rem;
+  margin: 0.3rem;
+}
+@media screen and (min-width: 1000px) {
+  .header_home {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 70%;
+  }
+}
+
+/*# sourceMappingURL=header.css.map */

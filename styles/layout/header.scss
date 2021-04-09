@@ -1,0 +1,45 @@
+@import "../utils/variables.scss";
+@import "../utils/mixins.scss";
+@import "../base/fonts.scss";
+
+.header_home {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  .logo {
+    margin: 1rem;
+    width: 50%;
+    @include desktop {
+        width: 40%;
+    }
+  }
+  .main_nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 23rem;
+    margin: 1rem auto;
+    @include desktop {
+        flex-wrap: nowrap;
+        width: 60%;
+    }
+    &__item {
+      text-decoration: none;
+      color: $color-primary;
+      font-weight: bold;
+      border-radius: 20px;
+      border: solid 1px #c4c4c4;
+      padding: 0.2rem;
+      margin: 0.3rem;
+    }
+  }
+  @include desktop {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 70%;
+  }
+}

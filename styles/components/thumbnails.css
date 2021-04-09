@@ -1,0 +1,49 @@
+.photographer_thumbnail {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.photographer_thumbnail__picture {
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  box-shadow: 5px 5px 5px rgba(126, 126, 126, 0.3);
+}
+.photographer_thumbnail__content {
+  justify-content: center;
+}
+.photographer_thumbnail__content .photographer_name {
+  color: #d3573C;
+  font-size: 36px;
+}
+.photographer_thumbnail__content .photographer_location {
+  color: #901C1C;
+  font-size: 13px;
+}
+.photographer_thumbnail__content .photographer_desc {
+  color: #0000;
+  font-size: 10px;
+}
+.photographer_thumbnail__content .photographer_price {
+  color: #757575;
+  font-size: 10px;
+}
+.photographer_thumbnail__content .filters {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 1rem auto;
+}
+.photographer_thumbnail__content .filters__item {
+  text-decoration: none;
+  color: #901C1C;
+  font-weight: bold;
+  border-radius: 20px;
+  border: solid 1px #c4c4c4;
+  padding: 0.2rem;
+  margin: 0.3rem;
+}
+
+/*# sourceMappingURL=thumbnails.css.map */

@@ -1,0 +1,46 @@
+@media screen and (min-width: 1000px) {
+  body {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+
+@media screen and (min-width: 1000px) {
+  main {
+    max-width: 1400px;
+    margin: 1rem auto;
+  }
+}
+main .main_title {
+  font-size: 14px;
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  color: #901C1C;
+}
+@media screen and (min-width: 1000px) {
+  main .main_title {
+    font-size: 36px;
+    margin: 0px;
+  }
+}
+main .photographers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+@media screen and (min-width: 1000px) {
+  main .photographers {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+@media screen and (min-width: 1000px) {
+  main .photographers article {
+    margin: 3rem;
+    width: 21rem;
+  }
+}
+
+/*# sourceMappingURL=main.css.map */
