@@ -1,3 +1,24 @@
+.button_contact {
+  align-self: flex-start;
+  margin: 3rem 0;
+  background-color: #901C1C;
+  color: #fff;
+  font-size: 20px;
+  width: 170px;
+  height: 70px;
+  border: 0px;
+  border-radius: 5px;
+}
 
+.like {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+.like .fas {
+  color: #901C1C;
+  font-size: 20px;
+}
 
 /*# sourceMappingURL=buttons.css.map */

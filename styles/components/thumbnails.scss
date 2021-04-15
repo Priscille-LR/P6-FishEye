@@ -1,15 +1,26 @@
 @import "../utils/variables.scss";
 @import "../utils/mixins.scss";
 
+main {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  max-width: 1400px;
+  margin: auto;
+}
 
+//photographer thumbnail on home page
 .photographer_thumbnail {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-//   @include desktop {
-//       margin: 2rem;
-//   }
+
+  //   @include desktop {
+  //       margin: 2rem;
+  //   }
   &__picture {
     border-radius: 50%;
     width: 200px;
@@ -18,7 +29,11 @@
     box-shadow: $shadow;
   }
   &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    margin: auto;
     .photographer_name {
       color: $color-secondary;
       font-size: 36px;
@@ -28,27 +43,114 @@
       font-size: 13px;
     }
     .photographer_desc {
-      color: #0000;
-      font-size: 10px;
+      color: black;
+      font-size: 11px;
+      margin: 0.2rem;
     }
     .photographer_price {
       color: #757575;
       font-size: 10px;
     }
-    .filters {
+  }
+}
+
+.tags {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0.7rem auto;
+  &__item {
+    text-decoration: none;
+    color: $color-primary;
+    font-weight: bold;
+    border-radius: 20px;
+    border: solid 1px #c4c4c4;
+    padding: 0.2rem 0.3rem;
+    margin: 0.2rem;
+  }
+}
+
+//medium thumbnail on photographer page
+.medium_thumbnail {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 350px;
+  margin: 3rem;
+  &__picture {
+    border-radius: 5px;
+    width: 350px;
+    height: 300px;
+    object-fit: cover;
+  }
+  &__content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    .price_and_likes {
       display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 1rem auto;
-      &__item {
-        text-decoration: none;
-        color: $color-primary;
-        font-weight: bold;
-        border-radius: 20px;
-        border: solid 1px #c4c4c4;
-        padding: 0.2rem;
-        margin: 0.3rem;
-      }
+      align-items: center;
     }
+    .medium_title,
+    .medium_price,
+    .medium_number_of_likes {
+      color: $color-primary;
+      font-size: 24px;
+      margin: 0.4rem;
+    }
+  }
+}
+
+.sticker_summary {
+  background-color: $color-tertiary;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 376px;
+  height: 90px;
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  border-radius: 5px;
+  .total_likes {
+    display: flex;
+    align-items: center;
+    .total_number_of_likes {
+      font-size: 24px;
+      margin: 0 0.5rem;
+    }
+  }
+  .photographer_price {
+    font-size: 24px;
+  }
+}
+
+
+.dropdown {
+  background-color: $color-primary;
+  width: 170px;
+  border-radius: 5px;
+  &__button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+  }
+  &__content {
+    display: none;
+    position: absolute;
+    background-color: $color-primary;
+    & a {
+    color: #fff;
+    font-size: 18px;
+    padding: 0.5rem;
+    text-decoration: none;
+    display: block;
+    width: 170px;
+    }
+
   }
 }

@@ -1,0 +1,33 @@
+@import "../utils/variables.scss";
+@import "../utils/mixins.scss";
+@import "../base/fonts.scss";
+
+
+.banner {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #FAFAFA;
+    margin: 3rem;
+    &__text_content {
+        display: flex;
+        flex-direction: column;
+        padding: 2rem 0;
+    }
+    .photographer_name {
+    color: $color-secondary;
+    font-size: 64px ;
+    }
+    .photographer_location {
+    color: $color-primary;
+    font-size: 24px ;
+    margin: 0.5rem 1rem;
+    }
+    .photographer_desc {
+    color: #525252;
+    font-size: 18px ;
+    margin: 0.5rem 1rem;
+    }
+}
+

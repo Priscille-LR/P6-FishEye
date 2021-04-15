@@ -1,0 +1,28 @@
+@import "../utils/variables.scss";
+@import "../utils/mixins.scss";
+
+
+//"contact me" button on photographer page
+.button_contact {
+    align-self: flex-start;
+    margin: 3rem 0;
+    background-color: $color-primary;
+    color: #fff;
+    font-size: 20px;
+    width: 170px;
+    height: 70px;
+    border: 0px;
+    border-radius: 5px;
+}
+
+//button like
+.like {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    .fas {
+        color: $color-primary;
+        font-size: 20px;
+    }
+  }
