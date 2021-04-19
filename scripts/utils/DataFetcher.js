@@ -7,7 +7,7 @@ export class DataFetcher {
         return fetch(this.dataSource) // ressource requeste
             .then(function (resp) {
                 console.log(resp)
-                return resp.json(); //JSON.parse not working
+                return resp.json(); 
             });
     }
 }

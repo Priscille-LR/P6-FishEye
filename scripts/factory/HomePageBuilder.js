@@ -1,7 +1,7 @@
 // Nom de classe
 export class HomePageBuilder {
-    constructor(dataPromise) {
-        this.dataPromise = dataPromise 
+    constructor(props) {
+        this.dataPromise = props.json 
     }
 
     //display header and main (home page)
@@ -25,13 +25,18 @@ export class HomePageBuilder {
         const main = document.querySelector("main")
         document.querySelector('body').insertBefore(header, main)
 
-        const allTags = [];
+        // const allTags = [];
 
-        photographers.forEach(photographer => {
-            photographer.tags.forEach(photographerTag => {
-                allTags.push(photographerTag);
-            })
-        });
+        // photographers.forEach(photographer => {
+        //     photographer.tags.forEach(photographerTag => {
+        //         allTags.push(photographerTag);
+        //     })
+        // });
+
+        console.log("allTAGS")
+        const allTags = photographers.map(photographer => photographer.tags).flat();
+        console.log(allTags)
+
 
         const distinctTags = [...new Set(allTags)]; //remove duplicates
 
@@ -48,16 +53,22 @@ export class HomePageBuilder {
     }
 
     renderMain(photographers) {
+
+        const title = document.createElement('h1');
+        title.className = 'main_title';
+        title.innerHTML = `Nos photographes`;
+        document.querySelector("main").appendChild(title);
+
         photographers.forEach(photographer => {
 
             const article = document.createElement('article') 
             article.className = 'article'; 
             article.innerHTML = `
             
-          <a class="photographer_thumbnail" href="#">
+          <a class="photographer_thumbnail" href="/photographers-profile/`+photographer.id+`">
               <img
                 class="photographer_thumbnail__picture"
-                src="static/`+ photographer.portrait + `"
+                src="/static/Photographers ID Photos/`+ photographer.portrait + `"
                 alt="photographer's thumbnail picture"
               />
             <div class="photographer_thumbnail__content">

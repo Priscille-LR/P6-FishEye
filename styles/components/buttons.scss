@@ -5,7 +5,6 @@
 //"contact me" button on photographer page
 .button_contact {
     align-self: flex-start;
-    margin: 3rem 0;
     background-color: $color-primary;
     color: #fff;
     font-size: 20px;
@@ -13,6 +12,7 @@
     height: 70px;
     border: 0px;
     border-radius: 5px;
+    margin-top: 0.5rem;
 }
 
 //button like

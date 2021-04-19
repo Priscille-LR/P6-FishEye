@@ -62,7 +62,7 @@ main {
   &__item {
     text-decoration: none;
     color: $color-primary;
-    font-weight: bold;
+    font-weight: 500;
     border-radius: 20px;
     border: solid 1px #c4c4c4;
     padding: 0.2rem 0.3rem;
@@ -99,6 +99,7 @@ main {
     .medium_number_of_likes {
       color: $color-primary;
       font-size: 24px;
+      // font-weight: normal;
       margin: 0.4rem;
     }
   }
@@ -129,28 +130,3 @@ main {
 }
 
 
-.dropdown {
-  background-color: $color-primary;
-  width: 170px;
-  border-radius: 5px;
-  &__button {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 18px;
-  }
-  &__content {
-    display: none;
-    position: absolute;
-    background-color: $color-primary;
-    & a {
-    color: #fff;
-    font-size: 18px;
-    padding: 0.5rem;
-    text-decoration: none;
-    display: block;
-    width: 170px;
-    }
-
-  }
-}
