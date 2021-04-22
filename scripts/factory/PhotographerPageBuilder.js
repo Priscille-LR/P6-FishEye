@@ -1,7 +1,17 @@
+import { MediaFactory } from './MediaFactory';
+
+const mediaFactory = new MediaFactory();
+
 export class PhotographerPageBuilder {
 
+    SortEnum = {
+        DATE: "Date",
+        POPULARITY: "Popularité",
+        TITLE: "Titre",
+    }
+
     constructor(props) {
-        this.jsonPromise = props.json 
+        this.jsonPromise = props.json
         this.isDropdownVisible = false //dropdown menu hidden by default
         this.allMedia = [];
     }
@@ -11,12 +21,37 @@ export class PhotographerPageBuilder {
         this.jsonPromise.then((jsonData) => {
             this.determineCurrentPhotographer(jsonData.photographers);
             this.determineCurrentPhotographerMedia(jsonData.media);
+
+            this.renderHeader();
             this.renderBanner()
             this.renderMain()
         })
     }
 
-    //for each photographer, 
+    renderHeader() {
+        const header = this.createHeader();
+        this.appendLogo(header);
+
+        const banner = document.querySelector(".banner");
+        document.querySelector('body').insertBefore(header, banner);
+    }
+
+    createHeader() {
+        const header = document.createElement('header');
+        header.className = 'header_photographer_page';
+        return header;
+    }
+
+    appendLogo(header) {
+        const logo = document.createElement('a');
+        logo.className = 'logo';
+        logo.setAttribute("href", "/");
+        logo.innerHTML = `<img class="logo_img" src="/static/logo.svg" alt="logo" />`;
+
+        header.appendChild(logo);
+    }
+
+    // for each photographer, 
     //  if their id == photographer wanted 
     //  then save photographer in currentPhotographer 
     determineCurrentPhotographer(photographers) {
@@ -39,16 +74,9 @@ export class PhotographerPageBuilder {
     }
 
     renderBanner() {
-
-        //banner text content for photographer's profile page
         this.createBannerContent();
-
-        //contact button 
         this.createBannerButton();
-
-        //photographer's picture
         this.createBannerPicture();
-
     }
 
     createBannerPicture() {
@@ -56,11 +84,10 @@ export class PhotographerPageBuilder {
         bannerPicture.className = 'photographer__picture';
         bannerPicture.innerHTML = `
             <img
-                class="photographer_thumbnail__picture"
-                src="/static/Photographers ID Photos/` + this.currentPhotographer.portrait + `"
+                class="photographer_thumbnail__picture picture_profile"
+                src="/static/Photographers ID Photos/${this.currentPhotographer.portrait}"
                 alt="photographer's thumbnail picture"
-              />
-            `;
+              />`;
 
         document.querySelector('.banner').appendChild(bannerPicture);
     }
@@ -77,14 +104,12 @@ export class PhotographerPageBuilder {
         bannerContent.className = 'banner__text_content';
         bannerContent.innerHTML = `
 
-            <h2 class="photographer_name">` + this.currentPhotographer.name + `</h2>
-            <h3 class="photographer_location">` + this.currentPhotographer.city + ", " + this.currentPhotographer.country + `</h3>
-            <p class="photographer_desc">` + this.currentPhotographer.tagline + `</p>
+            <h2 class="photographer_name">${this.currentPhotographer.name}</h2>
+            <h3 class="photographer_location">${this.currentPhotographer.city}, ${this.currentPhotographer.country}</h3>
+            <p class="photographer_desc">${this.currentPhotographer.tagline}</p>
             
-            <div class="tags">
-            </div>
-
-        `;
+            <div class="tags tags_photographer_page">
+            </div>`;
 
         this.appendBannerContentTags(bannerContent);
 
@@ -96,8 +121,7 @@ export class PhotographerPageBuilder {
             const tag = document.createElement('a');
             tag.className = 'tags__item';
             tag.innerHTML = `
-         <span>` + "#" + photographerTag + `</span>
-        `;
+         <span>#${photographerTag}</span>`;
             bannerContent.querySelector('.tags').appendChild(tag);
         });
     }
@@ -105,37 +129,31 @@ export class PhotographerPageBuilder {
     renderMain() {
         this.generateSummary()
         this.renderDropdown()
-        this.sortBy("Popularité")
+        this.sortBy(this.SortEnum.POPULARITY)
     }
 
-    addMedium(medium) {
-        const mediumThumbnail = document.createElement('div');
-        mediumThumbnail.className = "medium_thumbnail";
+    
+    createMediumThumbnail(medium) {
 
-        let tmpMedium = medium.image;
-        if (tmpMedium == null) {
-            tmpMedium = medium.video;
-        }
-        mediumThumbnail.innerHTML = `
-            <img
-            class="medium_thumbnail__picture"
-            src="/static/` + this.currentPhotographer.name.split(' ')[0] + "/" + tmpMedium + `"
-            alt="bird picture"
-          />
-          <div class="medium_thumbnail__content">
-            <h2 class="medium_title">Temporary title</h2>
-            <div class="price_and_likes">
-              <span class="medium_price">` + medium.price + `€</span>
-              <span class="medium_number_of_likes">` + medium.likes + `</span>
-              <button class="like">
-              <i class="fas fa-heart"></i>
-              </button>
-            </div>
-          </div>
-            `;
+        const mediumThumbnail = mediaFactory.renderMedium(medium, this.currentPhotographer);
 
         const main = document.querySelector('main');
         main.appendChild(mediumThumbnail);
+
+        this.incrementNumberOfLikes(mediumThumbnail);
+    }
+
+
+    incrementNumberOfLikes(mediumThumbnail) {
+        const likeButton = mediumThumbnail.querySelector('.like');
+        const mediumLikes = mediumThumbnail.querySelector('.medium_number_of_likes');
+        const totalLikes = document.querySelector('.total_number_of_likes');
+
+        likeButton.addEventListener('click', () => {
+            mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
+            totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
+
+        });
     }
 
     //sticker photographer total number of likes and price
@@ -163,19 +181,19 @@ export class PhotographerPageBuilder {
         photographerPrice.className = "photographer_price"
         photographerPrice.innerHTML = price + "€/jour"
         summary.appendChild(photographerPrice)
+        
     }
 
     removeAllThumbnails() {
         const mainNode = document.querySelector('main')
-        mainNode.childNodes.forEach(nodeElement => {
-            if (nodeElement.className == 'medium_thumbnail') {
-                mainNode.removeChild(nodeElement)
-            }
-        })
+        for (let index = mainNode.childNodes.length - 1; index >= 0 ; index--) {
+            const child = mainNode.childNodes[index];
+            mainNode.removeChild(child)
+        }
     }
 
     renderDropdown() {
-        
+
         const sortBy = document.createElement('span');
         sortBy.className = 'sort_by';
         sortBy.innerHTML = `Trier par`;
@@ -184,12 +202,12 @@ export class PhotographerPageBuilder {
         const dropdown = document.createElement('div');
         dropdown.className = "dropdown";
         dropdown.innerHTML = `
-        <button class="dropdown__button">Popularité</button>
+        <button class="dropdown__button">${this.SortEnum.POPULARITY}</button>
         <div class="dropdown__content">
-            <a class="dropdown__content__item" href="#">Date</a>
-            <a class="dropdown__content__item" href="#">Titre</a>
-      </div>
-        `;
+            <a class="dropdown__content__item" href="#">${this.SortEnum.DATE}</a>
+            <a class="dropdown__content__item" href="#">${this.SortEnum.TITLE}</a>
+      </div>`;
+      
         document.querySelector('.dropdown_menu').appendChild(dropdown);
 
         const dropdrownButton = document.querySelector('.dropdown__button');
@@ -205,30 +223,18 @@ export class PhotographerPageBuilder {
             }
         });
 
+
         const dropdownItems = document.getElementsByClassName("dropdown__content__item");
-        for(let item of dropdownItems){
-            item.addEventListener('click', () => { 
+        for (let item of dropdownItems) {
+            item.addEventListener('click', () => {
                 this.handleDropdownItemClick(dropdrownButton, item);
             })
         }
-
-        
-      
-    }
-
-    SortEnum = {
-        DATE: "Date",
-        POPULARITY : "Popularité",
-        TITLE : "Titre",
     }
 
     handleDropdownItemClick(dropdrownButton, item) {
         dropdrownButton.click();
 
-        this.removeAllThumbnails(); // TODO
-        this.removeAllThumbnails();
-        this.removeAllThumbnails();
-        this.removeAllThumbnails();
         this.removeAllThumbnails();
 
         //Tri
@@ -244,9 +250,7 @@ export class PhotographerPageBuilder {
         dropdrownButton.innerHTML = temporary;
     }
 
-    //Date, popularité, titre
     sortBy(sortType) {
-        console.log(sortType)
         let sortedMedia = null;
         switch (sortType) {
             case this.SortEnum.DATE:
@@ -256,25 +260,32 @@ export class PhotographerPageBuilder {
                 sortedMedia = this.allMedia.sort((a, b) => b.likes - a.likes);
                 break;
             case this.SortEnum.TITLE:
-                sortedMedia = this.allMedia.sort((a, b) => {
-                    let aImage = a.image;
-                    let bImage = b.image;
-        
-                    if (aImage == null) {
-                        aImage = a.video
-                    }
-                    if (bImage == null) {
-                        bImage = b.video
-                    }
-        
-                    String(aImage).localeCompare(String(bImage), 'fr')
-                }).reverse();
+                sortedMedia = this.allMedia.sort(this.compareTitle);
                 break;
         }
 
         console.log(sortedMedia);
-        sortedMedia.forEach (sortedMedium => {
-            this.addMedium(sortedMedium)
+        sortedMedia.forEach(sortedMedium => {
+            this.createMediumThumbnail(sortedMedium)
         })
+    }
+
+    compareTitle(a, b) {
+        let aMedium = a.image;
+        let bMedium = b.image;
+      
+        if (aMedium == null) {
+            aMedium = a.video
+            
+        }
+        if (bMedium == null) {
+            bMedium = b.video
+        }
+
+        const t1 = mediaFactory.extractMediumTitle(aMedium)
+        const t2 = mediaFactory.extractMediumTitle(bMedium)
+        
+         
+        return t1.localeCompare(t2, 'fr') 
     }
 }

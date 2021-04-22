@@ -1,28 +1,40 @@
 @import "../utils/variables.scss";
 @import "../utils/mixins.scss";
 
-
 //"contact me" button on photographer page
 .button_contact {
+  position: fixed;
+  bottom: 4%;
+  left: 27%;
+  right: 27%;
+  background-color: $color-primary;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  width: 170px;
+  height: 35px;
+  border-radius: 5px;
+  border: none;
+  @include desktop {
+    position: static;
     align-self: flex-start;
-    background-color: $color-primary;
-    color: #fff;
     font-size: 20px;
-    width: 170px;
     height: 70px;
-    border: 0px;
-    border-radius: 5px;
     margin-top: 0.5rem;
+  }
 }
 
 //button like
 .like {
-    border: none;
-    background: none;
-    padding: 0;
-    cursor: pointer;
-    .fas {
-        color: $color-primary;
-        font-size: 20px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  .fas {
+    color: $color-primary;
+    font-size: 13px;
+    @include desktop {
+      font-size: 20px;
     }
   }
+}

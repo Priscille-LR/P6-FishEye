@@ -13,12 +13,12 @@
     justify-content: space-around;
     align-items: center;
     width: 80%;
-    margin: 2rem;
   }
   .logo {
     //margin: 1rem;
   width: 150px;
     @include desktop {
+      display: flex;
         width: 20%;
     }
   }
@@ -43,5 +43,14 @@
       margin: 0.3rem;
     }
   }
-  
+}
+
+.header_photographer_page {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 2rem;
+  @include desktop {
+    width: 100%;
+  }
 }

@@ -3,7 +3,7 @@
 
 body {
     @include desktop {
-        max-width: 1500px;
+        max-width: 1400px;
         margin: auto;
     }
 }
@@ -11,8 +11,8 @@ main {
     @include desktop {
       display: flex;
       justify-content: center;
-        max-width: 1400px ;
-        //margin: 1rem auto;
+      max-width: 1400px ;
+      margin: auto;
     }
   .main_title {
     font-size: 14px;

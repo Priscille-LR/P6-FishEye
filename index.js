@@ -1,5 +1,4 @@
-import { router } from './router';
-
+import { router } from './Router';
 
 window.addEventListener('hashchange', router);
- window.addEventListener('load', router);
+window.addEventListener('load', router);
