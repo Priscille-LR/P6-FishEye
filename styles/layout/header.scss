@@ -7,12 +7,19 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  width: 100%;
+  margin: 2rem;
+  @include desktop {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 80%;
+  }
   .logo {
-    margin: 1rem;
-    width: 50%;
+    //margin: 1rem;
+  width: 150px;
     @include desktop {
-        width: 40%;
+      display: flex;
+        width: 20%;
     }
   }
   .main_nav {
@@ -23,8 +30,8 @@
     width: 23rem;
     margin: 1rem auto;
     @include desktop {
-        flex-wrap: nowrap;
-        width: 60%;
+        //flex-wrap: nowrap;
+        width: 80%;
     }
     &__item {
       text-decoration: none;
@@ -36,10 +43,14 @@
       margin: 0.3rem;
     }
   }
+}
+
+.header_photographer_page {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 2rem;
   @include desktop {
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    width: 70%;
+    width: 100%;
   }
 }

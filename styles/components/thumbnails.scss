@@ -54,19 +54,35 @@ main {
   }
 }
 
+.picture_profile {
+  border-radius: 50%;
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  box-shadow: $shadow;
+  @include desktop {
+    width: 200px;
+    height: 200px;
+  }
+}
+
 .tags {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  margin: 0.7rem auto;
+  margin: 0.7rem 0;
   &__item {
     text-decoration: none;
     color: $color-primary;
-    font-weight: bold;
+    font-size: 13px;
+    font-weight: 500;
     border-radius: 20px;
     border: solid 1px #c4c4c4;
-    padding: 0.2rem 0.3rem;
+    padding: 0.1rem 0.3rem;
     margin: 0.2rem;
+    @include desktop {
+      font-size: 18px;
+    }
   }
 }
 
@@ -76,13 +92,19 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 350px;
-  margin: 3rem;
-  &__picture {
-    border-radius: 5px;
+  @include desktop {
     width: 350px;
-    height: 300px;
+    margin: 3rem;
+  }
+  &__miniature {
+    width: 335px;
+    height: 190px;
+    border-radius: 5px;
     object-fit: cover;
+    @include desktop {
+      width: 350px;
+      height: 300px;
+    }
   }
   &__content {
     display: flex;
@@ -93,64 +115,58 @@ main {
     .price_and_likes {
       display: flex;
       align-items: center;
+      justify-content: space-around;
     }
     .medium_title,
     .medium_price,
     .medium_number_of_likes {
       color: $color-primary;
-      font-size: 24px;
+      font-size: 14px;
       margin: 0.4rem;
+      @include desktop {
+        font-size: 24px;
+      }
+    }
+    .medium_title {
+      text-overflow: ellipsis;
     }
   }
+}
+
+#medium_thumbnail__miniature {
+  width: 335px;
+    height: 190px;
+    border-radius: 5px;
+    object-fit: cover;
+    @include desktop {
+      width: 350px;
+      height: 300px;
+    }
 }
 
 .sticker_summary {
-  background-color: $color-tertiary;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 376px;
-  height: 90px;
-  position: fixed;
-  right: 2rem;
-  bottom: 2rem;
-  border-radius: 5px;
-  .total_likes {
+  display: none;
+  @include desktop {
+    background-color: $color-tertiary;
     display: flex;
+    justify-content: space-around;
     align-items: center;
-    .total_number_of_likes {
+    width: 376px;
+    height: 90px;
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    border-radius: 5px;
+    .total_likes {
+      display: flex;
+      align-items: center;
+      .total_number_of_likes {
+        font-size: 24px;
+        margin: 0 0.5rem;
+      }
+    }
+    .photographer_price {
       font-size: 24px;
-      margin: 0 0.5rem;
     }
-  }
-  .photographer_price {
-    font-size: 24px;
-  }
-}
-
-
-.dropdown {
-  background-color: $color-primary;
-  width: 170px;
-  border-radius: 5px;
-  &__button {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 18px;
-  }
-  &__content {
-    display: none;
-    position: absolute;
-    background-color: $color-primary;
-    & a {
-    color: #fff;
-    font-size: 18px;
-    padding: 0.5rem;
-    text-decoration: none;
-    display: block;
-    width: 170px;
-    }
-
   }
 }

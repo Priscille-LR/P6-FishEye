@@ -3,15 +3,16 @@
 
 body {
     @include desktop {
-        width: 100%;
         max-width: 1400px;
-        margin: 0 auto;
+        margin: auto;
     }
 }
 main {
     @include desktop {
-        max-width: 1400px ;
-        margin: 1rem auto;
+      display: flex;
+      justify-content: center;
+      max-width: 1400px ;
+      margin: auto;
     }
   .main_title {
     font-size: 14px;
@@ -21,7 +22,7 @@ main {
     color: $color-primary;
     @include desktop {
         font-size: 36px;
-        margin: 0px;
+        margin: auto;
         
     }
   }
@@ -32,6 +33,7 @@ main {
     @include desktop {
       flex-direction: row;
       flex-wrap: wrap;
+      justify-content: center;
     }
     article {
         @include desktop {
