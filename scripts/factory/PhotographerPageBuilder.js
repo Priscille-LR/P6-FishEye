@@ -14,6 +14,7 @@ export class PhotographerPageBuilder {
         this.jsonPromise = props.json
         this.isDropdownVisible = false //dropdown menu hidden by default
         this.allMedia = [];
+        this.photographerTags = [];
     }
 
     render(id) {
@@ -123,6 +124,14 @@ export class PhotographerPageBuilder {
             tag.innerHTML = `
          <span>#${photographerTag}</span>`;
             bannerContent.querySelector('.tags').appendChild(tag);
+
+
+            tag.addEventListener('click', () => {
+                console.log('u clicked')
+                this.photographerTags.push(tag);
+                this.photographerTags = [...new Set(this.photographerTags)];
+                this.handleTagClick();
+            });
         });
     }
 
@@ -143,6 +152,35 @@ export class PhotographerPageBuilder {
         this.incrementNumberOfLikes(mediumThumbnail);
     }
 
+    // sortByTag(tag) {
+
+    //     this.currentPhotographer.tags.forEach(tag => {
+    //         tag.addEventListener('click', () => {
+    //             console.log('u cliked')
+    //             
+                
+    //         });
+    //     });
+    // }
+
+    handleTagClick() {
+        this.removeAllThumbnails();
+        this.sortMedia()
+    }
+
+    sortMedia() {
+        let selectedMedia = [];
+        this.photographerTags.forEach(clickedPhotographerTag => {
+            this.allMedia.forEach(medium => {
+                if (medium == clickedPhotographerTag) {
+                    selectedMedia.push(medium)
+                }
+            });
+        });
+
+        selectedMedia = [...new Set(selectedMedia)];
+        this.createMediumThumbnail(selectedMedia);
+    }
 
     incrementNumberOfLikes(mediumThumbnail) {
         const likeButton = mediumThumbnail.querySelector('.like');
@@ -194,21 +232,8 @@ export class PhotographerPageBuilder {
 
     renderDropdown() {
 
-        const sortBy = document.createElement('span');
-        sortBy.className = 'sort_by';
-        sortBy.innerHTML = `Trier par`;
-        document.querySelector('.dropdown_menu').appendChild(sortBy);
-
-        const dropdown = document.createElement('div');
-        dropdown.className = "dropdown";
-        dropdown.innerHTML = `
-        <button class="dropdown__button">${this.SortEnum.POPULARITY}</button>
-        <div class="dropdown__content">
-            <a class="dropdown__content__item" href="#">${this.SortEnum.DATE}</a>
-            <a class="dropdown__content__item" href="#">${this.SortEnum.TITLE}</a>
-      </div>`;
-      
-        document.querySelector('.dropdown_menu').appendChild(dropdown);
+        this.createSortByText();
+        this.createDropdown();
 
         const dropdrownButton = document.querySelector('.dropdown__button');
         const dropdrownContent = document.querySelector('.dropdown__content');
@@ -232,16 +257,32 @@ export class PhotographerPageBuilder {
         }
     }
 
+    createDropdown() {
+        const dropdown = document.createElement('div');
+        dropdown.className = "dropdown";
+        dropdown.innerHTML = `
+        <button class="dropdown__button">${this.SortEnum.POPULARITY}</button>
+        <div class="dropdown__content">
+            <a class="dropdown__content__item" href="#">${this.SortEnum.DATE}</a>
+            <a class="dropdown__content__item" href="#">${this.SortEnum.TITLE}</a>
+      </div>`;
+
+        document.querySelector('.dropdown_menu').appendChild(dropdown);
+    }
+
+    createSortByText() {
+        const sortBy = document.createElement('span');
+        sortBy.className = 'sort_by';
+        sortBy.innerHTML = `Trier par`;
+        document.querySelector('.dropdown_menu').appendChild(sortBy);
+    }
+
     handleDropdownItemClick(dropdrownButton, item) {
         dropdrownButton.click();
 
-        this.removeAllThumbnails();
-
-        //Tri
-        this.sortBy(item.innerHTML);
-
-        //swap
-        this.swapDropdownItems(item, dropdrownButton);
+        this.removeAllThumbnails(); //remove everything
+        this.sortBy(item.innerHTML); //sort
+        this.swapDropdownItems(item, dropdrownButton); //swap
     }
 
     swapDropdownItems(item, dropdrownButton) {
@@ -264,7 +305,6 @@ export class PhotographerPageBuilder {
                 break;
         }
 
-        console.log(sortedMedia);
         sortedMedia.forEach(sortedMedium => {
             this.createMediumThumbnail(sortedMedium)
         })

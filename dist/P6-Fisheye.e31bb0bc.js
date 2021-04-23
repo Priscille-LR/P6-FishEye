@@ -226,7 +226,15 @@ var _MediaFactory = require("./MediaFactory");
 
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
@@ -254,6 +262,7 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
     this.isDropdownVisible = false; //dropdown menu hidden by default
 
     this.allMedia = [];
+    this.photographerTags = [];
   }
 
   _createClass(PhotographerPageBuilder, [{
@@ -361,11 +370,22 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
   }, {
     key: "appendBannerContentTags",
     value: function appendBannerContentTags(bannerContent) {
+      var _this4 = this;
+
       this.currentPhotographer.tags.forEach(function (photographerTag) {
         var tag = document.createElement('a');
         tag.className = 'tags__item';
         tag.innerHTML = "\n         <span>#".concat(photographerTag, "</span>");
         bannerContent.querySelector('.tags').appendChild(tag);
+        tag.addEventListener('click', function () {
+          console.log('u clicked');
+
+          _this4.photographerTags.push(tag);
+
+          _this4.photographerTags = _toConsumableArray(new Set(_this4.photographerTags));
+
+          _this4.handleTagClick();
+        });
       });
     }
   }, {
@@ -382,6 +402,36 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       var main = document.querySelector('main');
       main.appendChild(mediumThumbnail);
       this.incrementNumberOfLikes(mediumThumbnail);
+    } // sortByTag(tag) {
+    //     this.currentPhotographer.tags.forEach(tag => {
+    //         tag.addEventListener('click', () => {
+    //             console.log('u cliked')
+    //             
+    //         });
+    //     });
+    // }
+
+  }, {
+    key: "handleTagClick",
+    value: function handleTagClick() {
+      this.removeAllThumbnails();
+      this.sortMedia();
+    }
+  }, {
+    key: "sortMedia",
+    value: function sortMedia() {
+      var _this5 = this;
+
+      var selectedMedia = [];
+      this.photographerTags.forEach(function (clickedPhotographerTag) {
+        _this5.allMedia.forEach(function (medium) {
+          if (medium == clickedPhotographerTag) {
+            selectedMedia.push(medium);
+          }
+        });
+      });
+      selectedMedia = _toConsumableArray(new Set(selectedMedia));
+      this.createMediumThumbnail(selectedMedia);
     }
   }, {
     key: "incrementNumberOfLikes",
@@ -426,25 +476,19 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
   }, {
     key: "renderDropdown",
     value: function renderDropdown() {
-      var _this4 = this;
+      var _this6 = this;
 
-      var sortBy = document.createElement('span');
-      sortBy.className = 'sort_by';
-      sortBy.innerHTML = "Trier par";
-      document.querySelector('.dropdown_menu').appendChild(sortBy);
-      var dropdown = document.createElement('div');
-      dropdown.className = "dropdown";
-      dropdown.innerHTML = "\n        <button class=\"dropdown__button\">".concat(this.SortEnum.POPULARITY, "</button>\n        <div class=\"dropdown__content\">\n            <a class=\"dropdown__content__item\" href=\"#\">").concat(this.SortEnum.DATE, "</a>\n            <a class=\"dropdown__content__item\" href=\"#\">").concat(this.SortEnum.TITLE, "</a>\n      </div>");
-      document.querySelector('.dropdown_menu').appendChild(dropdown);
+      this.createSortByText();
+      this.createDropdown();
       var dropdrownButton = document.querySelector('.dropdown__button');
       var dropdrownContent = document.querySelector('.dropdown__content');
       dropdrownButton.addEventListener('click', function () {
-        if (_this4.isDropdownVisible == false) {
+        if (_this6.isDropdownVisible == false) {
           dropdrownContent.style.display = "block";
-          _this4.isDropdownVisible = true; //content visibility state 
+          _this6.isDropdownVisible = true; //content visibility state 
         } else {
           dropdrownContent.style.display = "none";
-          _this4.isDropdownVisible = false;
+          _this6.isDropdownVisible = false;
         }
       });
       var dropdownItems = document.getElementsByClassName("dropdown__content__item");
@@ -456,7 +500,7 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
         var _loop = function _loop() {
           var item = _step.value;
           item.addEventListener('click', function () {
-            _this4.handleDropdownItemClick(dropdrownButton, item);
+            _this6.handleDropdownItemClick(dropdrownButton, item);
           });
         };
 
@@ -470,14 +514,30 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       }
     }
   }, {
+    key: "createDropdown",
+    value: function createDropdown() {
+      var dropdown = document.createElement('div');
+      dropdown.className = "dropdown";
+      dropdown.innerHTML = "\n        <button class=\"dropdown__button\">".concat(this.SortEnum.POPULARITY, "</button>\n        <div class=\"dropdown__content\">\n            <a class=\"dropdown__content__item\" href=\"#\">").concat(this.SortEnum.DATE, "</a>\n            <a class=\"dropdown__content__item\" href=\"#\">").concat(this.SortEnum.TITLE, "</a>\n      </div>");
+      document.querySelector('.dropdown_menu').appendChild(dropdown);
+    }
+  }, {
+    key: "createSortByText",
+    value: function createSortByText() {
+      var sortBy = document.createElement('span');
+      sortBy.className = 'sort_by';
+      sortBy.innerHTML = "Trier par";
+      document.querySelector('.dropdown_menu').appendChild(sortBy);
+    }
+  }, {
     key: "handleDropdownItemClick",
     value: function handleDropdownItemClick(dropdrownButton, item) {
       dropdrownButton.click();
-      this.removeAllThumbnails(); //Tri
+      this.removeAllThumbnails(); //remove everything
 
-      this.sortBy(item.innerHTML); //swap
+      this.sortBy(item.innerHTML); //sort
 
-      this.swapDropdownItems(item, dropdrownButton);
+      this.swapDropdownItems(item, dropdrownButton); //swap
     }
   }, {
     key: "swapDropdownItems",
@@ -489,7 +549,7 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
   }, {
     key: "sortBy",
     value: function sortBy(sortType) {
-      var _this5 = this;
+      var _this7 = this;
 
       var sortedMedia = null;
 
@@ -511,9 +571,8 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
           break;
       }
 
-      console.log(sortedMedia);
       sortedMedia.forEach(function (sortedMedium) {
-        _this5.createMediumThumbnail(sortedMedium);
+        _this7.createMediumThumbnail(sortedMedium);
       });
     }
   }, {
