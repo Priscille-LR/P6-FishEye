@@ -158,7 +158,8 @@ var MediaFactory = /*#__PURE__*/function () {
     }
   }, {
     key: "extractMediumTitle",
-    value: function extractMediumTitle(tmpMedium) {
+    value: function extractMediumTitle(medium) {
+      var tmpMedium = this.getMediumFile(medium);
       var mediumTitle = String(tmpMedium.toLowerCase());
       mediumTitle = mediumTitle.substring(0, tmpMedium.length - 4); //remove extension
 
@@ -173,40 +174,59 @@ var MediaFactory = /*#__PURE__*/function () {
   }, {
     key: "renderMedium",
     value: function renderMedium(medium, currentPhotographer) {
-      var tmpMedium = medium.image;
-
-      if (tmpMedium == null) {
-        tmpMedium = String(medium.video);
-      } else {
-        tmpMedium = String(medium.image);
-      }
-
-      var mediumTitle = this.extractMediumTitle(tmpMedium); //create medium thumbnail
-
+      var mediumTitle = this.extractMediumTitle(medium);
+      var mediumThumbnail = this.createMediumDisplay(medium, currentPhotographer, mediumTitle, "medium_thumbnail");
+      this.appendThumbnailContent(mediumTitle, medium, mediumThumbnail);
+      return mediumThumbnail;
+    }
+  }, {
+    key: "appendThumbnailContent",
+    value: function appendThumbnailContent(mediumTitle, medium, mediumThumbnail) {
+      var mediumThumbnailContent = document.createElement('div');
+      mediumThumbnailContent.className = "medium_thumbnail__content";
+      mediumThumbnailContent.innerHTML = "\n            <h2 class=\"medium_title\">".concat(mediumTitle, "</h2>\n            <div class=\"price_and_likes\">\n              <span class=\"medium_price\">").concat(medium.price, "\u20AC</span>\n              <span class=\"medium_number_of_likes\">").concat(medium.likes, "</span>\n              <label class=\"checkbox__like\"> \n                <input type=\"checkbox\" class=\"checkbox__input\" name=\"like\">\n                    <i class=\"far fa-heart like__unchecked\"></i>\n                    <i class=\"fas fa-heart like__checked\"></i>\n                </input>   \n                </label>\n            </div>\n          </div>");
+      mediumThumbnail.appendChild(mediumThumbnailContent);
+    }
+  }, {
+    key: "createMediumDisplay",
+    value: function createMediumDisplay(medium, currentPhotographer, mediumTitle, className) {
       var mediumThumbnail = document.createElement('div');
-      mediumThumbnail.className = "medium_thumbnail";
-      var mediumType = this.getMediumType(tmpMedium);
+      mediumThumbnail.className = className;
+      var mediumType = this.getMediumType(this.getMediumFile(medium));
 
       switch (mediumType) {
         case this.mediaEnum.PICTURE:
-          tmpMedium = String(medium.image);
-          mediumThumbnail.innerHTML = "<img class=\"medium_thumbnail__miniature\" \n                src=\"/static/".concat(currentPhotographer.name.split(' ')[0], "/").concat(tmpMedium, "\"\n                alt=\"").concat(mediumTitle, "\"/>");
-          break;
+          {
+            var _tmpMedium = String(medium.image);
+
+            mediumThumbnail.innerHTML = "<img class=\"".concat(className, "__miniature\" \n                src=\"/static/").concat(currentPhotographer.name.split(' ')[0], "/").concat(_tmpMedium, "\"\n                alt=\"").concat(mediumTitle, "\"/>");
+            break;
+          }
 
         case this.mediaEnum.VIDEO:
-          tmpMedium = String(medium.video);
-          mediumThumbnail.innerHTML = "\n                <video id=\"medium_thumbnail__miniature\" title=\"".concat(mediumTitle, "\" controls>\n                <source src=\"/static/").concat(currentPhotographer.name.split(' ')[0], "/").concat(tmpMedium, "\">\n                type=\"video/mp4\">\n                </video>");
-          break;
+          {
+            var _tmpMedium2 = String(medium.video);
+
+            mediumThumbnail.innerHTML = "\n                <video id=\"".concat(className, "__miniature\" title=\"").concat(mediumTitle, "\" controls>\n                <source src=\"/static/").concat(currentPhotographer.name.split(' ')[0], "/").concat(_tmpMedium2, "\">\n                type=\"video/mp4\">\n                </video>");
+            break;
+          }
 
         default:
           tmpMedium = String("");
       }
 
-      var mediumThumbnailContent = document.createElement('div');
-      mediumThumbnailContent.className = "medium_thumbnail__content";
-      mediumThumbnailContent.innerHTML = "\n            <h2 class=\"medium_title\">".concat(mediumTitle, "</h2>\n            <div class=\"price_and_likes\">\n              <span class=\"medium_price\">").concat(medium.price, "\u20AC</span>\n              <span class=\"medium_number_of_likes\">").concat(medium.likes, "</span>\n              <button class=\"like\">\n              <i class=\"fas fa-heart\"></i>\n              </button>\n            </div>\n          </div>\n            ");
-      mediumThumbnail.appendChild(mediumThumbnailContent);
       return mediumThumbnail;
+    }
+  }, {
+    key: "getMediumFile",
+    value: function getMediumFile(medium) {
+      var tmpMedium = medium.image;
+
+      if (tmpMedium == null) {
+        tmpMedium = medium.video;
+      }
+
+      return tmpMedium;
     }
   }]);
 
@@ -214,7 +234,354 @@ var MediaFactory = /*#__PURE__*/function () {
 }();
 
 exports.MediaFactory = MediaFactory;
-},{}],"scripts/factory/PhotographerPageBuilder.js":[function(require,module,exports) {
+},{}],"scripts/factory/ContactModal.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ContactModal = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var ContactModal = /*#__PURE__*/function () {
+  function ContactModal(currentPhotographer) {
+    _classCallCheck(this, ContactModal);
+
+    this.currentPhotographer = currentPhotographer;
+  } //modal creation 
+
+
+  _createClass(ContactModal, [{
+    key: "renderContactModal",
+    value: function renderContactModal() {
+      this.createContactModal();
+      this.createContactModalBody();
+      this.contactModal = document.querySelector('.contact_modal');
+    }
+  }, {
+    key: "createContactModal",
+    value: function createContactModal() {
+      var contactModal = document.createElement('div');
+      contactModal.className = 'contact_modal';
+      document.querySelector('main').appendChild(contactModal);
+    }
+  }, {
+    key: "createContactModalBody",
+    value: function createContactModalBody() {
+      var modalBody = document.createElement('div');
+      modalBody.className = 'contact_modal__body';
+      this.appendModalTitle(modalBody);
+      this.appendCloseButton(modalBody);
+      this.appendContactForm(modalBody);
+      this.createModalButton(modalBody);
+      document.querySelector('.contact_modal').appendChild(modalBody);
+    }
+  }, {
+    key: "appendModalTitle",
+    value: function appendModalTitle(modalBody) {
+      var modalTitle = document.createElement('h2');
+      modalTitle.className = 'contact_modal__body__title';
+      modalTitle.innerHTML = "Contactez-moi </br> ".concat(this.currentPhotographer.name);
+      modalBody.appendChild(modalTitle);
+    }
+  }, {
+    key: "appendCloseButton",
+    value: function appendCloseButton(modalBody) {
+      var _this = this;
+
+      var closeButton = document.createElement('button');
+      closeButton.className = 'close_button';
+      closeButton.innerHTML = "<i class=\"fas fa-times fa-3x\"></i>";
+      closeButton.addEventListener('click', function () {
+        _this.hideContactModal();
+      });
+      modalBody.appendChild(closeButton);
+    }
+  }, {
+    key: "appendContactForm",
+    value: function appendContactForm(modalBody) {
+      var contactForm = document.createElement('form');
+      contactForm.className = 'contact_form';
+      contactForm.setAttribute = ("method", "post");
+      contactForm.setAttribute = ("action", "submit");
+      this.createFormFields(contactForm);
+      this.addEventListenerOnInputs(contactForm);
+      modalBody.appendChild(contactForm);
+    }
+  }, {
+    key: "createFormFields",
+    value: function createFormFields(contactForm) {
+      //Firstname
+      var formData = this.createFormData();
+      formData.appendChild(this.createLabel("firstname", "Prénom"));
+      formData.appendChild(this.createInputField("firstname"));
+      contactForm.appendChild(formData); //Lastname
+
+      formData = this.createFormData();
+      formData.appendChild(this.createLabel("lastname", "Nom"));
+      formData.appendChild(this.createInputField("lastname"));
+      contactForm.appendChild(formData); //Email
+
+      formData = this.createFormData();
+      formData.appendChild(this.createLabel("email", "Email"));
+      formData.appendChild(this.createInputField("email"));
+      contactForm.appendChild(formData); //Message
+
+      formData = this.createFormData();
+      formData.appendChild(this.createLabel("message", "Votre message"));
+      formData.appendChild(this.createTextArea("message"));
+      contactForm.appendChild(formData);
+    }
+  }, {
+    key: "createFormData",
+    value: function createFormData() {
+      var formData = document.createElement('div');
+      formData.className = 'formData';
+      formData.innerHTML = "";
+      return formData;
+    }
+  }, {
+    key: "createLabel",
+    value: function createLabel(forParam, textParam) {
+      var label = document.createElement('label');
+      label.setAttribute("for", forParam);
+      label.innerHTML = "".concat(textParam);
+      return label;
+    }
+  }, {
+    key: "createInputField",
+    value: function createInputField(id) {
+      var inputField = document.createElement('input');
+      inputField.className = 'input_field';
+      inputField.type = "text";
+      inputField.setAttribute("id", id);
+      return inputField;
+    }
+  }, {
+    key: "createTextArea",
+    value: function createTextArea(id) {
+      var textAreaInput = document.createElement('textarea');
+      textAreaInput.className = 'input_field';
+      textAreaInput.setAttribute("id", id);
+      textAreaInput.setAttribute("rows", 5);
+      return textAreaInput;
+    }
+  }, {
+    key: "createModalButton",
+    value: function createModalButton(modalBody) {
+      var modalButton = document.createElement('button');
+      modalButton.className = 'button_contact submit_button';
+      modalButton.innerHTML = "Envoyer";
+      modalBody.appendChild(modalButton);
+    }
+  }, {
+    key: "showContactModal",
+    value: function showContactModal() {
+      this.contactModal.style.display = "block";
+    }
+  }, {
+    key: "hideContactModal",
+    value: function hideContactModal() {
+      this.contactModal.style.display = "none";
+    } //fields validation 
+    //error message is displayed when field is invalid	
+
+  }, {
+    key: "showErrorMessage",
+    value: function showErrorMessage(field, message) {
+      field.setAttribute('data-error', message);
+      field.setAttribute('data-error-visible', 'true');
+    } //error message is hidden 
+
+  }, {
+    key: "hideErrorMessage",
+    value: function hideErrorMessage(field) {
+      field.removeAttribute('data-error');
+      field.removeAttribute('data-error-visible');
+    }
+  }, {
+    key: "validateFieldsFormat",
+    value: function validateFieldsFormat(text) {
+      var fieldFormat = /^[A-Za-z\-\sàáâãäåçèéêëìíîïðòóôõöùúûüýÿ']{2,}$/;
+      var emailAddressFormat = /\S+@\S+\.\S+/;
+      var inputs = document.querySelectorAll('.input_field');
+      inputs.forEach(function (input) {
+        if (input.id === "email") {
+          if (text.length != 0 && emailAddressFormat.test(text)) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          if (text.length != 0 && fieldFormat.test(text)) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      });
+    }
+  }, {
+    key: "addEventListenerOnInputs",
+    value: function addEventListenerOnInputs(contactForm) {
+      var _this2 = this;
+
+      var inputs = contactForm.querySelectorAll('.input_field');
+      inputs.forEach(function (input) {
+        input.addEventListener('blur', function () {
+          if (_this2.validateFieldsFormat(input.value) === true) {
+            _this2.hideErrorMessage(input.parentElement);
+          } else {
+            console.log("input ".concat(input.id, " got an error"));
+
+            _this2.showErrorMessage(input.parentElement, 'Veuillez entrer au moins 2 caractères');
+          }
+        });
+      });
+    }
+  }, {
+    key: "submitForm",
+    value: function submitForm() {
+      var _this3 = this;
+
+      var form = document.querySelector('.contact_form');
+      form.addEventListener('submit', function () {
+        e.preventDefault();
+        console.log(inputs);
+
+        _this3.hideContactModal();
+      });
+    }
+  }]);
+
+  return ContactModal;
+}();
+
+exports.ContactModal = ContactModal;
+},{}],"scripts/factory/LightboxMedia.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.LightboxMedia = void 0;
+
+var _MediaFactory = require("./MediaFactory");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var LightboxMedia = /*#__PURE__*/function () {
+  function LightboxMedia(allMedia, currentPhotographer) {
+    _classCallCheck(this, LightboxMedia);
+
+    this.allMedia = allMedia;
+    this.currentPhotographer = currentPhotographer;
+    this.mediaFactory = new _MediaFactory.MediaFactory();
+  }
+
+  _createClass(LightboxMedia, [{
+    key: "renderLightboxMedia",
+    value: function renderLightboxMedia() {
+      this.createLightboxMedia();
+      this.createLightboxMediaBody();
+      this.lightboxMedia = document.querySelector('.lightbox_media');
+    }
+  }, {
+    key: "createLightboxMedia",
+    value: function createLightboxMedia() {
+      var lightboxMedia = document.createElement('div');
+      lightboxMedia.className = 'lightbox_media';
+      document.querySelector('main').appendChild(lightboxMedia);
+    }
+  }, {
+    key: "createLightboxMediaBody",
+    value: function createLightboxMediaBody() {
+      var lightboxBody = document.createElement('div');
+      lightboxBody.className = 'lightbox_media__body';
+      this.appendCloseButton(lightboxBody);
+      this.appendPreviousButton(lightboxBody);
+      this.appendMediumBox(lightboxBody);
+      this.appendNextButton(lightboxBody);
+      document.querySelector('.lightbox_media').appendChild(lightboxBody);
+    }
+  }, {
+    key: "appendCloseButton",
+    value: function appendCloseButton(lightboxBody) {
+      var _this = this;
+
+      var closeButton = document.createElement('button');
+      closeButton.className = 'close_button_lightbox';
+      closeButton.innerHTML = "<i class=\"fas fa-times fa-3x\"></i>";
+      closeButton.addEventListener('click', function () {
+        _this.hideLightboxMedia();
+      });
+      lightboxBody.appendChild(closeButton);
+    }
+  }, {
+    key: "appendPreviousButton",
+    value: function appendPreviousButton(lightboxBody) {
+      var previousButton = document.createElement('button');
+      previousButton.className = 'previous_button';
+      previousButton.innerHTML = "<i class=\"fas fa-chevron-left fa-3x\"></i>";
+      lightboxBody.appendChild(previousButton);
+    }
+  }, {
+    key: "appendMediumBox",
+    value: function appendMediumBox(lightboxBody) {
+      var mediumBox = document.createElement('div');
+      mediumBox.className = "medium_box";
+      lightboxBody.appendChild(mediumBox);
+    }
+  }, {
+    key: "appendMedium",
+    value: function appendMedium() {}
+  }, {
+    key: "appendNextButton",
+    value: function appendNextButton(lightboxBody) {
+      var nextButton = document.createElement('button');
+      nextButton.className = 'next_button';
+      nextButton.innerHTML = "<i class=\"fas fa-chevron-right fa-3x\"></i>";
+      lightboxBody.appendChild(nextButton);
+    }
+  }, {
+    key: "showLightboxMedia",
+    value: function showLightboxMedia(medium, currentPhotographer, title) {
+      this.removeLightboxMedium();
+      var lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium");
+      document.querySelector('.medium_box').appendChild(lightboxMedium);
+      this.lightboxMedia.style.display = "block";
+    }
+  }, {
+    key: "hideLightboxMedia",
+    value: function hideLightboxMedia() {
+      this.lightboxMedia.style.display = "none";
+    }
+  }, {
+    key: "removeLightboxMedium",
+    value: function removeLightboxMedium() {
+      var mainNode = document.querySelector('.medium_box');
+
+      for (var index = mainNode.childNodes.length - 1; index >= 0; index--) {
+        var child = mainNode.childNodes[index];
+        mainNode.removeChild(child);
+      }
+    }
+  }]);
+
+  return LightboxMedia;
+}();
+
+exports.LightboxMedia = LightboxMedia;
+},{"./MediaFactory":"scripts/factory/MediaFactory.js"}],"scripts/factory/PhotographerPageBuilder.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -223,6 +590,10 @@ Object.defineProperty(exports, "__esModule", {
 exports.PhotographerPageBuilder = void 0;
 
 var _MediaFactory = require("./MediaFactory");
+
+var _ContactModal = require("./ContactModal");
+
+var _LightboxMedia = require("./LightboxMedia");
 
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
 
@@ -246,8 +617,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var mediaFactory = new _MediaFactory.MediaFactory();
-
 var PhotographerPageBuilder = /*#__PURE__*/function () {
   function PhotographerPageBuilder(props) {
     _classCallCheck(this, PhotographerPageBuilder);
@@ -263,6 +632,7 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
 
     this.allMedia = [];
     this.photographerTags = [];
+    this.mediaFactory = new _MediaFactory.MediaFactory();
   }
 
   _createClass(PhotographerPageBuilder, [{
@@ -278,9 +648,15 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
 
         _this.renderHeader();
 
-        _this.renderBanner();
-
         _this.renderMain();
+
+        _this.contactModal = new _ContactModal.ContactModal(_this.currentPhotographer);
+
+        _this.contactModal.renderContactModal();
+
+        _this.lightboxMedia = new _LightboxMedia.LightboxMedia(_this.allMedia, _this.currentPhotographer);
+
+        _this.lightboxMedia.renderLightboxMedia();
       });
     }
   }, {
@@ -288,8 +664,8 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
     value: function renderHeader() {
       var header = this.createHeader();
       this.appendLogo(header);
-      var banner = document.querySelector(".banner");
-      document.querySelector('body').insertBefore(header, banner);
+      var main = document.querySelector("main");
+      document.querySelector('body').insertBefore(header, main);
     }
   }, {
     key: "createHeader",
@@ -336,27 +712,28 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       });
     }
   }, {
+    key: "renderMain",
+    value: function renderMain() {
+      this.renderBanner();
+      this.renderSummary();
+      this.renderDropdown();
+      this.sortBy(this.SortEnum.POPULARITY);
+    }
+  }, {
     key: "renderBanner",
     value: function renderBanner() {
+      this.createBanner();
       this.createBannerContent();
       this.createBannerButton();
       this.createBannerPicture();
     }
   }, {
-    key: "createBannerPicture",
-    value: function createBannerPicture() {
-      var bannerPicture = document.createElement('div');
-      bannerPicture.className = 'photographer__picture';
-      bannerPicture.innerHTML = "\n            <img\n                class=\"photographer_thumbnail__picture picture_profile\"\n                src=\"/static/Photographers ID Photos/".concat(this.currentPhotographer.portrait, "\"\n                alt=\"photographer's thumbnail picture\"\n              />");
-      document.querySelector('.banner').appendChild(bannerPicture);
-    }
-  }, {
-    key: "createBannerButton",
-    value: function createBannerButton() {
-      var contactButton = document.createElement('button');
-      contactButton.className = 'button_contact';
-      contactButton.innerHTML = "Contactez-moi";
-      document.querySelector('.banner').appendChild(contactButton);
+    key: "createBanner",
+    value: function createBanner() {
+      var banner = document.createElement('div');
+      banner.className = 'banner';
+      banner.innerHTML = "";
+      document.querySelector('main').appendChild(banner);
     }
   }, {
     key: "createBannerContent",
@@ -364,8 +741,8 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       var bannerContent = document.createElement('div');
       bannerContent.className = 'banner__text_content';
       bannerContent.innerHTML = "\n\n            <h2 class=\"photographer_name\">".concat(this.currentPhotographer.name, "</h2>\n            <h3 class=\"photographer_location\">").concat(this.currentPhotographer.city, ", ").concat(this.currentPhotographer.country, "</h3>\n            <p class=\"photographer_desc\">").concat(this.currentPhotographer.tagline, "</p>\n            \n            <div class=\"tags tags_photographer_page\">\n            </div>");
-      this.appendBannerContentTags(bannerContent);
       document.querySelector('.banner').appendChild(bannerContent);
+      this.appendBannerContentTags(bannerContent);
     }
   }, {
     key: "appendBannerContentTags",
@@ -375,12 +752,10 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       this.currentPhotographer.tags.forEach(function (photographerTag) {
         var tag = document.createElement('a');
         tag.className = 'tags__item';
-        tag.innerHTML = "\n         <span>#".concat(photographerTag, "</span>");
+        tag.innerHTML = "<span>#".concat(photographerTag, "</span>");
         bannerContent.querySelector('.tags').appendChild(tag);
         tag.addEventListener('click', function () {
-          console.log('u clicked');
-
-          _this4.photographerTags.push(tag);
+          _this4.photographerTags.push(photographerTag);
 
           _this4.photographerTags = _toConsumableArray(new Set(_this4.photographerTags));
 
@@ -388,29 +763,6 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
         });
       });
     }
-  }, {
-    key: "renderMain",
-    value: function renderMain() {
-      this.generateSummary();
-      this.renderDropdown();
-      this.sortBy(this.SortEnum.POPULARITY);
-    }
-  }, {
-    key: "createMediumThumbnail",
-    value: function createMediumThumbnail(medium) {
-      var mediumThumbnail = mediaFactory.renderMedium(medium, this.currentPhotographer);
-      var main = document.querySelector('main');
-      main.appendChild(mediumThumbnail);
-      this.incrementNumberOfLikes(mediumThumbnail);
-    } // sortByTag(tag) {
-    //     this.currentPhotographer.tags.forEach(tag => {
-    //         tag.addEventListener('click', () => {
-    //             console.log('u cliked')
-    //             
-    //         });
-    //     });
-    // }
-
   }, {
     key: "handleTagClick",
     value: function handleTagClick() {
@@ -425,43 +777,114 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       var selectedMedia = [];
       this.photographerTags.forEach(function (clickedPhotographerTag) {
         _this5.allMedia.forEach(function (medium) {
-          if (medium == clickedPhotographerTag) {
-            selectedMedia.push(medium);
-          }
+          medium.tags.forEach(function (tag) {
+            if (tag == clickedPhotographerTag) {
+              selectedMedia.push(medium);
+            }
+          });
         });
       });
       selectedMedia = _toConsumableArray(new Set(selectedMedia));
-      this.createMediumThumbnail(selectedMedia);
+      selectedMedia.forEach(function (selectedMedium) {
+        _this5.createMediumThumbnail(selectedMedium);
+      });
     }
   }, {
-    key: "incrementNumberOfLikes",
-    value: function incrementNumberOfLikes(mediumThumbnail) {
-      var likeButton = mediumThumbnail.querySelector('.like');
-      var mediumLikes = mediumThumbnail.querySelector('.medium_number_of_likes');
-      var totalLikes = document.querySelector('.total_number_of_likes');
-      likeButton.addEventListener('click', function () {
-        mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
-        totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
+    key: "createBannerButton",
+    value: function createBannerButton() {
+      var _this6 = this;
+
+      var contactButton = document.createElement('button');
+      contactButton.className = 'button_contact';
+      contactButton.innerHTML = "Contactez-moi";
+      contactButton.addEventListener('click', function () {
+        _this6.launchContactModal();
       });
+      document.querySelector('.banner').appendChild(contactButton);
+    }
+  }, {
+    key: "createBannerPicture",
+    value: function createBannerPicture() {
+      var bannerPicture = document.createElement('div');
+      bannerPicture.className = 'photographer__picture';
+      bannerPicture.innerHTML = "\n            <img\n                class=\"photographer_thumbnail__picture picture_profile\"\n                src=\"/static/Photographers ID Photos/".concat(this.currentPhotographer.portrait, "\"\n                alt=\"photographer's thumbnail picture\"\n              />");
+      document.querySelector('.banner').appendChild(bannerPicture);
+    }
+  }, {
+    key: "launchContactModal",
+    value: function launchContactModal() {
+      this.contactModal.showContactModal();
     } //sticker photographer total number of likes and price
 
   }, {
-    key: "generateSummary",
-    value: function generateSummary() {
+    key: "renderSummary",
+    value: function renderSummary() {
+      var summary = this.createSummary();
+      this.createTotalLikes(summary);
+      this.createPhotographerPrice(summary);
+    }
+  }, {
+    key: "createSummary",
+    value: function createSummary() {
+      var stickerSummary = document.createElement('div');
+      stickerSummary.className = 'sticker_summary';
+      stickerSummary.innerHTML = "";
+      document.querySelector('main').appendChild(stickerSummary);
+      return stickerSummary;
+    }
+  }, {
+    key: "createTotalLikes",
+    value: function createTotalLikes(summary) {
       var numberOfLikes = 0;
       this.allMedia.forEach(function (medium) {
         numberOfLikes = numberOfLikes + medium.likes;
       });
       var totalNumberOfLikes = document.createElement('div');
       totalNumberOfLikes.className = "total_likes";
-      totalNumberOfLikes.innerHTML = "\n        <p class=\"total_number_of_likes\">" + numberOfLikes + "</p>\n        <i class=\"fas fa-heart fa-lg\"></i>\n          \n        ";
-      var summary = document.querySelector('.sticker_summary');
+      totalNumberOfLikes.innerHTML = "\n        <p class=\"total_number_of_likes\">" + numberOfLikes + "</p>\n        <i class=\"fas fa-heart fa-lg\"></i>";
       summary.appendChild(totalNumberOfLikes);
+    }
+  }, {
+    key: "incrementNumberOfLikes",
+    value: function incrementNumberOfLikes(mediumThumbnail) {
+      var likeButton = mediumThumbnail.querySelector('.checkbox__input');
+      var mediumLikes = mediumThumbnail.querySelector('.medium_number_of_likes');
+      var totalLikes = document.querySelector('.total_number_of_likes');
+      likeButton.addEventListener('change', function () {
+        if (likeButton.checked) {
+          mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
+          totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
+        } else {
+          mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) - 1;
+          totalLikes.innerHTML = parseInt(totalLikes.innerHTML) - 1;
+        }
+      });
+    }
+  }, {
+    key: "createMediumThumbnail",
+    value: function createMediumThumbnail(medium) {
+      var _this7 = this;
+
+      var mediumThumbnail = this.mediaFactory.renderMedium(medium, this.currentPhotographer);
+      mediumThumbnail.addEventListener('click', function () {
+        var title = mediumThumbnail.querySelector(".medium_thumbnail__miniature").getAttribute("alt");
+
+        _this7.lightboxMedia.showLightboxMedia(medium, _this7.currentPhotographer, title);
+      });
+      var main = document.querySelector('main');
+      main.appendChild(mediumThumbnail);
+      this.incrementNumberOfLikes(mediumThumbnail);
+    } // countTotalLikes() {
+    // }
+
+  }, {
+    key: "createPhotographerPrice",
+    value: function createPhotographerPrice(stickerSummary) {
       var price = this.currentPhotographer.price;
       var photographerPrice = document.createElement('div');
       photographerPrice.className = "photographer_price";
       photographerPrice.innerHTML = price + "€/jour";
-      summary.appendChild(photographerPrice);
+      stickerSummary.appendChild(photographerPrice);
     }
   }, {
     key: "removeAllThumbnails",
@@ -470,25 +893,29 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
 
       for (var index = mainNode.childNodes.length - 1; index >= 0; index--) {
         var child = mainNode.childNodes[index];
-        mainNode.removeChild(child);
+
+        if (child.className == "medium_thumbnail") {
+          mainNode.removeChild(child);
+        }
       }
     }
   }, {
     key: "renderDropdown",
     value: function renderDropdown() {
-      var _this6 = this;
+      var _this8 = this;
 
+      this.createDropdownMenu();
       this.createSortByText();
       this.createDropdown();
       var dropdrownButton = document.querySelector('.dropdown__button');
       var dropdrownContent = document.querySelector('.dropdown__content');
       dropdrownButton.addEventListener('click', function () {
-        if (_this6.isDropdownVisible == false) {
+        if (_this8.isDropdownVisible == false) {
           dropdrownContent.style.display = "block";
-          _this6.isDropdownVisible = true; //content visibility state 
+          _this8.isDropdownVisible = true; //content visibility state 
         } else {
           dropdrownContent.style.display = "none";
-          _this6.isDropdownVisible = false;
+          _this8.isDropdownVisible = false;
         }
       });
       var dropdownItems = document.getElementsByClassName("dropdown__content__item");
@@ -500,7 +927,7 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
         var _loop = function _loop() {
           var item = _step.value;
           item.addEventListener('click', function () {
-            _this6.handleDropdownItemClick(dropdrownButton, item);
+            _this8.handleDropdownItemClick(dropdrownButton, item);
           });
         };
 
@@ -514,12 +941,13 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       }
     }
   }, {
-    key: "createDropdown",
-    value: function createDropdown() {
-      var dropdown = document.createElement('div');
-      dropdown.className = "dropdown";
-      dropdown.innerHTML = "\n        <button class=\"dropdown__button\">".concat(this.SortEnum.POPULARITY, "</button>\n        <div class=\"dropdown__content\">\n            <a class=\"dropdown__content__item\" href=\"#\">").concat(this.SortEnum.DATE, "</a>\n            <a class=\"dropdown__content__item\" href=\"#\">").concat(this.SortEnum.TITLE, "</a>\n      </div>");
-      document.querySelector('.dropdown_menu').appendChild(dropdown);
+    key: "createDropdownMenu",
+    value: function createDropdownMenu() {
+      var dropdownMenu = document.createElement('div');
+      dropdownMenu.className = "dropdown_menu";
+      dropdownMenu.innerHTML = "";
+      var main = document.querySelector('main');
+      main.appendChild(dropdownMenu);
     }
   }, {
     key: "createSortByText",
@@ -528,6 +956,14 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       sortBy.className = 'sort_by';
       sortBy.innerHTML = "Trier par";
       document.querySelector('.dropdown_menu').appendChild(sortBy);
+    }
+  }, {
+    key: "createDropdown",
+    value: function createDropdown() {
+      var dropdown = document.createElement('div');
+      dropdown.className = "dropdown";
+      dropdown.innerHTML = "\n        <button class=\"dropdown__button\">".concat(this.SortEnum.POPULARITY, "</button>\n        <div class=\"dropdown__content\">\n            <a class=\"dropdown__content__item\" href=\"#\">").concat(this.SortEnum.DATE, "</a>\n            <a class=\"dropdown__content__item\" href=\"#\">").concat(this.SortEnum.TITLE, "</a>\n      </div>");
+      document.querySelector('.dropdown_menu').appendChild(dropdown);
     }
   }, {
     key: "handleDropdownItemClick",
@@ -545,11 +981,12 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       var temporary = item.innerHTML;
       item.innerHTML = dropdrownButton.innerHTML;
       dropdrownButton.innerHTML = temporary;
-    }
+    } //a & b = media
+
   }, {
     key: "sortBy",
     value: function sortBy(sortType) {
-      var _this7 = this;
+      var _this9 = this;
 
       var sortedMedia = null;
 
@@ -572,25 +1009,14 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       }
 
       sortedMedia.forEach(function (sortedMedium) {
-        _this7.createMediumThumbnail(sortedMedium);
+        _this9.createMediumThumbnail(sortedMedium);
       });
     }
   }, {
     key: "compareTitle",
     value: function compareTitle(a, b) {
-      var aMedium = a.image;
-      var bMedium = b.image;
-
-      if (aMedium == null) {
-        aMedium = a.video;
-      }
-
-      if (bMedium == null) {
-        bMedium = b.video;
-      }
-
-      var t1 = mediaFactory.extractMediumTitle(aMedium);
-      var t2 = mediaFactory.extractMediumTitle(bMedium);
+      var t1 = this.mediaFactory.extractMediumTitle(a);
+      var t2 = this.mediaFactory.extractMediumTitle(b);
       return t1.localeCompare(t2, 'fr');
     }
   }]);
@@ -599,7 +1025,7 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
 }();
 
 exports.PhotographerPageBuilder = PhotographerPageBuilder;
-},{"./MediaFactory":"scripts/factory/MediaFactory.js"}],"scripts/factory/HomePageBuilder.js":[function(require,module,exports) {
+},{"./MediaFactory":"scripts/factory/MediaFactory.js","./ContactModal":"scripts/factory/ContactModal.js","./LightboxMedia":"scripts/factory/LightboxMedia.js"}],"scripts/factory/HomePageBuilder.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -625,13 +1051,12 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-// Nom de classe
 var HomePageBuilder = /*#__PURE__*/function () {
   function HomePageBuilder(props) {
     _classCallCheck(this, HomePageBuilder);
 
     this.dataPromise = props.json;
-    this.clickedTags = [];
+    this.clickedNavTags = [];
   } //display header and main (home page)
 
 
@@ -655,10 +1080,9 @@ var HomePageBuilder = /*#__PURE__*/function () {
       this.appendLogo(header);
       this.appendMainNav(photographers, header);
       var main = document.querySelector("main");
-      document.querySelector('body').insertBefore(header, main);
-      document.querySelector(".banner").style.display = "none";
-      document.querySelector(".dropdown_menu").style.display = "none";
-      document.querySelector(".sticker_summary").style.display = "none";
+      document.querySelector('body').insertBefore(header, main); // document.querySelector(".banner").style.display = "none";
+      // document.querySelector(".dropdown_menu").style.display = "none";
+      // document.querySelector(".sticker_summary").style.display = "none";
     }
   }, {
     key: "createHeader",
@@ -704,10 +1128,9 @@ var HomePageBuilder = /*#__PURE__*/function () {
         nav.appendChild(headerTag); //listen to clicks on main nav tags
 
         headerTag.addEventListener("click", function (event) {
-          _this2.clickedTags.push(tag);
+          _this2.clickedNavTags.push(tag);
 
-          _this2.clickedTags = _toConsumableArray(new Set(_this2.clickedTags));
-          console.log("contenu de clickedTags : " + _this2.clickedTags);
+          _this2.clickedNavTags = _toConsumableArray(new Set(_this2.clickedNavTags));
 
           _this2.handleTagClick(photographers);
         });
@@ -733,9 +1156,9 @@ var HomePageBuilder = /*#__PURE__*/function () {
     key: "sortPhotographers",
     value: function sortPhotographers(photographers) {
       var selectedPhotographers = [];
-      this.clickedTags.forEach(function (clickedTag) {
+      this.clickedNavTags.forEach(function (clickedNavTag) {
         photographers.forEach(function (photographer) {
-          if (photographer.tags.includes(clickedTag)) {
+          if (photographer.tags.includes(clickedNavTag)) {
             selectedPhotographers.push(photographer);
           }
         });
@@ -937,8 +1360,9 @@ exports.router = router;
 
 var _Router = require("./Router");
 
-window.addEventListener('hashchange', _Router.router);
-window.addEventListener('load', _Router.router);
+window.addEventListener('hashchange', _Router.router); // identifier of the URL changes
+
+window.addEventListener('load', _Router.router); // ressource has loaded
 },{"./Router":"Router.js"}],"../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -967,7 +1391,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52554" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65310" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

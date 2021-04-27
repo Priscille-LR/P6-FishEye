@@ -17,7 +17,10 @@ export class MediaFactory {
         }
     }
 
-    extractMediumTitle(tmpMedium) {
+    extractMediumTitle(medium) {
+
+        let tmpMedium = this.getMediumFile(medium)
+
         let mediumTitle = String(tmpMedium.toLowerCase());
         mediumTitle = mediumTitle.substring(0, tmpMedium.length - 4); //remove extension
         let mediumTitleArray = mediumTitle.split("_");
@@ -30,42 +33,16 @@ export class MediaFactory {
 
     renderMedium(medium, currentPhotographer) {
 
-        let tmpMedium = medium.image;
-        if (tmpMedium == null) {
-            tmpMedium = String(medium.video);
-        } else {
-            tmpMedium = String(medium.image);
-        }
+        let mediumTitle = this.extractMediumTitle(medium);
 
-        let mediumTitle = this.extractMediumTitle(tmpMedium);
+        let mediumThumbnail = this.createMediumDisplay(medium, currentPhotographer, mediumTitle, "medium_thumbnail");
+              
+        this.appendThumbnailContent(mediumTitle, medium, mediumThumbnail);
 
-        //create medium thumbnail
-        let mediumThumbnail = document.createElement('div');
-        mediumThumbnail.className = "medium_thumbnail";
+        return mediumThumbnail;
+    }
 
-        const mediumType = this.getMediumType(tmpMedium)
-
-        switch (mediumType) {
-            case this.mediaEnum.PICTURE:
-                tmpMedium = String(medium.image);
-                mediumThumbnail.innerHTML = `<img class="medium_thumbnail__miniature" 
-                src="/static/${currentPhotographer.name.split(' ')[0]}/${tmpMedium}"
-                alt="${mediumTitle}"/>`;
-                break;
-
-            case this.mediaEnum.VIDEO:
-                tmpMedium = String(medium.video);
-                mediumThumbnail.innerHTML = `
-                <video id="medium_thumbnail__miniature" title="${mediumTitle}" controls>
-                <source src="/static/${currentPhotographer.name.split(' ')[0]}/${tmpMedium}">
-                type="video/mp4">
-                </video>`;
-                break;
-            default: tmpMedium = String("");
-
-        }
-
-
+    appendThumbnailContent(mediumTitle, medium, mediumThumbnail) {
         let mediumThumbnailContent = document.createElement('div');
         mediumThumbnailContent.className = "medium_thumbnail__content";
         mediumThumbnailContent.innerHTML = `
@@ -73,15 +50,53 @@ export class MediaFactory {
             <div class="price_and_likes">
               <span class="medium_price">${medium.price}€</span>
               <span class="medium_number_of_likes">${medium.likes}</span>
-              <button class="like">
-              <i class="fas fa-heart"></i>
-              </button>
+              <label class="checkbox__like"> 
+                <input type="checkbox" class="checkbox__input" name="like">
+                    <i class="far fa-heart like__unchecked"></i>
+                    <i class="fas fa-heart like__checked"></i>
+                </input>   
+                </label>
             </div>
-          </div>
-            `;
+          </div>`;
 
         mediumThumbnail.appendChild(mediumThumbnailContent);
+    }
+
+    createMediumDisplay(medium, currentPhotographer, mediumTitle, className) {
+        let mediumThumbnail = document.createElement('div');
+        mediumThumbnail.className = className;
+        
+        const mediumType = this.getMediumType(this.getMediumFile(medium));
+
+        switch (mediumType) {
+            case this.mediaEnum.PICTURE: {
+                let tmpMedium = String(medium.image);
+                mediumThumbnail.innerHTML = `<img class="${className}__miniature" 
+                src="/static/${currentPhotographer.name.split(' ')[0]}/${tmpMedium}"
+                alt="${mediumTitle}"/>`;
+                break;
+            }
+            case this.mediaEnum.VIDEO: {
+                let tmpMedium = String(medium.video);
+                mediumThumbnail.innerHTML = `
+                <video id="${className}__miniature" title="${mediumTitle}" controls>
+                <source src="/static/${currentPhotographer.name.split(' ')[0]}/${tmpMedium}">
+                type="video/mp4">
+                </video>`;
+                break;
+            }
+            default: tmpMedium = String("");
+
+        }
         return mediumThumbnail;
+    }
+
+    getMediumFile(medium) {
+        let tmpMedium = medium.image;
+        if (tmpMedium == null) {
+            tmpMedium = medium.video;
+        }
+        return tmpMedium;
     }
 }
 

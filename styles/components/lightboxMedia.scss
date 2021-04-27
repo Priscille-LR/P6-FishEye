@@ -1,0 +1,54 @@
+@import "../utils/variables.scss";
+@import "../utils/mixins.scss";
+
+.lightbox_media {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  animation: modalOpen 500ms;
+  left: 0%;
+  top: 0%;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background-color: #ffffff;
+  &__body {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    @include desktop {
+      width: 1250px;
+      height: 1000px;
+      margin: 7rem auto;
+    }
+    .close_button_lightbox {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+    }
+    .close_button_lightbox,
+    .previous_button,
+    .next_button {
+      color: $color-primary;
+      border: none;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+    }
+    .medium_box {
+    //   width: 1050px;
+    //   height: 1000px;
+    //   border-radius: 5px;
+      .lightbox_medium {
+        width: 1050px;
+        height: 1000px;
+        border-radius: 5px;
+        &__miniature {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+    }
+  }
+}

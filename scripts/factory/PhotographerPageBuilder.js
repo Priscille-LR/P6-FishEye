@@ -1,6 +1,6 @@
 import { MediaFactory } from './MediaFactory';
-
-const mediaFactory = new MediaFactory();
+import { ContactModal } from "./ContactModal";
+import { LightboxMedia } from "./LightboxMedia";
 
 export class PhotographerPageBuilder {
 
@@ -10,11 +10,15 @@ export class PhotographerPageBuilder {
         TITLE: "Titre",
     }
 
+
     constructor(props) {
         this.jsonPromise = props.json
         this.isDropdownVisible = false //dropdown menu hidden by default
         this.allMedia = [];
         this.photographerTags = [];
+
+        this.mediaFactory = new MediaFactory();
+
     }
 
     render(id) {
@@ -24,8 +28,13 @@ export class PhotographerPageBuilder {
             this.determineCurrentPhotographerMedia(jsonData.media);
 
             this.renderHeader();
-            this.renderBanner()
-            this.renderMain()
+            this.renderMain();
+
+            this.contactModal = new ContactModal(this.currentPhotographer);
+            this.contactModal.renderContactModal();
+
+            this.lightboxMedia = new LightboxMedia(this.allMedia, this.currentPhotographer);
+            this.lightboxMedia.renderLightboxMedia();
         })
     }
 
@@ -33,8 +42,8 @@ export class PhotographerPageBuilder {
         const header = this.createHeader();
         this.appendLogo(header);
 
-        const banner = document.querySelector(".banner");
-        document.querySelector('body').insertBefore(header, banner);
+        const main = document.querySelector("main");
+        document.querySelector('body').insertBefore(header, main);
     }
 
     createHeader() {
@@ -74,10 +83,92 @@ export class PhotographerPageBuilder {
         });
     }
 
+    renderMain() {
+        this.renderBanner();
+        this.renderSummary();
+        this.renderDropdown();
+        this.sortBy(this.SortEnum.POPULARITY);
+    }
+
     renderBanner() {
+        this.createBanner();
         this.createBannerContent();
         this.createBannerButton();
         this.createBannerPicture();
+    }
+
+    createBanner() { 
+        const banner = document.createElement('div');
+        banner.className = 'banner';
+        banner.innerHTML = ``;
+        document.querySelector('main').appendChild(banner);
+    }
+
+    createBannerContent() {
+        const bannerContent = document.createElement('div');
+        bannerContent.className = 'banner__text_content';
+        bannerContent.innerHTML = `
+
+            <h2 class="photographer_name">${this.currentPhotographer.name}</h2>
+            <h3 class="photographer_location">${this.currentPhotographer.city}, ${this.currentPhotographer.country}</h3>
+            <p class="photographer_desc">${this.currentPhotographer.tagline}</p>
+            
+            <div class="tags tags_photographer_page">
+            </div>`;
+        
+        document.querySelector('.banner').appendChild(bannerContent);
+        this.appendBannerContentTags(bannerContent);
+
+    }
+
+    appendBannerContentTags(bannerContent) {
+        this.currentPhotographer.tags.forEach(photographerTag => {
+            const tag = document.createElement('a');
+            tag.className = 'tags__item';
+            tag.innerHTML = `<span>#${photographerTag}</span>`;
+            bannerContent.querySelector('.tags').appendChild(tag);
+
+            tag.addEventListener('click', () => {
+                this.photographerTags.push(photographerTag);
+                this.photographerTags = [...new Set(this.photographerTags)];
+                this.handleTagClick();
+            });
+        });
+    }
+
+    handleTagClick() {
+        this.removeAllThumbnails();
+        this.sortMedia()
+    }
+
+    sortMedia() {
+        let selectedMedia = [];
+        this.photographerTags.forEach(clickedPhotographerTag => {
+            this.allMedia.forEach(medium => {
+                medium.tags.forEach(tag => {
+                    if (tag == clickedPhotographerTag) {
+                        selectedMedia.push(medium)
+                    }
+                })
+            });
+        });
+        
+        selectedMedia = [...new Set(selectedMedia)];
+        
+        selectedMedia.forEach (selectedMedium => {
+            this.createMediumThumbnail(selectedMedium);
+        })
+    }
+
+
+    createBannerButton() {
+        const contactButton = document.createElement('button');
+        contactButton.className = 'button_contact';
+        contactButton.innerHTML = `Contactez-moi`;
+        contactButton.addEventListener('click', ()=> {
+            this.launchContactModal()});
+        document.querySelector('.banner').appendChild(contactButton);
+    
     }
 
     createBannerPicture() {
@@ -93,145 +184,103 @@ export class PhotographerPageBuilder {
         document.querySelector('.banner').appendChild(bannerPicture);
     }
 
-    createBannerButton() {
-        const contactButton = document.createElement('button');
-        contactButton.className = 'button_contact';
-        contactButton.innerHTML = `Contactez-moi`;
-        document.querySelector('.banner').appendChild(contactButton);
+    launchContactModal() {
+        this.contactModal.showContactModal();
     }
-
-    createBannerContent() {
-        const bannerContent = document.createElement('div');
-        bannerContent.className = 'banner__text_content';
-        bannerContent.innerHTML = `
-
-            <h2 class="photographer_name">${this.currentPhotographer.name}</h2>
-            <h3 class="photographer_location">${this.currentPhotographer.city}, ${this.currentPhotographer.country}</h3>
-            <p class="photographer_desc">${this.currentPhotographer.tagline}</p>
-            
-            <div class="tags tags_photographer_page">
-            </div>`;
-
-        this.appendBannerContentTags(bannerContent);
-
-        document.querySelector('.banner').appendChild(bannerContent);
-    }
-
-    appendBannerContentTags(bannerContent) {
-        this.currentPhotographer.tags.forEach(photographerTag => {
-            const tag = document.createElement('a');
-            tag.className = 'tags__item';
-            tag.innerHTML = `
-         <span>#${photographerTag}</span>`;
-            bannerContent.querySelector('.tags').appendChild(tag);
-
-
-            tag.addEventListener('click', () => {
-                console.log('u clicked')
-                this.photographerTags.push(tag);
-                this.photographerTags = [...new Set(this.photographerTags)];
-                this.handleTagClick();
-            });
-        });
-    }
-
-    renderMain() {
-        this.generateSummary()
-        this.renderDropdown()
-        this.sortBy(this.SortEnum.POPULARITY)
-    }
-
     
-    createMediumThumbnail(medium) {
-
-        const mediumThumbnail = mediaFactory.renderMedium(medium, this.currentPhotographer);
-
-        const main = document.querySelector('main');
-        main.appendChild(mediumThumbnail);
-
-        this.incrementNumberOfLikes(mediumThumbnail);
-    }
-
-    // sortByTag(tag) {
-
-    //     this.currentPhotographer.tags.forEach(tag => {
-    //         tag.addEventListener('click', () => {
-    //             console.log('u cliked')
-    //             
-                
-    //         });
-    //     });
-    // }
-
-    handleTagClick() {
-        this.removeAllThumbnails();
-        this.sortMedia()
-    }
-
-    sortMedia() {
-        let selectedMedia = [];
-        this.photographerTags.forEach(clickedPhotographerTag => {
-            this.allMedia.forEach(medium => {
-                if (medium == clickedPhotographerTag) {
-                    selectedMedia.push(medium)
-                }
-            });
-        });
-
-        selectedMedia = [...new Set(selectedMedia)];
-        this.createMediumThumbnail(selectedMedia);
-    }
-
-    incrementNumberOfLikes(mediumThumbnail) {
-        const likeButton = mediumThumbnail.querySelector('.like');
-        const mediumLikes = mediumThumbnail.querySelector('.medium_number_of_likes');
-        const totalLikes = document.querySelector('.total_number_of_likes');
-
-        likeButton.addEventListener('click', () => {
-            mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
-            totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
-
-        });
-    }
-
     //sticker photographer total number of likes and price
-    generateSummary() {
 
+    renderSummary() {
+        const summary = this.createSummary();
+        this.createTotalLikes(summary);
+        this.createPhotographerPrice(summary);
+
+    }
+
+    createSummary() {
+        const stickerSummary = document.createElement('div');
+        stickerSummary.className = 'sticker_summary';
+        stickerSummary.innerHTML = ``;
+        document.querySelector('main').appendChild(stickerSummary);
+        return stickerSummary;
+    }
+
+    createTotalLikes(summary) {
         let numberOfLikes = 0;
         this.allMedia.forEach(medium => {
             numberOfLikes = numberOfLikes + medium.likes
         });
 
-        const totalNumberOfLikes = document.createElement('div')
-        totalNumberOfLikes.className = "total_likes"
+        const totalNumberOfLikes = document.createElement('div');
+        totalNumberOfLikes.className = "total_likes";
 
         totalNumberOfLikes.innerHTML = `
         <p class="total_number_of_likes">` + numberOfLikes + `</p>
-        <i class="fas fa-heart fa-lg"></i>
-          
-        `
+        <i class="fas fa-heart fa-lg"></i>`;
 
-        const summary = document.querySelector('.sticker_summary')
-        summary.appendChild(totalNumberOfLikes)
-
-        const price = this.currentPhotographer.price;
-        const photographerPrice = document.createElement('div')
-        photographerPrice.className = "photographer_price"
-        photographerPrice.innerHTML = price + "€/jour"
-        summary.appendChild(photographerPrice)
-        
+        summary.appendChild(totalNumberOfLikes);
     }
+
+    incrementNumberOfLikes(mediumThumbnail) {
+        const likeButton = mediumThumbnail.querySelector('.checkbox__input');
+        const mediumLikes = mediumThumbnail.querySelector('.medium_number_of_likes');
+        const totalLikes = document.querySelector('.total_number_of_likes');
+
+        likeButton.addEventListener('change', () => {
+            if(likeButton.checked) {
+            mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
+            totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
+            } else {
+                mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) - 1;
+                totalLikes.innerHTML = parseInt(totalLikes.innerHTML) - 1;
+            }
+
+        });
+    }
+
+    createMediumThumbnail(medium) {
+        const mediumThumbnail = this.mediaFactory.renderMedium(medium, this.currentPhotographer);
+        mediumThumbnail.addEventListener('click', () => {
+
+            const title = mediumThumbnail.querySelector(".medium_thumbnail__miniature").getAttribute("alt");
+
+            this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, title)
+        })
+        const main = document.querySelector('main');
+        main.appendChild(mediumThumbnail);
+
+
+        this.incrementNumberOfLikes(mediumThumbnail);
+    }
+
+
+
+    // countTotalLikes() {
+        
+    // }
+    createPhotographerPrice(stickerSummary) {
+        const price = this.currentPhotographer.price;
+        const photographerPrice = document.createElement('div');
+        photographerPrice.className = "photographer_price";
+        photographerPrice.innerHTML = price + "€/jour";
+
+        stickerSummary.appendChild(photographerPrice);
+    }
+
 
     removeAllThumbnails() {
         const mainNode = document.querySelector('main')
         for (let index = mainNode.childNodes.length - 1; index >= 0 ; index--) {
             const child = mainNode.childNodes[index];
+            if (child.className == "medium_thumbnail") {  
             mainNode.removeChild(child)
+            }
         }
     }
 
     renderDropdown() {
-
+        
+        this.createDropdownMenu();
         this.createSortByText();
         this.createDropdown();
 
@@ -248,13 +297,29 @@ export class PhotographerPageBuilder {
             }
         });
 
-
         const dropdownItems = document.getElementsByClassName("dropdown__content__item");
         for (let item of dropdownItems) {
             item.addEventListener('click', () => {
                 this.handleDropdownItemClick(dropdrownButton, item);
             })
         }
+    }
+
+    
+    createDropdownMenu() {
+        const dropdownMenu = document.createElement('div');
+        dropdownMenu.className = "dropdown_menu";
+        dropdownMenu.innerHTML = ``;
+
+        const main = document.querySelector('main');
+        main.appendChild(dropdownMenu);
+    }
+
+    createSortByText() {
+        const sortBy = document.createElement('span');
+        sortBy.className = 'sort_by';
+        sortBy.innerHTML = `Trier par`;
+        document.querySelector('.dropdown_menu').appendChild(sortBy);
     }
 
     createDropdown() {
@@ -267,16 +332,10 @@ export class PhotographerPageBuilder {
             <a class="dropdown__content__item" href="#">${this.SortEnum.TITLE}</a>
       </div>`;
 
-        document.querySelector('.dropdown_menu').appendChild(dropdown);
+      document.querySelector('.dropdown_menu').appendChild(dropdown);
     }
 
-    createSortByText() {
-        const sortBy = document.createElement('span');
-        sortBy.className = 'sort_by';
-        sortBy.innerHTML = `Trier par`;
-        document.querySelector('.dropdown_menu').appendChild(sortBy);
-    }
-
+    
     handleDropdownItemClick(dropdrownButton, item) {
         dropdrownButton.click();
 
@@ -291,11 +350,12 @@ export class PhotographerPageBuilder {
         dropdrownButton.innerHTML = temporary;
     }
 
+    //a & b = media
     sortBy(sortType) {
         let sortedMedia = null;
         switch (sortType) {
             case this.SortEnum.DATE:
-                sortedMedia = this.allMedia.sort((a, b) => new Date(b.date) - new Date(a.date))
+                sortedMedia = this.allMedia.sort((a, b) => new Date(b.date) - new Date(a.date)) 
                 break;
             case this.SortEnum.POPULARITY:
                 sortedMedia = this.allMedia.sort((a, b) => b.likes - a.likes);
@@ -311,21 +371,9 @@ export class PhotographerPageBuilder {
     }
 
     compareTitle(a, b) {
-        let aMedium = a.image;
-        let bMedium = b.image;
-      
-        if (aMedium == null) {
-            aMedium = a.video
-            
-        }
-        if (bMedium == null) {
-            bMedium = b.video
-        }
-
-        const t1 = mediaFactory.extractMediumTitle(aMedium)
-        const t2 = mediaFactory.extractMediumTitle(bMedium)
+        const t1 = this.mediaFactory.extractMediumTitle(a)
+        const t2 = this.mediaFactory.extractMediumTitle(b)
         
-         
         return t1.localeCompare(t2, 'fr') 
     }
 }

@@ -5,8 +5,8 @@
 .button_contact {
   position: fixed;
   bottom: 4%;
-  left: 27%;
-  right: 27%;
+  //left: 27%;
+  //right: 27%;
   background-color: $color-primary;
   color: #fff;
   font-size: 18px;
@@ -24,17 +24,48 @@
   }
 }
 
-//button like
-.like {
-  border: none;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-  .fas {
-    color: $color-primary;
-    font-size: 13px;
-    @include desktop {
-      font-size: 20px;
-    }
+.submit_button {
+  align-self: center;
+  @include desktop {
+    align-self: flex-start;
   }
 }
+
+//button like
+
+.checkbox__like input,
+.checkbox__like .like__checked {
+  display: none;
+}
+
+.checkbox__input:checked ~ .like__checked {
+  display: inline-block;
+}
+
+.checkbox__input:checked ~ .like__unchecked {
+  display: none;
+}
+
+.far,
+.fas {
+  color: $color-primary;
+  font-size: 13px;
+  @include desktop {
+    font-size: 20px;
+  }
+}
+
+
+// .like {
+//   border: none;
+//   background: none;
+//   padding: 0;
+//   cursor: pointer;
+//   .fas {
+//     color: $color-primary;
+//     font-size: 13px;
+//     @include desktop {
+//       font-size: 20px;
+//     }
+//   }
+// }

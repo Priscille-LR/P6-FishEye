@@ -1,8 +1,7 @@
-// Nom de classe
 export class HomePageBuilder {
     constructor(props) {
         this.dataPromise = props.json
-        this.clickedTags = [];
+        this.clickedNavTags = [];
     }
 
     //display header and main (home page)
@@ -24,9 +23,9 @@ export class HomePageBuilder {
         const main = document.querySelector("main");
         document.querySelector('body').insertBefore(header, main);
 
-        document.querySelector(".banner").style.display = "none";
-        document.querySelector(".dropdown_menu").style.display = "none";
-        document.querySelector(".sticker_summary").style.display = "none";
+        // document.querySelector(".banner").style.display = "none";
+        // document.querySelector(".dropdown_menu").style.display = "none";
+        // document.querySelector(".sticker_summary").style.display = "none";
     }
 
     createHeader() {
@@ -67,9 +66,8 @@ export class HomePageBuilder {
 
             //listen to clicks on main nav tags
             headerTag.addEventListener("click", (event) => {
-                this.clickedTags.push(tag);
-                this.clickedTags = [...new Set(this.clickedTags)];
-                console.log("contenu de clickedTags : " + this.clickedTags)
+                this.clickedNavTags.push(tag);
+                this.clickedNavTags = [...new Set(this.clickedNavTags)];
                 this.handleTagClick(photographers)
             });
         });
@@ -90,9 +88,9 @@ export class HomePageBuilder {
 
     sortPhotographers(photographers) {
         let selectedPhotographers = [];
-        this.clickedTags.forEach(clickedTag => {
+        this.clickedNavTags.forEach(clickedNavTag => {
             photographers.forEach(photographer => {
-                if (photographer.tags.includes(clickedTag)) {
+                if (photographer.tags.includes(clickedNavTag)) {
                     selectedPhotographers.push(photographer)
                 }
             });
