@@ -18,7 +18,7 @@
     align-items: center;
     @include desktop {
       width: 1250px;
-      height: 1000px;
+      height: 985px;
       margin: 7rem auto;
     }
     .close_button_lightbox {
@@ -41,7 +41,7 @@
     //   border-radius: 5px;
       .lightbox_medium {
         width: 1050px;
-        height: 1000px;
+        height: 900px;
         border-radius: 5px;
         &__miniature {
           width: 100%;

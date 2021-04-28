@@ -21,10 +21,11 @@ export class MediaFactory {
 
         let tmpMedium = this.getMediumFile(medium)
 
-        let mediumTitle = String(tmpMedium.toLowerCase());
-        mediumTitle = mediumTitle.substring(0, tmpMedium.length - 4); //remove extension
-        let mediumTitleArray = mediumTitle.split("_");
-        mediumTitleArray.shift(); //remove 1st element in array 
+        let mediumTitle = tmpMedium.toLowerCase();
+        let mediumTitleArray = mediumTitle.split(".");
+        mediumTitle = mediumTitleArray[0];
+        mediumTitleArray = mediumTitle.split("_");
+        mediumTitle = mediumTitleArray.shift(); //remove 1st element in array 
         mediumTitle = mediumTitleArray.join(" "); //add elements of array into a string
         mediumTitle = mediumTitle.charAt(0).toUpperCase() + mediumTitle.slice(1);
         return mediumTitle;
@@ -62,32 +63,39 @@ export class MediaFactory {
         mediumThumbnail.appendChild(mediumThumbnailContent);
     }
 
-    createMediumDisplay(medium, currentPhotographer, mediumTitle, className) {
+    createMediumDisplay(medium, currentPhotographer, mediumTitle, className, controls = false) {
         let mediumThumbnail = document.createElement('div');
         mediumThumbnail.className = className;
         
         const mediumType = this.getMediumType(this.getMediumFile(medium));
 
+        var media;
         switch (mediumType) {
             case this.mediaEnum.PICTURE: {
                 let tmpMedium = String(medium.image);
-                mediumThumbnail.innerHTML = `<img class="${className}__miniature" 
-                src="/static/${currentPhotographer.name.split(' ')[0]}/${tmpMedium}"
-                alt="${mediumTitle}"/>`;
+                media = document.createElement('img');
+                media.src = `/static/${currentPhotographer.name.split(' ')[0]}/${tmpMedium}`;
                 break;
             }
             case this.mediaEnum.VIDEO: {
                 let tmpMedium = String(medium.video);
-                mediumThumbnail.innerHTML = `
-                <video id="${className}__miniature" title="${mediumTitle}" controls>
-                <source src="/static/${currentPhotographer.name.split(' ')[0]}/${tmpMedium}">
-                type="video/mp4">
-                </video>`;
+                media = document.createElement('video');
+                let source = document.createElement('source');
+                source.src = `/static/${currentPhotographer.name.split(' ')[0]}/${tmpMedium}`
+                source.type = "video/mp4"
+                media.controls = controls;
+                if(controls){
+                    media.autoplay = true
+                }
+                media.appendChild(source);
                 break;
             }
             default: tmpMedium = String("");
 
         }
+        media.className = `${className}__miniature`;
+        media.alt = mediumTitle;
+        mediumThumbnail.appendChild(media);
         return mediumThumbnail;
     }
 

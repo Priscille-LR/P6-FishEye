@@ -160,11 +160,11 @@ var MediaFactory = /*#__PURE__*/function () {
     key: "extractMediumTitle",
     value: function extractMediumTitle(medium) {
       var tmpMedium = this.getMediumFile(medium);
-      var mediumTitle = String(tmpMedium.toLowerCase());
-      mediumTitle = mediumTitle.substring(0, tmpMedium.length - 4); //remove extension
-
-      var mediumTitleArray = mediumTitle.split("_");
-      mediumTitleArray.shift(); //remove 1st element in array 
+      var mediumTitle = tmpMedium.toLowerCase();
+      var mediumTitleArray = mediumTitle.split(".");
+      mediumTitle = mediumTitleArray[0];
+      mediumTitleArray = mediumTitle.split("_");
+      mediumTitle = mediumTitleArray.shift(); //remove 1st element in array 
 
       mediumTitle = mediumTitleArray.join(" "); //add elements of array into a string
 
@@ -190,16 +190,19 @@ var MediaFactory = /*#__PURE__*/function () {
   }, {
     key: "createMediumDisplay",
     value: function createMediumDisplay(medium, currentPhotographer, mediumTitle, className) {
+      var controls = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
       var mediumThumbnail = document.createElement('div');
       mediumThumbnail.className = className;
       var mediumType = this.getMediumType(this.getMediumFile(medium));
+      var media;
 
       switch (mediumType) {
         case this.mediaEnum.PICTURE:
           {
             var _tmpMedium = String(medium.image);
 
-            mediumThumbnail.innerHTML = "<img class=\"".concat(className, "__miniature\" \n                src=\"/static/").concat(currentPhotographer.name.split(' ')[0], "/").concat(_tmpMedium, "\"\n                alt=\"").concat(mediumTitle, "\"/>");
+            media = document.createElement('img');
+            media.src = "/static/".concat(currentPhotographer.name.split(' ')[0], "/").concat(_tmpMedium);
             break;
           }
 
@@ -207,7 +210,17 @@ var MediaFactory = /*#__PURE__*/function () {
           {
             var _tmpMedium2 = String(medium.video);
 
-            mediumThumbnail.innerHTML = "\n                <video id=\"".concat(className, "__miniature\" title=\"").concat(mediumTitle, "\" controls>\n                <source src=\"/static/").concat(currentPhotographer.name.split(' ')[0], "/").concat(_tmpMedium2, "\">\n                type=\"video/mp4\">\n                </video>");
+            media = document.createElement('video');
+            var source = document.createElement('source');
+            source.src = "/static/".concat(currentPhotographer.name.split(' ')[0], "/").concat(_tmpMedium2);
+            source.type = "video/mp4";
+            media.controls = controls;
+
+            if (controls) {
+              media.autoplay = true;
+            }
+
+            media.appendChild(source);
             break;
           }
 
@@ -215,6 +228,9 @@ var MediaFactory = /*#__PURE__*/function () {
           tmpMedium = String("");
       }
 
+      media.className = "".concat(className, "__miniature");
+      media.alt = mediumTitle;
+      mediumThumbnail.appendChild(media);
       return mediumThumbnail;
     }
   }, {
@@ -480,7 +496,10 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var LightboxMedia = /*#__PURE__*/function () {
-  function LightboxMedia(allMedia, currentPhotographer) {
+  function LightboxMedia() {
+    var allMedia = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+    var currentPhotographer = arguments.length > 1 ? arguments[1] : undefined;
+
     _classCallCheck(this, LightboxMedia);
 
     this.allMedia = allMedia;
@@ -529,9 +548,20 @@ var LightboxMedia = /*#__PURE__*/function () {
   }, {
     key: "appendPreviousButton",
     value: function appendPreviousButton(lightboxBody) {
+      var _this2 = this;
+
       var previousButton = document.createElement('button');
       previousButton.className = 'previous_button';
       previousButton.innerHTML = "<i class=\"fas fa-chevron-left fa-3x\"></i>";
+      previousButton.addEventListener('click', function () {
+        var currentIndex = _this2.allMedia.indexOf(_this2.medium);
+
+        var newIndex = currentIndex - 1;
+
+        if (newIndex >= 0) {
+          _this2.showLightboxMedia(_this2.allMedia[newIndex], _this2.currentPhotographer, "toto", _this2.allMedia);
+        }
+      });
       lightboxBody.appendChild(previousButton);
     }
   }, {
@@ -547,16 +577,29 @@ var LightboxMedia = /*#__PURE__*/function () {
   }, {
     key: "appendNextButton",
     value: function appendNextButton(lightboxBody) {
+      var _this3 = this;
+
       var nextButton = document.createElement('button');
       nextButton.className = 'next_button';
       nextButton.innerHTML = "<i class=\"fas fa-chevron-right fa-3x\"></i>";
+      nextButton.addEventListener('click', function () {
+        var currentIndex = _this3.allMedia.indexOf(_this3.medium);
+
+        var newIndex = currentIndex + 1;
+
+        if (newIndex <= _this3.allMedia.length - 1) {
+          _this3.showLightboxMedia(_this3.allMedia[newIndex], _this3.currentPhotographer, "toto", _this3.allMedia);
+        }
+      });
       lightboxBody.appendChild(nextButton);
     }
   }, {
     key: "showLightboxMedia",
-    value: function showLightboxMedia(medium, currentPhotographer, title) {
+    value: function showLightboxMedia(medium, currentPhotographer, title, allMedia) {
+      this.allMedia = allMedia;
+      this.medium = medium;
       this.removeLightboxMedium();
-      var lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium");
+      var lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium", true);
       document.querySelector('.medium_box').appendChild(lightboxMedium);
       this.lightboxMedia.style.display = "block";
     }
@@ -723,7 +766,7 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
     key: "renderBanner",
     value: function renderBanner() {
       this.createBanner();
-      this.createBannerContent();
+      this.renderBannerContent();
       this.createBannerButton();
       this.createBannerPicture();
     }
@@ -732,28 +775,67 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
     value: function createBanner() {
       var banner = document.createElement('div');
       banner.className = 'banner';
-      banner.innerHTML = "";
       document.querySelector('main').appendChild(banner);
+    }
+  }, {
+    key: "renderBannerContent",
+    value: function renderBannerContent() {
+      var bannerContent = this.createBannerContent();
+      this.appendBannerName(bannerContent);
+      this.appendBannerLocation(bannerContent);
+      this.appendBannerDesc(bannerContent);
+      this.appendBannerTags(bannerContent);
+      this.appendBannerContentTags(bannerContent);
     }
   }, {
     key: "createBannerContent",
     value: function createBannerContent() {
       var bannerContent = document.createElement('div');
       bannerContent.className = 'banner__text_content';
-      bannerContent.innerHTML = "\n\n            <h2 class=\"photographer_name\">".concat(this.currentPhotographer.name, "</h2>\n            <h3 class=\"photographer_location\">").concat(this.currentPhotographer.city, ", ").concat(this.currentPhotographer.country, "</h3>\n            <p class=\"photographer_desc\">").concat(this.currentPhotographer.tagline, "</p>\n            \n            <div class=\"tags tags_photographer_page\">\n            </div>");
       document.querySelector('.banner').appendChild(bannerContent);
-      this.appendBannerContentTags(bannerContent);
+      return bannerContent;
+    }
+  }, {
+    key: "appendBannerName",
+    value: function appendBannerName(bannerContent) {
+      var bannerTitle = document.createElement('h2');
+      bannerTitle.className = 'photographer_name';
+      bannerTitle.innerHTML = this.currentPhotographer.name;
+      bannerContent.appendChild(bannerTitle);
+    }
+  }, {
+    key: "appendBannerLocation",
+    value: function appendBannerLocation(bannerContent) {
+      var bannerLocation = document.createElement('h3');
+      bannerLocation.className = 'photographer_location';
+      bannerLocation.innerHTML = "".concat(this.currentPhotographer.city, ", ").concat(this.currentPhotographer.country);
+      bannerContent.appendChild(bannerLocation);
+    }
+  }, {
+    key: "appendBannerDesc",
+    value: function appendBannerDesc(bannerContent) {
+      var bannerDesc = document.createElement('p');
+      bannerDesc.className = 'photographer_desc';
+      bannerDesc.innerHTML = this.currentPhotographer.tagline;
+      bannerContent.appendChild(bannerDesc);
+    }
+  }, {
+    key: "appendBannerTags",
+    value: function appendBannerTags(bannerContent) {
+      var bannerTags = document.createElement('div');
+      bannerTags.className = 'tags tags_photographer_page';
+      bannerContent.appendChild(bannerTags);
     }
   }, {
     key: "appendBannerContentTags",
-    value: function appendBannerContentTags(bannerContent) {
+    value: function appendBannerContentTags(bannerTags) {
       var _this4 = this;
 
       this.currentPhotographer.tags.forEach(function (photographerTag) {
         var tag = document.createElement('a');
         tag.className = 'tags__item';
         tag.innerHTML = "<span>#".concat(photographerTag, "</span>");
-        bannerContent.querySelector('.tags').appendChild(tag);
+        bannerTags.querySelector('.tags').appendChild(tag);
         tag.addEventListener('click', function () {
           _this4.photographerTags.push(photographerTag);
 
@@ -828,9 +910,17 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
     value: function createSummary() {
       var stickerSummary = document.createElement('div');
       stickerSummary.className = 'sticker_summary';
-      stickerSummary.innerHTML = "";
       document.querySelector('main').appendChild(stickerSummary);
       return stickerSummary;
+    }
+  }, {
+    key: "createPhotographerPrice",
+    value: function createPhotographerPrice(summary) {
+      var price = this.currentPhotographer.price;
+      var photographerPrice = document.createElement('div');
+      photographerPrice.className = "photographer_price";
+      photographerPrice.innerHTML = price + "€/jour";
+      summary.appendChild(photographerPrice);
     }
   }, {
     key: "createTotalLikes",
@@ -866,25 +956,15 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       var _this7 = this;
 
       var mediumThumbnail = this.mediaFactory.renderMedium(medium, this.currentPhotographer);
-      mediumThumbnail.addEventListener('click', function () {
-        var title = mediumThumbnail.querySelector(".medium_thumbnail__miniature").getAttribute("alt");
-
-        _this7.lightboxMedia.showLightboxMedia(medium, _this7.currentPhotographer, title);
-      });
       var main = document.querySelector('main');
       main.appendChild(mediumThumbnail);
-      this.incrementNumberOfLikes(mediumThumbnail);
-    } // countTotalLikes() {
-    // }
+      var mediumThumbnailMiniature = mediumThumbnail.querySelector('.medium_thumbnail__miniature');
+      mediumThumbnailMiniature.addEventListener('click', function () {
+        var title = mediumThumbnail.querySelector(".medium_thumbnail__miniature").getAttribute("alt");
 
-  }, {
-    key: "createPhotographerPrice",
-    value: function createPhotographerPrice(stickerSummary) {
-      var price = this.currentPhotographer.price;
-      var photographerPrice = document.createElement('div');
-      photographerPrice.className = "photographer_price";
-      photographerPrice.innerHTML = price + "€/jour";
-      stickerSummary.appendChild(photographerPrice);
+        _this7.lightboxMedia.showLightboxMedia(medium, _this7.currentPhotographer, title, _this7.allMedia);
+      });
+      this.incrementNumberOfLikes(mediumThumbnail);
     }
   }, {
     key: "removeAllThumbnails",
@@ -904,9 +984,10 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
     value: function renderDropdown() {
       var _this8 = this;
 
-      this.createDropdownMenu();
-      this.createSortByText();
-      this.createDropdown();
+      var dropdownMenu = this.createDropdownMenu();
+      this.appendSortByText(dropdownMenu);
+      this.appendDropdown(dropdownMenu);
+      document.querySelector('main').appendChild(dropdownMenu);
       var dropdrownButton = document.querySelector('.dropdown__button');
       var dropdrownContent = document.querySelector('.dropdown__content');
       dropdrownButton.addEventListener('click', function () {
@@ -944,26 +1025,60 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
     key: "createDropdownMenu",
     value: function createDropdownMenu() {
       var dropdownMenu = document.createElement('div');
-      dropdownMenu.className = "dropdown_menu";
-      dropdownMenu.innerHTML = "";
-      var main = document.querySelector('main');
-      main.appendChild(dropdownMenu);
+      dropdownMenu.className = "dropdown_menu"; // const main = document.querySelector('main');
+      // main.appendChild(dropdownMenu);
+
+      return dropdownMenu;
     }
   }, {
-    key: "createSortByText",
-    value: function createSortByText() {
+    key: "appendSortByText",
+    value: function appendSortByText(dropdownMenu) {
       var sortBy = document.createElement('span');
       sortBy.className = 'sort_by';
       sortBy.innerHTML = "Trier par";
-      document.querySelector('.dropdown_menu').appendChild(sortBy);
+      dropdownMenu.appendChild(sortBy);
     }
   }, {
-    key: "createDropdown",
-    value: function createDropdown() {
+    key: "appendDropdown",
+    value: function appendDropdown(dropdownMenu) {
       var dropdown = document.createElement('div');
       dropdown.className = "dropdown";
-      dropdown.innerHTML = "\n        <button class=\"dropdown__button\">".concat(this.SortEnum.POPULARITY, "</button>\n        <div class=\"dropdown__content\">\n            <a class=\"dropdown__content__item\" href=\"#\">").concat(this.SortEnum.DATE, "</a>\n            <a class=\"dropdown__content__item\" href=\"#\">").concat(this.SortEnum.TITLE, "</a>\n      </div>");
-      document.querySelector('.dropdown_menu').appendChild(dropdown);
+      this.appendDropdownButton(dropdown);
+      this.createDropdownContent(dropdown);
+      dropdownMenu.appendChild(dropdown);
+    }
+  }, {
+    key: "appendDropdownButton",
+    value: function appendDropdownButton(dropdown) {
+      var dropdownButton = document.createElement('button');
+      dropdownButton.className = 'dropdown__button';
+      dropdownButton.innerHTML = this.SortEnum.POPULARITY;
+      dropdown.appendChild(dropdownButton);
+    }
+  }, {
+    key: "createDropdownContent",
+    value: function createDropdownContent(dropdown) {
+      var dropdownContent = document.createElement('div');
+      dropdownContent.className = 'dropdown__content';
+      this.appendDropdownItemDATE(dropdownContent);
+      this.appendDropdownItemTITLE(dropdownContent);
+      dropdown.appendChild(dropdownContent);
+    }
+  }, {
+    key: "appendDropdownItemDATE",
+    value: function appendDropdownItemDATE(dropdownContent) {
+      var dropdownItemDATE = document.createElement('a');
+      dropdownItemDATE.className = 'dropdown__content__item';
+      dropdownItemDATE.innerHTML = this.SortEnum.DATE;
+      dropdownContent.appendChild(dropdownItemDATE);
+    }
+  }, {
+    key: "appendDropdownItemTITLE",
+    value: function appendDropdownItemTITLE(dropdownContent) {
+      var dropdownItemTITLE = document.createElement('a');
+      dropdownItemTITLE.className = 'dropdown__content__item';
+      dropdownItemTITLE.innerHTML = this.SortEnum.TITLE;
+      dropdownContent.appendChild(dropdownItemTITLE);
     }
   }, {
     key: "handleDropdownItemClick",
@@ -1004,10 +1119,13 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
           break;
 
         case this.SortEnum.TITLE:
-          sortedMedia = this.allMedia.sort(this.compareTitle);
+          sortedMedia = this.allMedia.sort(function (a, b) {
+            return _this9.compareTitle(a, b);
+          });
           break;
       }
 
+      console.log(sortedMedia);
       sortedMedia.forEach(function (sortedMedium) {
         _this9.createMediumThumbnail(sortedMedium);
       });

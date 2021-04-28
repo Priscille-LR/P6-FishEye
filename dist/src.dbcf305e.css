@@ -714,7 +714,7 @@ main {
 @media screen and (min-width: 1000px) {
   .lightbox_media__body {
     width: 1250px;
-    height: 1000px;
+    height: 985px;
     margin: 7rem auto;
   }
 }
@@ -734,7 +734,7 @@ main {
 }
 .lightbox_media__body .medium_box .lightbox_medium {
   width: 1050px;
-  height: 1000px;
+  height: 900px;
   border-radius: 5px;
 }
 .lightbox_media__body .medium_box .lightbox_medium__miniature {

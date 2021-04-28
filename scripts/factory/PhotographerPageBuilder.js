@@ -10,7 +10,6 @@ export class PhotographerPageBuilder {
         TITLE: "Titre",
     }
 
-
     constructor(props) {
         this.jsonPromise = props.json
         this.isDropdownVisible = false //dropdown menu hidden by default
@@ -18,7 +17,6 @@ export class PhotographerPageBuilder {
         this.photographerTags = [];
 
         this.mediaFactory = new MediaFactory();
-
     }
 
     render(id) {
@@ -92,41 +90,69 @@ export class PhotographerPageBuilder {
 
     renderBanner() {
         this.createBanner();
-        this.createBannerContent();
+        this.renderBannerContent();
         this.createBannerButton();
         this.createBannerPicture();
     }
 
-    createBanner() { 
+
+    createBanner() {
         const banner = document.createElement('div');
         banner.className = 'banner';
-        banner.innerHTML = ``;
         document.querySelector('main').appendChild(banner);
     }
+
+    renderBannerContent() {
+        const bannerContent = this.createBannerContent();
+        this.appendBannerName(bannerContent);
+        this.appendBannerLocation(bannerContent);
+        this.appendBannerDesc(bannerContent);
+        this.appendBannerTags(bannerContent);
+        this.appendBannerContentTags(bannerContent);
+    }
+
 
     createBannerContent() {
         const bannerContent = document.createElement('div');
         bannerContent.className = 'banner__text_content';
-        bannerContent.innerHTML = `
-
-            <h2 class="photographer_name">${this.currentPhotographer.name}</h2>
-            <h3 class="photographer_location">${this.currentPhotographer.city}, ${this.currentPhotographer.country}</h3>
-            <p class="photographer_desc">${this.currentPhotographer.tagline}</p>
-            
-            <div class="tags tags_photographer_page">
-            </div>`;
-        
         document.querySelector('.banner').appendChild(bannerContent);
-        this.appendBannerContentTags(bannerContent);
+        return bannerContent;
 
     }
 
-    appendBannerContentTags(bannerContent) {
+    appendBannerName(bannerContent) {
+        const bannerTitle = document.createElement('h2');
+        bannerTitle.className = 'photographer_name';
+        bannerTitle.innerHTML = this.currentPhotographer.name;
+        bannerContent.appendChild(bannerTitle);
+    }
+
+    appendBannerLocation(bannerContent) {
+        const bannerLocation = document.createElement('h3');
+        bannerLocation.className = 'photographer_location';
+        bannerLocation.innerHTML = `${this.currentPhotographer.city}, ${this.currentPhotographer.country}`;
+        bannerContent.appendChild(bannerLocation);
+    }
+
+    appendBannerDesc(bannerContent) {
+        const bannerDesc = document.createElement('p');
+        bannerDesc.className = 'photographer_desc';
+        bannerDesc.innerHTML = this.currentPhotographer.tagline;
+        bannerContent.appendChild(bannerDesc);
+    }
+
+    appendBannerTags(bannerContent) {
+        const bannerTags = document.createElement('div');
+        bannerTags.className = 'tags tags_photographer_page';
+        bannerContent.appendChild(bannerTags);
+    }
+
+    appendBannerContentTags(bannerTags) {
         this.currentPhotographer.tags.forEach(photographerTag => {
             const tag = document.createElement('a');
             tag.className = 'tags__item';
             tag.innerHTML = `<span>#${photographerTag}</span>`;
-            bannerContent.querySelector('.tags').appendChild(tag);
+            bannerTags.querySelector('.tags').appendChild(tag);
 
             tag.addEventListener('click', () => {
                 this.photographerTags.push(photographerTag);
@@ -152,10 +178,10 @@ export class PhotographerPageBuilder {
                 })
             });
         });
-        
+
         selectedMedia = [...new Set(selectedMedia)];
-        
-        selectedMedia.forEach (selectedMedium => {
+
+        selectedMedia.forEach(selectedMedium => {
             this.createMediumThumbnail(selectedMedium);
         })
     }
@@ -165,10 +191,11 @@ export class PhotographerPageBuilder {
         const contactButton = document.createElement('button');
         contactButton.className = 'button_contact';
         contactButton.innerHTML = `Contactez-moi`;
-        contactButton.addEventListener('click', ()=> {
-            this.launchContactModal()});
+        contactButton.addEventListener('click', () => {
+            this.launchContactModal()
+        });
         document.querySelector('.banner').appendChild(contactButton);
-    
+
     }
 
     createBannerPicture() {
@@ -187,7 +214,7 @@ export class PhotographerPageBuilder {
     launchContactModal() {
         this.contactModal.showContactModal();
     }
-    
+
     //sticker photographer total number of likes and price
 
     renderSummary() {
@@ -200,9 +227,17 @@ export class PhotographerPageBuilder {
     createSummary() {
         const stickerSummary = document.createElement('div');
         stickerSummary.className = 'sticker_summary';
-        stickerSummary.innerHTML = ``;
         document.querySelector('main').appendChild(stickerSummary);
         return stickerSummary;
+    }
+
+    createPhotographerPrice(summary) {
+        const price = this.currentPhotographer.price;
+        const photographerPrice = document.createElement('div');
+        photographerPrice.className = "photographer_price";
+        photographerPrice.innerHTML = price + "€/jour";
+
+        summary.appendChild(photographerPrice);
     }
 
     createTotalLikes(summary) {
@@ -227,9 +262,9 @@ export class PhotographerPageBuilder {
         const totalLikes = document.querySelector('.total_number_of_likes');
 
         likeButton.addEventListener('change', () => {
-            if(likeButton.checked) {
-            mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
-            totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
+            if (likeButton.checked) {
+                mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
+                totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
             } else {
                 mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) - 1;
                 totalLikes.innerHTML = parseInt(totalLikes.innerHTML) - 1;
@@ -240,49 +275,37 @@ export class PhotographerPageBuilder {
 
     createMediumThumbnail(medium) {
         const mediumThumbnail = this.mediaFactory.renderMedium(medium, this.currentPhotographer);
-        mediumThumbnail.addEventListener('click', () => {
 
-            const title = mediumThumbnail.querySelector(".medium_thumbnail__miniature").getAttribute("alt");
-
-            this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, title)
-        })
         const main = document.querySelector('main');
         main.appendChild(mediumThumbnail);
 
+        const mediumThumbnailMiniature = mediumThumbnail.querySelector('.medium_thumbnail__miniature');
+
+        mediumThumbnailMiniature.addEventListener('click', () => {
+            const title = mediumThumbnail.querySelector(".medium_thumbnail__miniature").getAttribute("alt");
+
+            this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, title, this.allMedia)
+        })
 
         this.incrementNumberOfLikes(mediumThumbnail);
     }
 
-
-
-    // countTotalLikes() {
-        
-    // }
-    createPhotographerPrice(stickerSummary) {
-        const price = this.currentPhotographer.price;
-        const photographerPrice = document.createElement('div');
-        photographerPrice.className = "photographer_price";
-        photographerPrice.innerHTML = price + "€/jour";
-
-        stickerSummary.appendChild(photographerPrice);
-    }
-
-
     removeAllThumbnails() {
         const mainNode = document.querySelector('main')
-        for (let index = mainNode.childNodes.length - 1; index >= 0 ; index--) {
+        for (let index = mainNode.childNodes.length - 1; index >= 0; index--) {
             const child = mainNode.childNodes[index];
-            if (child.className == "medium_thumbnail") {  
-            mainNode.removeChild(child)
+            if (child.className == "medium_thumbnail") {
+                mainNode.removeChild(child)
             }
         }
     }
 
     renderDropdown() {
-        
-        this.createDropdownMenu();
-        this.createSortByText();
-        this.createDropdown();
+
+        const dropdownMenu = this.createDropdownMenu();
+        this.appendSortByText(dropdownMenu);
+        this.appendDropdown(dropdownMenu);
+        document.querySelector('main').appendChild(dropdownMenu);
 
         const dropdrownButton = document.querySelector('.dropdown__button');
         const dropdrownContent = document.querySelector('.dropdown__content');
@@ -305,37 +328,63 @@ export class PhotographerPageBuilder {
         }
     }
 
-    
+
     createDropdownMenu() {
         const dropdownMenu = document.createElement('div');
         dropdownMenu.className = "dropdown_menu";
-        dropdownMenu.innerHTML = ``;
-
-        const main = document.querySelector('main');
-        main.appendChild(dropdownMenu);
+        // const main = document.querySelector('main');
+        // main.appendChild(dropdownMenu);
+        return dropdownMenu;
     }
 
-    createSortByText() {
+    appendSortByText(dropdownMenu) {
         const sortBy = document.createElement('span');
         sortBy.className = 'sort_by';
         sortBy.innerHTML = `Trier par`;
-        document.querySelector('.dropdown_menu').appendChild(sortBy);
+        dropdownMenu.appendChild(sortBy);
     }
 
-    createDropdown() {
+    appendDropdown(dropdownMenu) {
         const dropdown = document.createElement('div');
         dropdown.className = "dropdown";
-        dropdown.innerHTML = `
-        <button class="dropdown__button">${this.SortEnum.POPULARITY}</button>
-        <div class="dropdown__content">
-            <a class="dropdown__content__item" href="#">${this.SortEnum.DATE}</a>
-            <a class="dropdown__content__item" href="#">${this.SortEnum.TITLE}</a>
-      </div>`;
-
-      document.querySelector('.dropdown_menu').appendChild(dropdown);
+        this.appendDropdownButton(dropdown);
+        this.createDropdownContent(dropdown);
+        dropdownMenu.appendChild(dropdown);
     }
 
-    
+
+    appendDropdownButton(dropdown) {
+        const dropdownButton = document.createElement('button');
+        dropdownButton.className = 'dropdown__button';
+        dropdownButton.innerHTML = this.SortEnum.POPULARITY;
+        dropdown.appendChild(dropdownButton);
+    }
+
+    createDropdownContent(dropdown) {
+        const dropdownContent = document.createElement('div');
+        dropdownContent.className = 'dropdown__content';
+
+        this.appendDropdownItemDATE(dropdownContent);
+        this.appendDropdownItemTITLE(dropdownContent);
+
+        dropdown.appendChild(dropdownContent);
+    }
+
+    appendDropdownItemDATE(dropdownContent) {
+        const dropdownItemDATE = document.createElement('a');
+        dropdownItemDATE.className = 'dropdown__content__item';
+        dropdownItemDATE.innerHTML = this.SortEnum.DATE;
+        dropdownContent.appendChild(dropdownItemDATE);
+    }
+
+    appendDropdownItemTITLE(dropdownContent) {
+        const dropdownItemTITLE = document.createElement('a');
+        dropdownItemTITLE.className = 'dropdown__content__item';
+        dropdownItemTITLE.innerHTML = this.SortEnum.TITLE;
+        dropdownContent.appendChild(dropdownItemTITLE);
+    }
+
+
     handleDropdownItemClick(dropdrownButton, item) {
         dropdrownButton.click();
 
@@ -355,25 +404,26 @@ export class PhotographerPageBuilder {
         let sortedMedia = null;
         switch (sortType) {
             case this.SortEnum.DATE:
-                sortedMedia = this.allMedia.sort((a, b) => new Date(b.date) - new Date(a.date)) 
+                sortedMedia = this.allMedia.sort((a, b) => new Date(b.date) - new Date(a.date))
                 break;
             case this.SortEnum.POPULARITY:
                 sortedMedia = this.allMedia.sort((a, b) => b.likes - a.likes);
+                
                 break;
             case this.SortEnum.TITLE:
-                sortedMedia = this.allMedia.sort(this.compareTitle);
+                sortedMedia = this.allMedia.sort((a,b) => this.compareTitle(a,b));
                 break;
         }
-
+        console.log(sortedMedia)
         sortedMedia.forEach(sortedMedium => {
             this.createMediumThumbnail(sortedMedium)
         })
     }
 
-    compareTitle(a, b) {
+    compareTitle(a,b){
         const t1 = this.mediaFactory.extractMediumTitle(a)
         const t2 = this.mediaFactory.extractMediumTitle(b)
-        
-        return t1.localeCompare(t2, 'fr') 
+
+        return t1.localeCompare(t2, 'fr')
     }
 }

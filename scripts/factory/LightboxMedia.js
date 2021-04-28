@@ -1,7 +1,7 @@
 import { MediaFactory } from './MediaFactory';
 
 export class LightboxMedia {
-    constructor(allMedia, currentPhotographer) {
+    constructor(allMedia = [], currentPhotographer) {
         this.allMedia = allMedia;
         this.currentPhotographer = currentPhotographer;
 
@@ -48,7 +48,14 @@ export class LightboxMedia {
         const previousButton = document.createElement('button');
         previousButton.className = 'previous_button';
         previousButton.innerHTML = `<i class="fas fa-chevron-left fa-3x"></i>`;
+        previousButton.addEventListener('click', () => {
 
+            const currentIndex = this.allMedia.indexOf(this.medium);
+            const newIndex = currentIndex - 1;
+            if (newIndex >= 0 ) {
+                this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, "toto", this.allMedia)
+            }
+        })
         lightboxBody.appendChild(previousButton);
     }
     
@@ -67,13 +74,22 @@ export class LightboxMedia {
         const nextButton = document.createElement('button');
         nextButton.className = 'next_button';
         nextButton.innerHTML = `<i class="fas fa-chevron-right fa-3x"></i>`;
+        nextButton.addEventListener('click', () => {
+            const currentIndex = this.allMedia.indexOf(this.medium);
+            const newIndex = currentIndex + 1;
+            if (newIndex <= this.allMedia.length -1) {
+                this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, "toto", this.allMedia)
+            }
+        });
 
         lightboxBody.appendChild(nextButton);
     }
 
-    showLightboxMedia(medium, currentPhotographer, title) {
+    showLightboxMedia(medium, currentPhotographer, title, allMedia) {
+        this.allMedia = allMedia;
+        this.medium = medium;
         this.removeLightboxMedium();
-        const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium");
+        const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium", true);
         document.querySelector('.medium_box').appendChild(lightboxMedium);
         this.lightboxMedia.style.display = "block";
     }
