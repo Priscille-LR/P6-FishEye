@@ -6,7 +6,8 @@
   @include desktop {
     display: flex;
     align-items: center;
-    margin: 3rem;
+    width: 100%;
+    margin: 1rem 3rem;
     .sort_by {
       font-size: 18px;
       font-weight: bold;

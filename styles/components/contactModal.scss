@@ -1,0 +1,110 @@
+@import "../utils/variables.scss";
+@import "../utils/mixins.scss";
+
+.contact_modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  animation: modalOpen 500ms;
+  left: 0%;
+  top: 0%;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background-color: $color-tertiary;
+  border-radius: 5px;
+  @include desktop {
+    left: auto;
+    top: 10%;
+    height: 900px;
+    width: 670px;
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-start;
+    margin: 1.5rem;
+    &__title {
+      font-size: 36px;
+      font-weight: normal;
+      flex-wrap: wrap;
+      margin: 0;
+      @include desktop {
+        font-size: 64px;
+      }
+    }
+    .close_button {
+      position: absolute;
+      border: none;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+      top: 2rem;
+      right: 2rem;
+      & i {
+        color: #ffffff;
+      }
+    }
+    .contact_form {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin: 1.5rem 0;
+      .formData {
+        display: flex;
+        flex-direction: column;
+        margin: 1rem 0;
+        @include desktop {
+            margin: 0;
+        }
+        & label {
+          font-size: 24px;
+          font-weight: normal;
+          display: inline-block;
+          margin-bottom: 0.2rem;
+          @include desktop {
+            font-size: 36px;
+          }
+        }
+        .input_field,
+        textarea {
+          padding: 8px;
+          border: 0.8px solid #ccc;
+          border-radius: 5px;
+          font-family: "DM sans", sans-serif;
+          font-size: 30px;
+          outline: none;
+        }
+      }
+    }
+  }
+
+  .formData[data-error]::after {
+    content: attr(data-error);
+    font-size: 18px;
+    font-weight: 700;
+    color: #54251A;
+    display: block;
+    margin: 5px 0px;
+    text-align: left;
+    opacity: 0;
+    transition: 0.3s;
+  }
+  .formData[data-error-visible="true"]::after {
+    opacity: 1;
+  }
+  .formData[data-error-visible="true"] .input_field {
+    border: 2px solid $color-primary;
+  }
+}
+
+@keyframes modalOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-150px);
+  }
+  to {
+    opacity: 1;
+  }
+}

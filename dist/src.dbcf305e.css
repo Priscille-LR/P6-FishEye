@@ -123,11 +123,23 @@ a {
   }
 }
 .header_home .main_nav__item {
-  text-decoration: none;
+  margin: 0.3rem;
+}
+.header_home .main_nav__item .tag_name {
+  border-radius: 30px;
+  border: solid 1px #c4c4c4;
+  padding: 0.2rem 0.5rem;
   color: #901C1C;
   font-weight: bold;
+}
+.header_home .main_nav .tag_checkbox {
+  display: none;
+}
+.header_home .main_nav .tag_checkbox:checked ~ .tag_name {
+  background-color: #901C1C;
   border-radius: 20px;
-  border: solid 1px #c4c4c4;
+  color: #ffffff;
+  font-weight: bold;
   padding: 0.2rem;
   margin: 0.3rem;
 }
@@ -244,6 +256,7 @@ a {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
     background-color: #fafafa;
     margin: 2rem;
     padding: 3rem;
@@ -465,6 +478,9 @@ main {
     font-size: 24px;
     margin: 0 0.5rem;
   }
+  .sticker_summary .total_likes i {
+    color: #000;
+  }
   .sticker_summary .photographer_price {
     font-size: 24px;
   }
@@ -473,8 +489,6 @@ main {
 .button_contact {
   position: fixed;
   bottom: 4%;
-  left: 27%;
-  right: 27%;
   background-color: #901C1C;
   color: #fff;
   font-size: 18px;
@@ -494,18 +508,36 @@ main {
   }
 }
 
-.like {
-  border: none;
-  background: none;
-  padding: 0;
-  cursor: pointer;
+.submit_button {
+  align-self: center;
 }
-.like .fas {
+@media screen and (min-width: 1000px) {
+  .submit_button {
+    align-self: flex-start;
+  }
+}
+
+.checkbox__like input,
+.checkbox__like .like__checked {
+  display: none;
+}
+
+.checkbox__input:checked ~ .like__checked {
+  display: inline-block;
+}
+
+.checkbox__input:checked ~ .like__unchecked {
+  display: none;
+}
+
+.far,
+.fas {
   color: #901C1C;
   font-size: 13px;
 }
 @media screen and (min-width: 1000px) {
-  .like .fas {
+  .far,
+.fas {
     font-size: 20px;
   }
 }
@@ -517,7 +549,8 @@ main {
   .dropdown_menu {
     display: flex;
     align-items: center;
-    margin: 3rem;
+    width: 100%;
+    margin: 1rem 3rem;
   }
   .dropdown_menu .sort_by {
     font-size: 18px;
@@ -560,6 +593,167 @@ main {
     text-decoration: none;
     display: block;
   }
+}
+
+.contact_modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  animation: modalOpen 500ms;
+  left: 0%;
+  top: 0%;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background-color: #DB8876;
+  border-radius: 5px;
+}
+@media screen and (min-width: 1000px) {
+  .contact_modal {
+    left: auto;
+    top: 10%;
+    height: 900px;
+    width: 670px;
+  }
+}
+.contact_modal__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: flex-start;
+  margin: 1.5rem;
+}
+.contact_modal__body__title {
+  font-size: 36px;
+  font-weight: normal;
+  flex-wrap: wrap;
+  margin: 0;
+}
+@media screen and (min-width: 1000px) {
+  .contact_modal__body__title {
+    font-size: 64px;
+  }
+}
+.contact_modal__body .close_button {
+  position: absolute;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  top: 2rem;
+  right: 2rem;
+}
+.contact_modal__body .close_button i {
+  color: #ffffff;
+}
+.contact_modal__body .contact_form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+.contact_modal__body .contact_form .formData {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+@media screen and (min-width: 1000px) {
+  .contact_modal__body .contact_form .formData {
+    margin: 0;
+  }
+}
+.contact_modal__body .contact_form .formData label {
+  font-size: 24px;
+  font-weight: normal;
+  display: inline-block;
+  margin-bottom: 0.2rem;
+}
+@media screen and (min-width: 1000px) {
+  .contact_modal__body .contact_form .formData label {
+    font-size: 36px;
+  }
+}
+.contact_modal__body .contact_form .formData .input_field {
+  padding: 8px;
+  border: 0.8px solid #ccc;
+  border-radius: 5px;
+  font-size: 30px;
+  outline: none;
+}
+.contact_modal .formData[data-error]::after {
+  content: attr(data-error);
+  font-size: 18px;
+  font-weight: 700;
+  color: #54251A;
+  display: block;
+  margin: 5px 0px;
+  text-align: left;
+  opacity: 0;
+  transition: 0.3s;
+}
+.contact_modal .formData[data-error-visible=true]::after {
+  opacity: 1;
+}
+.contact_modal .formData[data-error-visible=true] .input_field {
+  border: 2px solid #901C1C;
+}
+
+@keyframes modalOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-150px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+.lightbox_media {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  animation: modalOpen 500ms;
+  left: 0%;
+  top: 0%;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background-color: #ffffff;
+}
+.lightbox_media__body {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+@media screen and (min-width: 1000px) {
+  .lightbox_media__body {
+    width: 1250px;
+    height: 985px;
+    margin: 7rem auto;
+  }
+}
+.lightbox_media__body .close_button_lightbox {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+}
+.lightbox_media__body .close_button_lightbox,
+.lightbox_media__body .previous_button,
+.lightbox_media__body .next_button {
+  color: #901C1C;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+.lightbox_media__body .medium_box .lightbox_medium {
+  width: 1050px;
+  height: 900px;
+  border-radius: 5px;
+}
+.lightbox_media__body .medium_box .lightbox_medium__miniature {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /*# sourceMappingURL=/src.dbcf305e.css.map */

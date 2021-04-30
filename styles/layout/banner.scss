@@ -11,6 +11,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
     background-color: #fafafa;
     margin: 2rem;
     padding: 3rem;
@@ -49,17 +50,28 @@
   .tags_photographer_page {
     display: flex;
     justify-content: flex-start;
-    // &__item {
-    //   text-decoration: none;
-    //   color: $color-primary;
-    //   font-size: 13px;
-    //   font-weight: 500;
-    //   border-radius: 20px;
-    //   border: solid 1px #c4c4c4;
-    //   padding: 0.1rem 0.3rem;
-    //   margin: 0.2rem;
-    //   @include desktop {
-    //     font-size: 18px;
-    //   }
+    .photographer_tags__item {
+      margin: 0.3rem;
+      .tag_checkbox {
+        display: none;
+      }
+      .tag_name {
+        border-radius: 30px;
+        border: solid 1px #c4c4c4;
+        padding: 0.2rem 0.5rem;
+        color: $color-primary;
+        font-weight: bold;
+      }
+      .tag_checkbox:hover ~ .tag_name,
+      .tag_checkbox:checked ~ .tag_name {
+        background-color: $color-primary;
+        border-radius: 20px;
+        border: solid 1px $color-primary;
+        color: #ffffff;
+        font-weight: bold;
+        padding: 0.2rem;
+        margin: 0.3rem;
+      }
+    }
   }
 }
