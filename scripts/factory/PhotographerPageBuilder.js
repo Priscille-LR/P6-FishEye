@@ -15,7 +15,7 @@ export class PhotographerPageBuilder {
         this.isDropdownVisible = false //dropdown menu hidden by default
         this.allMedia = [];
         this.photographerTags = [];
-
+        this.selectedMedia = [];
         this.mediaFactory = new MediaFactory();
     }
 
@@ -88,13 +88,15 @@ export class PhotographerPageBuilder {
         this.sortBy(this.SortEnum.POPULARITY);
     }
 
+
+    //Banner
+
     renderBanner() {
         this.createBanner();
         this.renderBannerContent();
         this.createBannerButton();
         this.createBannerPicture();
     }
-
 
     createBanner() {
         const banner = document.createElement('div');
@@ -110,7 +112,6 @@ export class PhotographerPageBuilder {
         this.appendBannerTags(bannerContent);
         this.appendBannerContentTags(bannerContent);
     }
-
 
     createBannerContent() {
         const bannerContent = document.createElement('div');
@@ -141,61 +142,18 @@ export class PhotographerPageBuilder {
         bannerContent.appendChild(bannerDesc);
     }
 
-    appendBannerTags(bannerContent) {
-        const bannerTags = document.createElement('div');
-        bannerTags.className = 'tags tags_photographer_page';
-        bannerContent.appendChild(bannerTags);
-    }
-
-    appendBannerContentTags(bannerTags) {
-        this.currentPhotographer.tags.forEach(photographerTag => {
-            const tag = document.createElement('a');
-            tag.className = 'tags__item';
-            tag.innerHTML = `<span>#${photographerTag}</span>`;
-            bannerTags.querySelector('.tags').appendChild(tag);
-
-            tag.addEventListener('click', () => {
-                this.photographerTags.push(photographerTag);
-                this.photographerTags = [...new Set(this.photographerTags)];
-                this.handleTagClick();
-            });
-        });
-    }
-
-    handleTagClick() {
-        this.removeAllThumbnails();
-        this.sortMedia()
-    }
-
-    sortMedia() {
-        let selectedMedia = [];
-        this.photographerTags.forEach(clickedPhotographerTag => {
-            this.allMedia.forEach(medium => {
-                medium.tags.forEach(tag => {
-                    if (tag == clickedPhotographerTag) {
-                        selectedMedia.push(medium)
-                    }
-                })
-            });
-        });
-
-        selectedMedia = [...new Set(selectedMedia)];
-
-        selectedMedia.forEach(selectedMedium => {
-            this.createMediumThumbnail(selectedMedium);
-        })
-    }
-
-
     createBannerButton() {
         const contactButton = document.createElement('button');
-        contactButton.className = 'button_contact';
+        contactButton.className = 'button_contact button_banner';
         contactButton.innerHTML = `Contactez-moi`;
         contactButton.addEventListener('click', () => {
             this.launchContactModal()
         });
         document.querySelector('.banner').appendChild(contactButton);
+    }
 
+    launchContactModal() {
+        this.contactModal.showContactModal();
     }
 
     createBannerPicture() {
@@ -211,9 +169,160 @@ export class PhotographerPageBuilder {
         document.querySelector('.banner').appendChild(bannerPicture);
     }
 
-    launchContactModal() {
-        this.contactModal.showContactModal();
+    appendBannerTags(bannerContent) {
+        const bannerTags = document.createElement('div');
+        bannerTags.className = 'tags tags_photographer_page';
+        bannerContent.appendChild(bannerTags);
     }
+
+    appendBannerContentTags(bannerContent) {
+        this.currentPhotographer.tags.forEach(photographerTag => {
+            const bannerTag = document.createElement('div');
+            bannerTag.className = 'photographer_tags__item';
+
+            const checkboxTag = document.createElement('input');
+            checkboxTag.type = "checkbox";
+            checkboxTag.className = "tag_checkbox"
+            checkboxTag.id = photographerTag;
+            bannerTag.appendChild(checkboxTag)
+
+            const labelTag = document.createElement('label');
+            labelTag.className = "tag_name"
+            labelTag.setAttribute("for", photographerTag);
+            labelTag.innerHTML = `#${photographerTag}`;
+            bannerTag.appendChild(labelTag)
+
+            bannerContent.querySelector('.tags_photographer_page').appendChild(bannerTag);
+
+            checkboxTag.addEventListener('change', () => {
+                if (checkboxTag.checked) {
+                    this.photographerTags.push(photographerTag);
+                    this.photographerTags = [...new Set(this.photographerTags)];
+                } else {
+                    const currentIndex = this.photographerTags.indexOf(photographerTag);
+                    this.photographerTags.splice(currentIndex, 1);
+                }
+                console.log(this.photographerTags)
+                this.handleTagClick();
+            });
+        });
+    }
+
+    handleTagClick() {
+        this.removeAllThumbnails();
+        this.sortMedia()
+    }
+
+    sortMedia() {
+       this.selectedMedia = [];
+        this.photographerTags.forEach(clickedPhotographerTag => {
+            this.allMedia.forEach(medium => {
+                medium.tags.forEach(tag => {
+                    if (tag == clickedPhotographerTag) {
+                        this.selectedMedia.push(medium)
+                    }
+                })
+            });
+        });
+
+        if (this.selectedMedia.length == 0) {
+            this.allMedia.forEach(medium => {
+                this.createMediumThumbnail(medium)
+
+            });
+        } else {
+            this.selectedMedia = [...new Set(this.selectedMedia)];
+
+            this.selectedMedia.forEach(selectedMedium => {
+                this.createMediumThumbnail(selectedMedium);
+            });
+        }
+
+    }
+
+
+    //dropdown
+
+    renderDropdown() {
+
+        const dropdownMenu = this.createDropdownMenu();
+        this.appendSortByText(dropdownMenu);
+        this.appendDropdown(dropdownMenu);
+        document.querySelector('main').appendChild(dropdownMenu);
+
+        const dropdrownButton = document.querySelector('.dropdown__button');
+        const dropdrownContent = document.querySelector('.dropdown__content');
+
+        dropdrownButton.addEventListener('click', () => {
+            if (this.isDropdownVisible == false) {
+                dropdrownContent.style.display = "block";
+                this.isDropdownVisible = true; //content visibility state 
+            } else {
+                dropdrownContent.style.display = "none";
+                this.isDropdownVisible = false;
+            }
+        });
+
+        const dropdownItems = document.getElementsByClassName("dropdown__content__item");
+        for (let item of dropdownItems) {
+            item.addEventListener('click', () => {
+                this.handleDropdownItemClick(dropdrownButton, item);
+            })
+        }
+    }
+
+    createDropdownMenu() {
+        const dropdownMenu = document.createElement('div');
+        dropdownMenu.className = "dropdown_menu";
+        return dropdownMenu;
+    }
+
+    appendSortByText(dropdownMenu) {
+        const sortBy = document.createElement('span');
+        sortBy.className = 'sort_by';
+        sortBy.innerHTML = `Trier par`;
+        dropdownMenu.appendChild(sortBy);
+    }
+
+    appendDropdown(dropdownMenu) {
+        const dropdown = document.createElement('div');
+        dropdown.className = "dropdown";
+        this.appendDropdownButton(dropdown);
+        this.createDropdownContent(dropdown);
+        dropdownMenu.appendChild(dropdown);
+    }
+
+    appendDropdownButton(dropdown) {
+        const dropdownButton = document.createElement('button');
+        dropdownButton.className = 'dropdown__button';
+        dropdownButton.innerHTML = this.SortEnum.POPULARITY;
+        dropdown.appendChild(dropdownButton);
+    }
+
+    createDropdownContent(dropdown) {
+        const dropdownContent = document.createElement('div');
+        dropdownContent.className = 'dropdown__content';
+
+        this.appendDropdownItemDATE(dropdownContent);
+        this.appendDropdownItemTITLE(dropdownContent);
+
+        dropdown.appendChild(dropdownContent);
+    }
+
+    appendDropdownItemDATE(dropdownContent) {
+        const dropdownItemDATE = document.createElement('a');
+        dropdownItemDATE.className = 'dropdown__content__item';
+        dropdownItemDATE.innerHTML = this.SortEnum.DATE;
+        dropdownContent.appendChild(dropdownItemDATE);
+    }
+
+    appendDropdownItemTITLE(dropdownContent) {
+        const dropdownItemTITLE = document.createElement('a');
+        dropdownItemTITLE.className = 'dropdown__content__item';
+        dropdownItemTITLE.innerHTML = this.SortEnum.TITLE;
+        dropdownContent.appendChild(dropdownItemTITLE);
+    }
+
 
     //sticker photographer total number of likes and price
 
@@ -282,9 +391,11 @@ export class PhotographerPageBuilder {
         const mediumThumbnailMiniature = mediumThumbnail.querySelector('.medium_thumbnail__miniature');
 
         mediumThumbnailMiniature.addEventListener('click', () => {
-            const title = mediumThumbnail.querySelector(".medium_thumbnail__miniature").getAttribute("alt");
-
-            this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, title, this.allMedia)
+            if (this.selectedMedia.length == 0) {
+                this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.allMedia)
+            } else {
+                this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.selectedMedia)
+            }
         })
 
         this.incrementNumberOfLikes(mediumThumbnail);
@@ -298,90 +409,6 @@ export class PhotographerPageBuilder {
                 mainNode.removeChild(child)
             }
         }
-    }
-
-    renderDropdown() {
-
-        const dropdownMenu = this.createDropdownMenu();
-        this.appendSortByText(dropdownMenu);
-        this.appendDropdown(dropdownMenu);
-        document.querySelector('main').appendChild(dropdownMenu);
-
-        const dropdrownButton = document.querySelector('.dropdown__button');
-        const dropdrownContent = document.querySelector('.dropdown__content');
-
-        dropdrownButton.addEventListener('click', () => {
-            if (this.isDropdownVisible == false) {
-                dropdrownContent.style.display = "block";
-                this.isDropdownVisible = true; //content visibility state 
-            } else {
-                dropdrownContent.style.display = "none";
-                this.isDropdownVisible = false;
-            }
-        });
-
-        const dropdownItems = document.getElementsByClassName("dropdown__content__item");
-        for (let item of dropdownItems) {
-            item.addEventListener('click', () => {
-                this.handleDropdownItemClick(dropdrownButton, item);
-            })
-        }
-    }
-
-
-    createDropdownMenu() {
-        const dropdownMenu = document.createElement('div');
-        dropdownMenu.className = "dropdown_menu";
-        // const main = document.querySelector('main');
-        // main.appendChild(dropdownMenu);
-        return dropdownMenu;
-    }
-
-    appendSortByText(dropdownMenu) {
-        const sortBy = document.createElement('span');
-        sortBy.className = 'sort_by';
-        sortBy.innerHTML = `Trier par`;
-        dropdownMenu.appendChild(sortBy);
-    }
-
-    appendDropdown(dropdownMenu) {
-        const dropdown = document.createElement('div');
-        dropdown.className = "dropdown";
-        this.appendDropdownButton(dropdown);
-        this.createDropdownContent(dropdown);
-        dropdownMenu.appendChild(dropdown);
-    }
-
-
-    appendDropdownButton(dropdown) {
-        const dropdownButton = document.createElement('button');
-        dropdownButton.className = 'dropdown__button';
-        dropdownButton.innerHTML = this.SortEnum.POPULARITY;
-        dropdown.appendChild(dropdownButton);
-    }
-
-    createDropdownContent(dropdown) {
-        const dropdownContent = document.createElement('div');
-        dropdownContent.className = 'dropdown__content';
-
-        this.appendDropdownItemDATE(dropdownContent);
-        this.appendDropdownItemTITLE(dropdownContent);
-
-        dropdown.appendChild(dropdownContent);
-    }
-
-    appendDropdownItemDATE(dropdownContent) {
-        const dropdownItemDATE = document.createElement('a');
-        dropdownItemDATE.className = 'dropdown__content__item';
-        dropdownItemDATE.innerHTML = this.SortEnum.DATE;
-        dropdownContent.appendChild(dropdownItemDATE);
-    }
-
-    appendDropdownItemTITLE(dropdownContent) {
-        const dropdownItemTITLE = document.createElement('a');
-        dropdownItemTITLE.className = 'dropdown__content__item';
-        dropdownItemTITLE.innerHTML = this.SortEnum.TITLE;
-        dropdownContent.appendChild(dropdownItemTITLE);
     }
 
 
@@ -414,7 +441,6 @@ export class PhotographerPageBuilder {
                 sortedMedia = this.allMedia.sort((a,b) => this.compareTitle(a,b));
                 break;
         }
-        console.log(sortedMedia)
         sortedMedia.forEach(sortedMedium => {
             this.createMediumThumbnail(sortedMedium)
         })

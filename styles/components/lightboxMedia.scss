@@ -36,9 +36,8 @@
       cursor: pointer;
     }
     .medium_box {
-    //   width: 1050px;
-    //   height: 1000px;
-    //   border-radius: 5px;
+      display: flex;
+      //flex-direction: column;
       .lightbox_medium {
         width: 1050px;
         height: 900px;
@@ -48,6 +47,16 @@
           height: 100%;
           object-fit: cover;
         }
+      }
+    }
+    .lightbox_title {
+      align-self: flex-end;
+      justify-self: flex-end;
+      color: $color-primary;
+      font-size: 14px;
+      margin: 0.4rem;
+      @include desktop {
+        font-size: 24px;
       }
     }
   }

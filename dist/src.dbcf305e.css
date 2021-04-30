@@ -123,11 +123,23 @@ a {
   }
 }
 .header_home .main_nav__item {
-  text-decoration: none;
+  margin: 0.3rem;
+}
+.header_home .main_nav__item .tag_name {
+  border-radius: 30px;
+  border: solid 1px #c4c4c4;
+  padding: 0.2rem 0.5rem;
   color: #901C1C;
   font-weight: bold;
+}
+.header_home .main_nav .tag_checkbox {
+  display: none;
+}
+.header_home .main_nav .tag_checkbox:checked ~ .tag_name {
+  background-color: #901C1C;
   border-radius: 20px;
-  border: solid 1px #c4c4c4;
+  color: #ffffff;
+  font-weight: bold;
   padding: 0.2rem;
   margin: 0.3rem;
 }
@@ -598,7 +610,7 @@ main {
 }
 @media screen and (min-width: 1000px) {
   .contact_modal {
-    left: 35%;
+    left: auto;
     top: 10%;
     height: 900px;
     width: 670px;
@@ -670,10 +682,11 @@ main {
 }
 .contact_modal .formData[data-error]::after {
   content: attr(data-error);
-  font-size: 0.7rem;
-  color: #e54858;
+  font-size: 18px;
+  font-weight: 700;
+  color: #54251A;
   display: block;
-  margin: 10px 5px;
+  margin: 5px 0px;
   text-align: left;
   opacity: 0;
   transition: 0.3s;
@@ -682,7 +695,7 @@ main {
   opacity: 1;
 }
 .contact_modal .formData[data-error-visible=true] .input_field {
-  border: 2px solid #e54858;
+  border: 2px solid #901C1C;
 }
 
 @keyframes modalOpen {

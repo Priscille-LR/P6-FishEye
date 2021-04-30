@@ -22,10 +22,6 @@ export class HomePageBuilder {
 
         const main = document.querySelector("main");
         document.querySelector('body').insertBefore(header, main);
-
-        // document.querySelector(".banner").style.display = "none";
-        // document.querySelector(".dropdown_menu").style.display = "none";
-        // document.querySelector(".sticker_summary").style.display = "none";
     }
 
     createHeader() {
@@ -58,19 +54,52 @@ export class HomePageBuilder {
 
         //add each tag dynamically in the nav
         distinctTags.forEach(tag => {
-            const headerTag = document.createElement('a')
             const tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
-            headerTag.className = 'main_nav__item'
-            headerTag.innerHTML = `<span>#${tagName}</span>`;
+            const headerTag = document.createElement('div');
+            headerTag.className = 'main_nav__item';
+
+            const checkboxTag = document.createElement('input');
+            checkboxTag.type = "checkbox";
+            checkboxTag.className = "tag_checkbox"
+            checkboxTag.id = tagName;
+            headerTag.appendChild(checkboxTag)
+
+            const labelTag = document.createElement('label');
+            labelTag.className = "tag_name"
+            labelTag.setAttribute("for", tagName);
+            labelTag.innerHTML = `#${tagName}`;
+            headerTag.appendChild(labelTag)
+
             nav.appendChild(headerTag);
 
             //listen to clicks on main nav tags
-            headerTag.addEventListener("click", (event) => {
+            headerTag.addEventListener("change", () => {
+
+                if (checkboxTag.checked) {
                 this.clickedNavTags.push(tag);
                 this.clickedNavTags = [...new Set(this.clickedNavTags)];
+                } else {
+                    const currentIndex = this.clickedNavTags.indexOf(tag);
+                    this.clickedNavTags.splice(currentIndex, 1);
+                }
                 this.handleTagClick(photographers)
             });
         });
+    }
+
+    createLabel(forParam, textParam) {
+        const label = document.createElement('label');
+        label.setAttribute("for", forParam);
+        label.innerHTML = `${textParam}`;
+        return label;
+    }
+
+    createInputField(id) {
+        const inputField = document.createElement('input');
+        inputField.className = 'input_field';
+        inputField.type = "text";
+        inputField.setAttribute("id", id);
+        return inputField;
     }
 
     handleTagClick(photographers) {
@@ -96,8 +125,13 @@ export class HomePageBuilder {
             });
         });
 
-        selectedPhotographers = [...new Set(selectedPhotographers)]
-        this.createArticle(selectedPhotographers)
+        if (this.clickedNavTags.length == 0) {
+            this.createArticle(photographers)
+        } else {
+            selectedPhotographers = [...new Set(selectedPhotographers)];
+            this.createArticle(selectedPhotographers)
+        }
+        
     }    
 
     renderMain(photographers) {

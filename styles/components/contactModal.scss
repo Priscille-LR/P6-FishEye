@@ -14,7 +14,7 @@
   background-color: $color-tertiary;
   border-radius: 5px;
   @include desktop {
-    left: 35%;
+    left: auto;
     top: 10%;
     height: 900px;
     width: 670px;
@@ -67,10 +67,12 @@
             font-size: 36px;
           }
         }
-        .input_field {
+        .input_field,
+        textarea {
           padding: 8px;
           border: 0.8px solid #ccc;
           border-radius: 5px;
+          font-family: "DM sans", sans-serif;
           font-size: 30px;
           outline: none;
         }
@@ -80,10 +82,11 @@
 
   .formData[data-error]::after {
     content: attr(data-error);
-    font-size: 0.7rem;
-    color: #e54858;
+    font-size: 18px;
+    font-weight: 700;
+    color: #54251A;
     display: block;
-    margin: 10px 5px;
+    margin: 5px 0px;
     text-align: left;
     opacity: 0;
     transition: 0.3s;
@@ -92,7 +95,7 @@
     opacity: 1;
   }
   .formData[data-error-visible="true"] .input_field {
-    border: 2px solid #e54858;
+    border: 2px solid $color-primary;
   }
 }
 

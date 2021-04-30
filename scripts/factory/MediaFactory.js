@@ -18,9 +18,7 @@ export class MediaFactory {
     }
 
     extractMediumTitle(medium) {
-
         let tmpMedium = this.getMediumFile(medium)
-
         let mediumTitle = tmpMedium.toLowerCase();
         let mediumTitleArray = mediumTitle.split(".");
         mediumTitle = mediumTitleArray[0];

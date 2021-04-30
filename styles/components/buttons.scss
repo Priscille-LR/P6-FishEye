@@ -5,10 +5,8 @@
 .button_contact {
   position: fixed;
   bottom: 4%;
-  //left: 27%;
-  //right: 27%;
   background-color: $color-primary;
-  color: #fff;
+  color: #ffffff;
   font-size: 18px;
   font-weight: 700;
   width: 170px;
@@ -22,6 +20,11 @@
     height: 70px;
     margin-top: 0.5rem;
   }
+}
+
+.button_banner:hover {
+  background-color: $color-tertiary;
+  color: #000000;
 }
 
 .submit_button {
@@ -54,18 +57,3 @@
     font-size: 20px;
   }
 }
-
-
-// .like {
-//   border: none;
-//   background: none;
-//   padding: 0;
-//   cursor: pointer;
-//   .fas {
-//     color: $color-primary;
-//     font-size: 13px;
-//     @include desktop {
-//       font-size: 20px;
-//     }
-//   }
-// }

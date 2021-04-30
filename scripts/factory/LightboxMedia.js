@@ -29,6 +29,7 @@ export class LightboxMedia {
         this.appendCloseButton(lightboxBody);
         this.appendPreviousButton(lightboxBody);
         this.appendMediumBox(lightboxBody);
+        this.appendMediumTitle(lightboxBody);
         this.appendNextButton(lightboxBody);
 
         document.querySelector('.lightbox_media').appendChild(lightboxBody);
@@ -52,22 +53,32 @@ export class LightboxMedia {
 
             const currentIndex = this.allMedia.indexOf(this.medium);
             const newIndex = currentIndex - 1;
+
+            const nextButton = lightboxBody.querySelector('.next_button');
+            nextButton.style.display = "block";
+            
             if (newIndex >= 0 ) {
-                this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, "toto", this.allMedia)
+                this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
+            } 
+
+            if (newIndex == 0) {
+                previousButton.style.display = "none"; //disable prev button
             }
-        })
+        });
+
         lightboxBody.appendChild(previousButton);
     }
     
     appendMediumBox(lightboxBody) {
         const mediumBox = document.createElement('div');
         mediumBox.className = "medium_box";
-
         lightboxBody.appendChild(mediumBox);
     }
 
-    appendMedium() {
-
+    appendMediumTitle(lightboxBody) {
+        const mediumTitle = document.createElement('h2');
+        mediumTitle.className = 'lightbox_title';
+        lightboxBody.appendChild(mediumTitle);
     }
 
     appendNextButton(lightboxBody) {
@@ -77,21 +88,35 @@ export class LightboxMedia {
         nextButton.addEventListener('click', () => {
             const currentIndex = this.allMedia.indexOf(this.medium);
             const newIndex = currentIndex + 1;
+
+            const previousButton = lightboxBody.querySelector('.previous_button');
+            previousButton.style.display = "block";
+
             if (newIndex <= this.allMedia.length -1) {
-                this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, "toto", this.allMedia)
+                this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
+            }
+
+            if (newIndex == this.allMedia.length -1) {
+                nextButton.style.display = "none";
             }
         });
 
         lightboxBody.appendChild(nextButton);
     }
 
-    showLightboxMedia(medium, currentPhotographer, title, allMedia) {
+    showLightboxMedia(medium, currentPhotographer, allMedia) {
         this.allMedia = allMedia;
         this.medium = medium;
         this.removeLightboxMedium();
+
+        const title =this.mediaFactory.extractMediumTitle(medium);
+
         const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium", true);
         document.querySelector('.medium_box').appendChild(lightboxMedium);
         this.lightboxMedia.style.display = "block";
+
+        const mediumTitle = document.querySelector('.lightbox_title');
+        mediumTitle.innerHTML = title;
     }
 
     hideLightboxMedia() {

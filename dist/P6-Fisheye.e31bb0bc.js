@@ -326,39 +326,36 @@ var ContactModal = /*#__PURE__*/function () {
       contactForm.setAttribute = ("method", "post");
       contactForm.setAttribute = ("action", "submit");
       this.createFormFields(contactForm);
-      this.addEventListenerOnInputs(contactForm);
+      this.addEventListenerValidate(contactForm);
       modalBody.appendChild(contactForm);
     }
   }, {
-    key: "createFormFields",
-    value: function createFormFields(contactForm) {
-      //Firstname
-      var formData = this.createFormData();
-      formData.appendChild(this.createLabel("firstname", "Prénom"));
-      formData.appendChild(this.createInputField("firstname"));
-      contactForm.appendChild(formData); //Lastname
+    key: "addEventListenerValidate",
+    value: function addEventListenerValidate(contactForm) {
+      var _this2 = this;
 
-      formData = this.createFormData();
-      formData.appendChild(this.createLabel("lastname", "Nom"));
-      formData.appendChild(this.createInputField("lastname"));
-      contactForm.appendChild(formData); //Email
-
-      formData = this.createFormData();
-      formData.appendChild(this.createLabel("email", "Email"));
-      formData.appendChild(this.createInputField("email"));
-      contactForm.appendChild(formData); //Message
-
-      formData = this.createFormData();
-      formData.appendChild(this.createLabel("message", "Votre message"));
-      formData.appendChild(this.createTextArea("message"));
-      contactForm.appendChild(formData);
+      var inputs = contactForm.querySelectorAll('.input_field');
+      inputs.forEach(function (input) {
+        input.addEventListener('blur', function () {
+          if (_this2.validateFieldsFormat(input) === true) {
+            _this2.hideErrorMessage(input.parentElement);
+          } else {
+            if (input.id === "email") {
+              _this2.showErrorMessage(input.parentElement, 'Veuillez entrer une adresse mail valide');
+            } else if (input.id === "message") {
+              _this2.showErrorMessage(input.parentElement, "Dites-m'en un peu plus...");
+            } else {
+              _this2.showErrorMessage(input.parentElement, 'Veuillez entrer au moins 2 caractères');
+            }
+          }
+        });
+      });
     }
   }, {
     key: "createFormData",
     value: function createFormData() {
       var formData = document.createElement('div');
       formData.className = 'formData';
-      formData.innerHTML = "";
       return formData;
     }
   }, {
@@ -388,11 +385,52 @@ var ContactModal = /*#__PURE__*/function () {
       return textAreaInput;
     }
   }, {
+    key: "createFormFields",
+    value: function createFormFields(contactForm) {
+      //Firstname
+      var formData = this.createFormData();
+      formData.appendChild(this.createLabel("firstname", "Prénom"));
+      formData.appendChild(this.createInputField("firstname"));
+      contactForm.appendChild(formData); //Lastname
+
+      formData = this.createFormData();
+      formData.appendChild(this.createLabel("lastname", "Nom"));
+      formData.appendChild(this.createInputField("lastname"));
+      contactForm.appendChild(formData); //Email
+
+      formData = this.createFormData();
+      formData.appendChild(this.createLabel("email", "Email"));
+      formData.appendChild(this.createInputField("email"));
+      contactForm.appendChild(formData); //Message
+
+      formData = this.createFormData();
+      formData.appendChild(this.createLabel("message", "Votre message"));
+      formData.appendChild(this.createTextArea("message"));
+      contactForm.appendChild(formData);
+    }
+  }, {
     key: "createModalButton",
     value: function createModalButton(modalBody) {
+      var _this3 = this;
+
       var modalButton = document.createElement('button');
       modalButton.className = 'button_contact submit_button';
+      modalButton.type = "submit";
       modalButton.innerHTML = "Envoyer";
+      modalButton.addEventListener('click', function (e) {
+        var inputs = modalBody.querySelectorAll('.input_field');
+        e.preventDefault();
+
+        if (_this3.validateFields(modalBody) === true) {
+          inputs.forEach(function (input) {
+            console.log(input.value);
+          });
+
+          _this3.hideContactModal();
+        } else {
+          console.log("veuillez rensigner les champs, merci !");
+        }
+      });
       modalBody.appendChild(modalButton);
     }
   }, {
@@ -422,56 +460,46 @@ var ContactModal = /*#__PURE__*/function () {
     }
   }, {
     key: "validateFieldsFormat",
-    value: function validateFieldsFormat(text) {
+    value: function validateFieldsFormat(input) {
       var fieldFormat = /^[A-Za-z\-\sàáâãäåçèéêëìíîïðòóôõöùúûüýÿ']{2,}$/;
       var emailAddressFormat = /\S+@\S+\.\S+/;
-      var inputs = document.querySelectorAll('.input_field');
-      inputs.forEach(function (input) {
-        if (input.id === "email") {
-          if (text.length != 0 && emailAddressFormat.test(text)) {
-            return true;
-          } else {
-            return false;
-          }
+      var messageFormat = /^[A-Za-z\-\sàáâãäåçèéêëìíîïðòóôõöùúûüýÿ'.,;!?]{5,200}$/;
+
+      if (input.id === "email") {
+        if (input.value.length != 0 && emailAddressFormat.test(input.value)) {
+          return true;
         } else {
-          if (text.length != 0 && fieldFormat.test(text)) {
-            return true;
-          } else {
-            return false;
-          }
+          return false;
+        }
+      }
+
+      if (input.id === "message") {
+        if (input.value.length != 0 && messageFormat.test(input.value)) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        if (input.value.length != 0 && fieldFormat.test(input.value)) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+  }, {
+    key: "validateFields",
+    value: function validateFields(modalBody) {
+      var _this4 = this;
+
+      var inputs = modalBody.querySelectorAll('.input_field');
+      var outcome = true;
+      inputs.forEach(function (input) {
+        if (_this4.validateFieldsFormat(input) === false) {
+          outcome = false;
         }
       });
-    }
-  }, {
-    key: "addEventListenerOnInputs",
-    value: function addEventListenerOnInputs(contactForm) {
-      var _this2 = this;
-
-      var inputs = contactForm.querySelectorAll('.input_field');
-      inputs.forEach(function (input) {
-        input.addEventListener('blur', function () {
-          if (_this2.validateFieldsFormat(input.value) === true) {
-            _this2.hideErrorMessage(input.parentElement);
-          } else {
-            console.log("input ".concat(input.id, " got an error"));
-
-            _this2.showErrorMessage(input.parentElement, 'Veuillez entrer au moins 2 caractères');
-          }
-        });
-      });
-    }
-  }, {
-    key: "submitForm",
-    value: function submitForm() {
-      var _this3 = this;
-
-      var form = document.querySelector('.contact_form');
-      form.addEventListener('submit', function () {
-        e.preventDefault();
-        console.log(inputs);
-
-        _this3.hideContactModal();
-      });
+      return outcome;
     }
   }]);
 
@@ -529,6 +557,7 @@ var LightboxMedia = /*#__PURE__*/function () {
       this.appendCloseButton(lightboxBody);
       this.appendPreviousButton(lightboxBody);
       this.appendMediumBox(lightboxBody);
+      this.appendMediumTitle(lightboxBody);
       this.appendNextButton(lightboxBody);
       document.querySelector('.lightbox_media').appendChild(lightboxBody);
     }
@@ -557,9 +586,15 @@ var LightboxMedia = /*#__PURE__*/function () {
         var currentIndex = _this2.allMedia.indexOf(_this2.medium);
 
         var newIndex = currentIndex - 1;
+        var nextButton = lightboxBody.querySelector('.next_button');
+        nextButton.style.display = "block";
 
         if (newIndex >= 0) {
-          _this2.showLightboxMedia(_this2.allMedia[newIndex], _this2.currentPhotographer, "toto", _this2.allMedia);
+          _this2.showLightboxMedia(_this2.allMedia[newIndex], _this2.currentPhotographer, _this2.allMedia);
+        }
+
+        if (newIndex == 0) {
+          previousButton.style.display = "none"; //disable prev button
         }
       });
       lightboxBody.appendChild(previousButton);
@@ -572,8 +607,12 @@ var LightboxMedia = /*#__PURE__*/function () {
       lightboxBody.appendChild(mediumBox);
     }
   }, {
-    key: "appendMedium",
-    value: function appendMedium() {}
+    key: "appendMediumTitle",
+    value: function appendMediumTitle(lightboxBody) {
+      var mediumTitle = document.createElement('h2');
+      mediumTitle.className = 'lightbox_title';
+      lightboxBody.appendChild(mediumTitle);
+    }
   }, {
     key: "appendNextButton",
     value: function appendNextButton(lightboxBody) {
@@ -586,22 +625,31 @@ var LightboxMedia = /*#__PURE__*/function () {
         var currentIndex = _this3.allMedia.indexOf(_this3.medium);
 
         var newIndex = currentIndex + 1;
+        var previousButton = lightboxBody.querySelector('.previous_button');
+        previousButton.style.display = "block";
 
         if (newIndex <= _this3.allMedia.length - 1) {
-          _this3.showLightboxMedia(_this3.allMedia[newIndex], _this3.currentPhotographer, "toto", _this3.allMedia);
+          _this3.showLightboxMedia(_this3.allMedia[newIndex], _this3.currentPhotographer, _this3.allMedia);
+        }
+
+        if (newIndex == _this3.allMedia.length - 1) {
+          nextButton.style.display = "none";
         }
       });
       lightboxBody.appendChild(nextButton);
     }
   }, {
     key: "showLightboxMedia",
-    value: function showLightboxMedia(medium, currentPhotographer, title, allMedia) {
+    value: function showLightboxMedia(medium, currentPhotographer, allMedia) {
       this.allMedia = allMedia;
       this.medium = medium;
       this.removeLightboxMedium();
+      var title = this.mediaFactory.extractMediumTitle(medium);
       var lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium", true);
       document.querySelector('.medium_box').appendChild(lightboxMedium);
       this.lightboxMedia.style.display = "block";
+      var mediumTitle = document.querySelector('.lightbox_title');
+      mediumTitle.innerHTML = title;
     }
   }, {
     key: "hideLightboxMedia",
@@ -675,6 +723,7 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
 
     this.allMedia = [];
     this.photographerTags = [];
+    this.selectedMedia = [];
     this.mediaFactory = new _MediaFactory.MediaFactory();
   }
 
@@ -761,7 +810,8 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       this.renderSummary();
       this.renderDropdown();
       this.sortBy(this.SortEnum.POPULARITY);
-    }
+    } //Banner
+
   }, {
     key: "renderBanner",
     value: function renderBanner() {
@@ -820,6 +870,32 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
       bannerContent.appendChild(bannerDesc);
     }
   }, {
+    key: "createBannerButton",
+    value: function createBannerButton() {
+      var _this4 = this;
+
+      var contactButton = document.createElement('button');
+      contactButton.className = 'button_contact button_banner';
+      contactButton.innerHTML = "Contactez-moi";
+      contactButton.addEventListener('click', function () {
+        _this4.launchContactModal();
+      });
+      document.querySelector('.banner').appendChild(contactButton);
+    }
+  }, {
+    key: "launchContactModal",
+    value: function launchContactModal() {
+      this.contactModal.showContactModal();
+    }
+  }, {
+    key: "createBannerPicture",
+    value: function createBannerPicture() {
+      var bannerPicture = document.createElement('div');
+      bannerPicture.className = 'photographer__picture';
+      bannerPicture.innerHTML = "\n            <img\n                class=\"photographer_thumbnail__picture picture_profile\"\n                src=\"/static/Photographers ID Photos/".concat(this.currentPhotographer.portrait, "\"\n                alt=\"photographer's thumbnail picture\"\n              />");
+      document.querySelector('.banner').appendChild(bannerPicture);
+    }
+  }, {
     key: "appendBannerTags",
     value: function appendBannerTags(bannerContent) {
       var bannerTags = document.createElement('div');
@@ -828,20 +904,37 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
     }
   }, {
     key: "appendBannerContentTags",
-    value: function appendBannerContentTags(bannerTags) {
-      var _this4 = this;
+    value: function appendBannerContentTags(bannerContent) {
+      var _this5 = this;
 
       this.currentPhotographer.tags.forEach(function (photographerTag) {
-        var tag = document.createElement('a');
-        tag.className = 'tags__item';
-        tag.innerHTML = "<span>#".concat(photographerTag, "</span>");
-        bannerTags.querySelector('.tags').appendChild(tag);
-        tag.addEventListener('click', function () {
-          _this4.photographerTags.push(photographerTag);
+        var bannerTag = document.createElement('div');
+        bannerTag.className = 'photographer_tags__item';
+        var checkboxTag = document.createElement('input');
+        checkboxTag.type = "checkbox";
+        checkboxTag.className = "tag_checkbox";
+        checkboxTag.id = photographerTag;
+        bannerTag.appendChild(checkboxTag);
+        var labelTag = document.createElement('label');
+        labelTag.className = "tag_name";
+        labelTag.setAttribute("for", photographerTag);
+        labelTag.innerHTML = "#".concat(photographerTag);
+        bannerTag.appendChild(labelTag);
+        bannerContent.querySelector('.tags_photographer_page').appendChild(bannerTag);
+        checkboxTag.addEventListener('change', function () {
+          if (checkboxTag.checked) {
+            _this5.photographerTags.push(photographerTag);
 
-          _this4.photographerTags = _toConsumableArray(new Set(_this4.photographerTags));
+            _this5.photographerTags = _toConsumableArray(new Set(_this5.photographerTags));
+          } else {
+            var currentIndex = _this5.photographerTags.indexOf(photographerTag);
 
-          _this4.handleTagClick();
+            _this5.photographerTags.splice(currentIndex, 1);
+          }
+
+          console.log(_this5.photographerTags);
+
+          _this5.handleTagClick();
         });
       });
     }
@@ -854,48 +947,129 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
   }, {
     key: "sortMedia",
     value: function sortMedia() {
-      var _this5 = this;
+      var _this6 = this;
 
-      var selectedMedia = [];
+      this.selectedMedia = [];
       this.photographerTags.forEach(function (clickedPhotographerTag) {
-        _this5.allMedia.forEach(function (medium) {
+        _this6.allMedia.forEach(function (medium) {
           medium.tags.forEach(function (tag) {
             if (tag == clickedPhotographerTag) {
-              selectedMedia.push(medium);
+              _this6.selectedMedia.push(medium);
             }
           });
         });
       });
-      selectedMedia = _toConsumableArray(new Set(selectedMedia));
-      selectedMedia.forEach(function (selectedMedium) {
-        _this5.createMediumThumbnail(selectedMedium);
-      });
-    }
-  }, {
-    key: "createBannerButton",
-    value: function createBannerButton() {
-      var _this6 = this;
 
-      var contactButton = document.createElement('button');
-      contactButton.className = 'button_contact';
-      contactButton.innerHTML = "Contactez-moi";
-      contactButton.addEventListener('click', function () {
-        _this6.launchContactModal();
+      if (this.selectedMedia.length == 0) {
+        this.allMedia.forEach(function (medium) {
+          _this6.createMediumThumbnail(medium);
+        });
+      } else {
+        this.selectedMedia = _toConsumableArray(new Set(this.selectedMedia));
+        this.selectedMedia.forEach(function (selectedMedium) {
+          _this6.createMediumThumbnail(selectedMedium);
+        });
+      }
+    } //dropdown
+
+  }, {
+    key: "renderDropdown",
+    value: function renderDropdown() {
+      var _this7 = this;
+
+      var dropdownMenu = this.createDropdownMenu();
+      this.appendSortByText(dropdownMenu);
+      this.appendDropdown(dropdownMenu);
+      document.querySelector('main').appendChild(dropdownMenu);
+      var dropdrownButton = document.querySelector('.dropdown__button');
+      var dropdrownContent = document.querySelector('.dropdown__content');
+      dropdrownButton.addEventListener('click', function () {
+        if (_this7.isDropdownVisible == false) {
+          dropdrownContent.style.display = "block";
+          _this7.isDropdownVisible = true; //content visibility state 
+        } else {
+          dropdrownContent.style.display = "none";
+          _this7.isDropdownVisible = false;
+        }
       });
-      document.querySelector('.banner').appendChild(contactButton);
+      var dropdownItems = document.getElementsByClassName("dropdown__content__item");
+
+      var _iterator = _createForOfIteratorHelper(dropdownItems),
+          _step;
+
+      try {
+        var _loop = function _loop() {
+          var item = _step.value;
+          item.addEventListener('click', function () {
+            _this7.handleDropdownItemClick(dropdrownButton, item);
+          });
+        };
+
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          _loop();
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
     }
   }, {
-    key: "createBannerPicture",
-    value: function createBannerPicture() {
-      var bannerPicture = document.createElement('div');
-      bannerPicture.className = 'photographer__picture';
-      bannerPicture.innerHTML = "\n            <img\n                class=\"photographer_thumbnail__picture picture_profile\"\n                src=\"/static/Photographers ID Photos/".concat(this.currentPhotographer.portrait, "\"\n                alt=\"photographer's thumbnail picture\"\n              />");
-      document.querySelector('.banner').appendChild(bannerPicture);
+    key: "createDropdownMenu",
+    value: function createDropdownMenu() {
+      var dropdownMenu = document.createElement('div');
+      dropdownMenu.className = "dropdown_menu";
+      return dropdownMenu;
     }
   }, {
-    key: "launchContactModal",
-    value: function launchContactModal() {
-      this.contactModal.showContactModal();
+    key: "appendSortByText",
+    value: function appendSortByText(dropdownMenu) {
+      var sortBy = document.createElement('span');
+      sortBy.className = 'sort_by';
+      sortBy.innerHTML = "Trier par";
+      dropdownMenu.appendChild(sortBy);
+    }
+  }, {
+    key: "appendDropdown",
+    value: function appendDropdown(dropdownMenu) {
+      var dropdown = document.createElement('div');
+      dropdown.className = "dropdown";
+      this.appendDropdownButton(dropdown);
+      this.createDropdownContent(dropdown);
+      dropdownMenu.appendChild(dropdown);
+    }
+  }, {
+    key: "appendDropdownButton",
+    value: function appendDropdownButton(dropdown) {
+      var dropdownButton = document.createElement('button');
+      dropdownButton.className = 'dropdown__button';
+      dropdownButton.innerHTML = this.SortEnum.POPULARITY;
+      dropdown.appendChild(dropdownButton);
+    }
+  }, {
+    key: "createDropdownContent",
+    value: function createDropdownContent(dropdown) {
+      var dropdownContent = document.createElement('div');
+      dropdownContent.className = 'dropdown__content';
+      this.appendDropdownItemDATE(dropdownContent);
+      this.appendDropdownItemTITLE(dropdownContent);
+      dropdown.appendChild(dropdownContent);
+    }
+  }, {
+    key: "appendDropdownItemDATE",
+    value: function appendDropdownItemDATE(dropdownContent) {
+      var dropdownItemDATE = document.createElement('a');
+      dropdownItemDATE.className = 'dropdown__content__item';
+      dropdownItemDATE.innerHTML = this.SortEnum.DATE;
+      dropdownContent.appendChild(dropdownItemDATE);
+    }
+  }, {
+    key: "appendDropdownItemTITLE",
+    value: function appendDropdownItemTITLE(dropdownContent) {
+      var dropdownItemTITLE = document.createElement('a');
+      dropdownItemTITLE.className = 'dropdown__content__item';
+      dropdownItemTITLE.innerHTML = this.SortEnum.TITLE;
+      dropdownContent.appendChild(dropdownItemTITLE);
     } //sticker photographer total number of likes and price
 
   }, {
@@ -953,16 +1127,18 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
   }, {
     key: "createMediumThumbnail",
     value: function createMediumThumbnail(medium) {
-      var _this7 = this;
+      var _this8 = this;
 
       var mediumThumbnail = this.mediaFactory.renderMedium(medium, this.currentPhotographer);
       var main = document.querySelector('main');
       main.appendChild(mediumThumbnail);
       var mediumThumbnailMiniature = mediumThumbnail.querySelector('.medium_thumbnail__miniature');
       mediumThumbnailMiniature.addEventListener('click', function () {
-        var title = mediumThumbnail.querySelector(".medium_thumbnail__miniature").getAttribute("alt");
-
-        _this7.lightboxMedia.showLightboxMedia(medium, _this7.currentPhotographer, title, _this7.allMedia);
+        if (_this8.selectedMedia.length == 0) {
+          _this8.lightboxMedia.showLightboxMedia(medium, _this8.currentPhotographer, _this8.allMedia);
+        } else {
+          _this8.lightboxMedia.showLightboxMedia(medium, _this8.currentPhotographer, _this8.selectedMedia);
+        }
       });
       this.incrementNumberOfLikes(mediumThumbnail);
     }
@@ -978,107 +1154,6 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
           mainNode.removeChild(child);
         }
       }
-    }
-  }, {
-    key: "renderDropdown",
-    value: function renderDropdown() {
-      var _this8 = this;
-
-      var dropdownMenu = this.createDropdownMenu();
-      this.appendSortByText(dropdownMenu);
-      this.appendDropdown(dropdownMenu);
-      document.querySelector('main').appendChild(dropdownMenu);
-      var dropdrownButton = document.querySelector('.dropdown__button');
-      var dropdrownContent = document.querySelector('.dropdown__content');
-      dropdrownButton.addEventListener('click', function () {
-        if (_this8.isDropdownVisible == false) {
-          dropdrownContent.style.display = "block";
-          _this8.isDropdownVisible = true; //content visibility state 
-        } else {
-          dropdrownContent.style.display = "none";
-          _this8.isDropdownVisible = false;
-        }
-      });
-      var dropdownItems = document.getElementsByClassName("dropdown__content__item");
-
-      var _iterator = _createForOfIteratorHelper(dropdownItems),
-          _step;
-
-      try {
-        var _loop = function _loop() {
-          var item = _step.value;
-          item.addEventListener('click', function () {
-            _this8.handleDropdownItemClick(dropdrownButton, item);
-          });
-        };
-
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          _loop();
-        }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
-    }
-  }, {
-    key: "createDropdownMenu",
-    value: function createDropdownMenu() {
-      var dropdownMenu = document.createElement('div');
-      dropdownMenu.className = "dropdown_menu"; // const main = document.querySelector('main');
-      // main.appendChild(dropdownMenu);
-
-      return dropdownMenu;
-    }
-  }, {
-    key: "appendSortByText",
-    value: function appendSortByText(dropdownMenu) {
-      var sortBy = document.createElement('span');
-      sortBy.className = 'sort_by';
-      sortBy.innerHTML = "Trier par";
-      dropdownMenu.appendChild(sortBy);
-    }
-  }, {
-    key: "appendDropdown",
-    value: function appendDropdown(dropdownMenu) {
-      var dropdown = document.createElement('div');
-      dropdown.className = "dropdown";
-      this.appendDropdownButton(dropdown);
-      this.createDropdownContent(dropdown);
-      dropdownMenu.appendChild(dropdown);
-    }
-  }, {
-    key: "appendDropdownButton",
-    value: function appendDropdownButton(dropdown) {
-      var dropdownButton = document.createElement('button');
-      dropdownButton.className = 'dropdown__button';
-      dropdownButton.innerHTML = this.SortEnum.POPULARITY;
-      dropdown.appendChild(dropdownButton);
-    }
-  }, {
-    key: "createDropdownContent",
-    value: function createDropdownContent(dropdown) {
-      var dropdownContent = document.createElement('div');
-      dropdownContent.className = 'dropdown__content';
-      this.appendDropdownItemDATE(dropdownContent);
-      this.appendDropdownItemTITLE(dropdownContent);
-      dropdown.appendChild(dropdownContent);
-    }
-  }, {
-    key: "appendDropdownItemDATE",
-    value: function appendDropdownItemDATE(dropdownContent) {
-      var dropdownItemDATE = document.createElement('a');
-      dropdownItemDATE.className = 'dropdown__content__item';
-      dropdownItemDATE.innerHTML = this.SortEnum.DATE;
-      dropdownContent.appendChild(dropdownItemDATE);
-    }
-  }, {
-    key: "appendDropdownItemTITLE",
-    value: function appendDropdownItemTITLE(dropdownContent) {
-      var dropdownItemTITLE = document.createElement('a');
-      dropdownItemTITLE.className = 'dropdown__content__item';
-      dropdownItemTITLE.innerHTML = this.SortEnum.TITLE;
-      dropdownContent.appendChild(dropdownItemTITLE);
     }
   }, {
     key: "handleDropdownItemClick",
@@ -1125,7 +1200,6 @@ var PhotographerPageBuilder = /*#__PURE__*/function () {
           break;
       }
 
-      console.log(sortedMedia);
       sortedMedia.forEach(function (sortedMedium) {
         _this9.createMediumThumbnail(sortedMedium);
       });
@@ -1198,9 +1272,7 @@ var HomePageBuilder = /*#__PURE__*/function () {
       this.appendLogo(header);
       this.appendMainNav(photographers, header);
       var main = document.querySelector("main");
-      document.querySelector('body').insertBefore(header, main); // document.querySelector(".banner").style.display = "none";
-      // document.querySelector(".dropdown_menu").style.display = "none";
-      // document.querySelector(".sticker_summary").style.display = "none";
+      document.querySelector('body').insertBefore(header, main);
     }
   }, {
     key: "createHeader",
@@ -1239,20 +1311,52 @@ var HomePageBuilder = /*#__PURE__*/function () {
 
 
       distinctTags.forEach(function (tag) {
-        var headerTag = document.createElement('a');
         var tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
+        var headerTag = document.createElement('div');
         headerTag.className = 'main_nav__item';
-        headerTag.innerHTML = "<span>#".concat(tagName, "</span>");
+        var checkboxTag = document.createElement('input');
+        checkboxTag.type = "checkbox";
+        checkboxTag.className = "tag_checkbox";
+        checkboxTag.id = tagName;
+        headerTag.appendChild(checkboxTag);
+        var labelTag = document.createElement('label');
+        labelTag.className = "tag_name";
+        labelTag.setAttribute("for", tagName);
+        labelTag.innerHTML = "#".concat(tagName);
+        headerTag.appendChild(labelTag);
         nav.appendChild(headerTag); //listen to clicks on main nav tags
 
-        headerTag.addEventListener("click", function (event) {
-          _this2.clickedNavTags.push(tag);
+        headerTag.addEventListener("change", function () {
+          if (checkboxTag.checked) {
+            _this2.clickedNavTags.push(tag);
 
-          _this2.clickedNavTags = _toConsumableArray(new Set(_this2.clickedNavTags));
+            _this2.clickedNavTags = _toConsumableArray(new Set(_this2.clickedNavTags));
+          } else {
+            var currentIndex = _this2.clickedNavTags.indexOf(tag);
+
+            _this2.clickedNavTags.splice(currentIndex, 1);
+          }
 
           _this2.handleTagClick(photographers);
         });
       });
+    }
+  }, {
+    key: "createLabel",
+    value: function createLabel(forParam, textParam) {
+      var label = document.createElement('label');
+      label.setAttribute("for", forParam);
+      label.innerHTML = "".concat(textParam);
+      return label;
+    }
+  }, {
+    key: "createInputField",
+    value: function createInputField(id) {
+      var inputField = document.createElement('input');
+      inputField.className = 'input_field';
+      inputField.type = "text";
+      inputField.setAttribute("id", id);
+      return inputField;
     }
   }, {
     key: "handleTagClick",
@@ -1281,8 +1385,13 @@ var HomePageBuilder = /*#__PURE__*/function () {
           }
         });
       });
-      selectedPhotographers = _toConsumableArray(new Set(selectedPhotographers));
-      this.createArticle(selectedPhotographers);
+
+      if (this.clickedNavTags.length == 0) {
+        this.createArticle(photographers);
+      } else {
+        selectedPhotographers = _toConsumableArray(new Set(selectedPhotographers));
+        this.createArticle(selectedPhotographers);
+      }
     }
   }, {
     key: "renderMain",
@@ -1349,7 +1458,7 @@ exports.HomePageBuilder = HomePageBuilder;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PageFactory = void 0;
+exports.PageFactory = exports.PagesFactoryEnum = void 0;
 
 var _PhotographerPageBuilder = require("./PhotographerPageBuilder");
 
@@ -1361,10 +1470,15 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-//Map[key] = value
+var PagesFactoryEnum = {
+  HOME: "HOME",
+  PHOTOGRAPHER: "PHOTOGRAPHER"
+}; //Map[key] = value
+
+exports.PagesFactoryEnum = PagesFactoryEnum;
 var registeredPages = {};
-registeredPages["photographerPage"] = _PhotographerPageBuilder.PhotographerPageBuilder;
-registeredPages["homePage"] = _HomePageBuilder.HomePageBuilder;
+registeredPages[PagesFactoryEnum.PHOTOGRAPHER] = _PhotographerPageBuilder.PhotographerPageBuilder;
+registeredPages[PagesFactoryEnum.HOME] = _HomePageBuilder.HomePageBuilder;
 
 var PageFactory = /*#__PURE__*/function () {
   function PageFactory() {
@@ -1438,38 +1552,18 @@ var props = {
 }; //possible routes
 
 var routes = [{
-  path: "/",
-  component: pageFactory.getPage("homePage", props)
+  regex: /\/{1}$/gm,
+  component: pageFactory.getPage(_PageFactory.PagesFactoryEnum.HOME, props)
 }, {
-  path: "/photographers-profile/",
-  component: pageFactory.getPage("photographerPage", props)
-}]; //match for photographer page regex
-
-var photographerURLRegex = /\/[A-Za-z\-]{1,}\/[0-9]{0,3}?$/;
+  regex: /\/[A-Za-z\-]{1,}\/[0-9]{0,3}?$/,
+  component: pageFactory.getPage(_PageFactory.PagesFactoryEnum.PHOTOGRAPHER, props)
+}];
 
 var router = function router() {
-  //for each route, return component (page)
-  // check if requested page corresponds to a photographer page (with regex)
-  var potentialMatches = routes.map(function (route) {
-    return {
-      component: route.component,
-      result: photographerURLRegex.test(route.path) && photographerURLRegex.test(location.pathname) //current url
-
-    };
-  });
-  var matchedPage = potentialMatches.find(function (potentialMatch) {
-    return potentialMatch.result == true;
-  });
-
-  if (matchedPage != null) {
-    // photographer page match
-    var idPhotographer = location.pathname.split('/')[2];
-    matchedPage.component.render(idPhotographer);
-  } else {
-    routes.find(function (route) {
-      return route.path == "/";
-    }).component.render(); //return to home page
-  }
+  var idPhotographer = location.pathname.split('/')[2];
+  routes.find(function (route) {
+    return route.regex.test(location.pathname);
+  }).component.render(idPhotographer);
 };
 
 exports.router = router;
@@ -1509,7 +1603,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65310" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59844" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
