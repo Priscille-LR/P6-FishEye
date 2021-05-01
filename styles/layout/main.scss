@@ -11,18 +11,17 @@ main {
     @include desktop {
       display: flex;
       justify-content: center;
-      max-width: 1400px ;
-      margin: auto;
     }
   .main_title {
-    font-size: 14px;
+    font-size: 2rem;
     position: absolute;
     top: 2rem;
     right: 2rem;
-    // width : 
+    width : 35%;
     color: $color-primary;
     @include desktop {
-        font-size: 36px;
+        font-size: 2.3rem;
+        width : 20%;
         margin: auto;
         
     }
@@ -38,8 +37,7 @@ main {
     }
     article {
         @include desktop {
-            margin: 3rem;
-            width: 21rem;
+            width: 25rem;
         }
     }
   }

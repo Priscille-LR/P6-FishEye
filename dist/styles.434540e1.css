@@ -1,6 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans&display=swap");
+html {
+  font-size: 2vw;
+}
+@media screen and (min-width: 1000px) {
+  html {
+    font-size: 1vw;
+  }
+}
+
 body {
   font-family: "DM sans", sans-serif;
   color: black;
@@ -8,12 +17,12 @@ body {
 }
 
 h1 {
-  font-size: 36px;
+  font-size: 2.25rem;
   color: black;
 }
 
 h2 {
-  font-size: 36px;
+  font-size: 2.25rem;
   color: black;
   margin: 0.5rem;
   font-weight: 400;
@@ -43,6 +52,15 @@ a {
   text-decoration: none;
 }
 
+html {
+  font-size: 2vw;
+}
+@media screen and (min-width: 1000px) {
+  html {
+    font-size: 1vw;
+  }
+}
+
 body {
   font-family: "DM sans", sans-serif;
   color: black;
@@ -50,12 +68,12 @@ body {
 }
 
 h1 {
-  font-size: 36px;
+  font-size: 2.25rem;
   color: black;
 }
 
 h2 {
-  font-size: 36px;
+  font-size: 2.25rem;
   color: black;
   margin: 0.5rem;
   font-weight: 400;
@@ -100,13 +118,13 @@ a {
     width: 80%;
   }
 }
-.header_home .logo {
-  width: 150px;
+.header_home .logo_img {
+  width: 70%;
 }
 @media screen and (min-width: 1000px) {
-  .header_home .logo {
+  .header_home .logo_img {
     display: flex;
-    width: 20%;
+    width: 90%;
   }
 }
 .header_home .main_nav {
@@ -114,16 +132,16 @@ a {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  width: 23rem;
-  margin: 1rem auto;
+  width: 80%;
+  margin: 3rem auto;
 }
 @media screen and (min-width: 1000px) {
   .header_home .main_nav {
-    width: 80%;
+    margin: 1rem auto;
   }
 }
 .header_home .main_nav__item {
-  margin: 0.3rem;
+  margin: 0.5rem;
 }
 .header_home .main_nav__item .tag_name {
   border-radius: 30px;
@@ -131,6 +149,12 @@ a {
   padding: 0.2rem 0.5rem;
   color: #901C1C;
   font-weight: bold;
+  font-size: 1.8rem;
+}
+@media screen and (min-width: 1000px) {
+  .header_home .main_nav__item .tag_name {
+    font-size: 1rem;
+  }
 }
 .header_home .main_nav__item .tag_checkbox {
   display: none;
@@ -169,20 +193,20 @@ a {
   main {
     display: flex;
     justify-content: center;
-    max-width: 1400px;
-    margin: auto;
   }
 }
 main .main_title {
-  font-size: 14px;
+  font-size: 2rem;
   position: absolute;
   top: 2rem;
   right: 2rem;
+  width: 35%;
   color: #901C1C;
 }
 @media screen and (min-width: 1000px) {
   main .main_title {
-    font-size: 36px;
+    font-size: 2.3rem;
+    width: 20%;
     margin: auto;
   }
 }
@@ -200,8 +224,16 @@ main .photographers {
 }
 @media screen and (min-width: 1000px) {
   main .photographers article {
-    margin: 3rem;
-    width: 21rem;
+    width: 25rem;
+  }
+}
+
+html {
+  font-size: 2vw;
+}
+@media screen and (min-width: 1000px) {
+  html {
+    font-size: 1vw;
   }
 }
 
@@ -212,12 +244,12 @@ body {
 }
 
 h1 {
-  font-size: 36px;
+  font-size: 2.25rem;
   color: black;
 }
 
 h2 {
-  font-size: 36px;
+  font-size: 2.25rem;
   color: black;
   margin: 0.5rem;
   font-weight: 400;
@@ -343,6 +375,7 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin: 2rem;
 }
 .photographer_thumbnail__picture {
   border-radius: 50%;
@@ -356,24 +389,49 @@ main {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: auto;
+  margin: 2rem auto;
+}
+@media screen and (min-width: 1000px) {
+  .photographer_thumbnail__content {
+    margin: 1rem auto;
+  }
 }
 .photographer_thumbnail__content .photographer_name {
   color: #d3573C;
-  font-size: 36px;
+  font-size: 3.5rem;
+}
+@media screen and (min-width: 1000px) {
+  .photographer_thumbnail__content .photographer_name {
+    font-size: 2rem;
+  }
 }
 .photographer_thumbnail__content .photographer_location {
   color: #901C1C;
-  font-size: 13px;
+  font-size: 1.8rem;
+}
+@media screen and (min-width: 1000px) {
+  .photographer_thumbnail__content .photographer_location {
+    font-size: 1rem;
+  }
 }
 .photographer_thumbnail__content .photographer_desc {
   color: black;
-  font-size: 11px;
+  font-size: 1.7rem;
   margin: 0.2rem;
+}
+@media screen and (min-width: 1000px) {
+  .photographer_thumbnail__content .photographer_desc {
+    font-size: 0.8rem;
+  }
 }
 .photographer_thumbnail__content .photographer_price {
   color: #757575;
-  font-size: 10px;
+  font-size: 1.6rem;
+}
+@media screen and (min-width: 1000px) {
+  .photographer_thumbnail__content .photographer_price {
+    font-size: 0.7rem;
+  }
 }
 
 .picture_profile {
@@ -399,7 +457,7 @@ main {
 .tags__item {
   text-decoration: none;
   color: #901C1C;
-  font-size: 13px;
+  font-size: 1.8rem;
   font-weight: 500;
   border-radius: 20px;
   border: solid 1px #c4c4c4;
@@ -408,7 +466,7 @@ main {
 }
 @media screen and (min-width: 1000px) {
   .tags__item {
-    font-size: 18px;
+    font-size: 1rem;
   }
 }
 

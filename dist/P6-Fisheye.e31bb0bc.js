@@ -258,6 +258,18 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ContactModal = void 0;
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -418,17 +430,24 @@ var ContactModal = /*#__PURE__*/function () {
       modalButton.type = "submit";
       modalButton.innerHTML = "Envoyer";
       modalButton.addEventListener('click', function (e) {
-        var inputs = modalBody.querySelectorAll('.input_field');
+        var inputs = _toConsumableArray(modalBody.querySelectorAll('.input_field'));
+
         e.preventDefault();
 
         if (_this3.validateFields(modalBody) === true) {
-          inputs.forEach(function (input) {
-            console.log(input.value);
-          });
-
           _this3.hideContactModal();
+
+          inputs.map(function (input) {
+            var fields = {
+              input: input.id,
+              inputValue: input.value
+            };
+            return fields;
+          }).forEach(function (field) {
+            return console.log(field.input + " : " + field.inputValue);
+          });
         } else {
-          console.log("veuillez rensigner les champs, merci !");
+          console.log("Merci de rensigner les champs");
         }
       });
       modalBody.appendChild(modalButton);
@@ -463,7 +482,7 @@ var ContactModal = /*#__PURE__*/function () {
     value: function validateFieldsFormat(input) {
       var fieldFormat = /^[A-Za-z\-\sàáâãäåçèéêëìíîïðòóôõöùúûüýÿ']{2,}$/;
       var emailAddressFormat = /\S+@\S+\.\S+/;
-      var messageFormat = /^[A-Za-z\-\sàáâãäåçèéêëìíîïðòóôõöùúûüýÿ'.,;!?]{5,200}$/;
+      var messageFormat = /^[A-Za-z\-\sàáâãäåçèéêëìíîïðòóôõöùúûüýÿ'.,;:!?]{5,500}$/;
 
       if (input.id === "email") {
         if (input.value.length != 0 && emailAddressFormat.test(input.value)) {
@@ -555,10 +574,10 @@ var LightboxMedia = /*#__PURE__*/function () {
       var lightboxBody = document.createElement('div');
       lightboxBody.className = 'lightbox_media__body';
       this.appendCloseButton(lightboxBody);
-      this.appendPreviousButton(lightboxBody);
+      this.appendNavButtons(lightboxBody);
+      this.handleNav(lightboxBody);
       this.appendMediumBox(lightboxBody);
       this.appendMediumTitle(lightboxBody);
-      this.appendNextButton(lightboxBody);
       document.querySelector('.lightbox_media').appendChild(lightboxBody);
     }
   }, {
@@ -575,13 +594,28 @@ var LightboxMedia = /*#__PURE__*/function () {
       lightboxBody.appendChild(closeButton);
     }
   }, {
-    key: "appendPreviousButton",
-    value: function appendPreviousButton(lightboxBody) {
+    key: "createNavButton",
+    value: function createNavButton(buttonClass, buttonIcon) {
+      var button = document.createElement('button');
+      button.className = buttonClass;
+      button.innerHTML = "<i class=\"fas ".concat(buttonIcon, " fa-3x\"></i>");
+      return button;
+    }
+  }, {
+    key: "appendNavButtons",
+    value: function appendNavButtons(lightboxBody) {
+      var previousButton = this.createNavButton("previous_button", "fa-chevron-left");
+      var nextButton = this.createNavButton("next_button", "fa-chevron-right");
+      lightboxBody.appendChild(previousButton);
+      lightboxBody.appendChild(nextButton);
+    }
+  }, {
+    key: "handleNav",
+    value: function handleNav(lightboxBody) {
       var _this2 = this;
 
-      var previousButton = document.createElement('button');
-      previousButton.className = 'previous_button';
-      previousButton.innerHTML = "<i class=\"fas fa-chevron-left fa-3x\"></i>";
+      var previousButton = lightboxBody.querySelector('.previous_button');
+      var nextButton = lightboxBody.querySelector('.next_button');
       previousButton.addEventListener('click', function () {
         var currentIndex = _this2.allMedia.indexOf(_this2.medium);
 
@@ -597,8 +631,58 @@ var LightboxMedia = /*#__PURE__*/function () {
           previousButton.style.display = "none"; //disable prev button
         }
       });
-      lightboxBody.appendChild(previousButton);
-    }
+      nextButton.addEventListener('click', function () {
+        var currentIndex = _this2.allMedia.indexOf(_this2.medium);
+
+        var newIndex = currentIndex + 1;
+        var previousButton = lightboxBody.querySelector('.previous_button');
+        previousButton.style.display = "block";
+
+        if (newIndex <= _this2.allMedia.length - 1) {
+          _this2.showLightboxMedia(_this2.allMedia[newIndex], _this2.currentPhotographer, _this2.allMedia);
+        }
+
+        if (newIndex == _this2.allMedia.length - 1) {
+          nextButton.style.display = "none";
+        }
+      });
+    } // appendPreviousButton(lightboxBody) {
+    //     const previousButton = document.createElement('button');
+    //     previousButton.className = 'previous_button';
+    //     previousButton.innerHTML = `<i class="fas fa-chevron-left fa-3x"></i>`;
+    //     previousButton.addEventListener('click', () => {
+    //         const currentIndex = this.allMedia.indexOf(this.medium);
+    //         const newIndex = currentIndex - 1;
+    //         const nextButton = lightboxBody.querySelector('.next_button');
+    //         nextButton.style.display = "block";
+    //         if (newIndex >= 0 ) {
+    //             this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
+    //         } 
+    //         if (newIndex == 0) {
+    //             previousButton.style.display = "none"; //disable prev button
+    //         }
+    //     });
+    //     lightboxBody.appendChild(previousButton);
+    // }
+    // appendNextButton(lightboxBody) {
+    //     const nextButton = document.createElement('button');
+    //     nextButton.className = 'next_button';
+    //     nextButton.innerHTML = `<i class="fas fa-chevron-right fa-3x"></i>`;
+    //     nextButton.addEventListener('click', () => {
+    //         const currentIndex = this.allMedia.indexOf(this.medium);
+    //         const newIndex = currentIndex + 1;
+    //         const previousButton = lightboxBody.querySelector('.previous_button');
+    //         previousButton.style.display = "block";
+    //         if (newIndex <= this.allMedia.length -1) {
+    //             this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
+    //         }
+    //         if (newIndex == this.allMedia.length -1) {
+    //             nextButton.style.display = "none";
+    //         }
+    //     });
+    //     lightboxBody.appendChild(nextButton);
+    // }
+
   }, {
     key: "appendMediumBox",
     value: function appendMediumBox(lightboxBody) {
@@ -611,32 +695,7 @@ var LightboxMedia = /*#__PURE__*/function () {
     value: function appendMediumTitle(lightboxBody) {
       var mediumTitle = document.createElement('h2');
       mediumTitle.className = 'lightbox_title';
-      lightboxBody.appendChild(mediumTitle);
-    }
-  }, {
-    key: "appendNextButton",
-    value: function appendNextButton(lightboxBody) {
-      var _this3 = this;
-
-      var nextButton = document.createElement('button');
-      nextButton.className = 'next_button';
-      nextButton.innerHTML = "<i class=\"fas fa-chevron-right fa-3x\"></i>";
-      nextButton.addEventListener('click', function () {
-        var currentIndex = _this3.allMedia.indexOf(_this3.medium);
-
-        var newIndex = currentIndex + 1;
-        var previousButton = lightboxBody.querySelector('.previous_button');
-        previousButton.style.display = "block";
-
-        if (newIndex <= _this3.allMedia.length - 1) {
-          _this3.showLightboxMedia(_this3.allMedia[newIndex], _this3.currentPhotographer, _this3.allMedia);
-        }
-
-        if (newIndex == _this3.allMedia.length - 1) {
-          nextButton.style.display = "none";
-        }
-      });
-      lightboxBody.appendChild(nextButton);
+      lightboxBody.querySelector('.medium_box').appendChild(mediumTitle);
     }
   }, {
     key: "showLightboxMedia",
@@ -648,6 +707,7 @@ var LightboxMedia = /*#__PURE__*/function () {
       var lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium", true);
       document.querySelector('.medium_box').appendChild(lightboxMedium);
       this.lightboxMedia.style.display = "block";
+      console.log(document.querySelector('.medium_box'));
       var mediumTitle = document.querySelector('.lightbox_title');
       mediumTitle.innerHTML = title;
     }
@@ -663,7 +723,7 @@ var LightboxMedia = /*#__PURE__*/function () {
 
       for (var index = mainNode.childNodes.length - 1; index >= 0; index--) {
         var child = mainNode.childNodes[index];
-        mainNode.removeChild(child);
+        if (child.className != "lightbox_title") mainNode.removeChild(child);
       }
     }
   }]);

@@ -145,15 +145,20 @@ export class ContactModal {
         modalButton.innerHTML = `Envoyer`;
 
         modalButton.addEventListener('click', (e) => {
-            const inputs = modalBody.querySelectorAll('.input_field');
+            const inputs = [...modalBody.querySelectorAll('.input_field')];
             e.preventDefault();
             if (this.validateFields(modalBody) === true) {
-                inputs.forEach(input => {
-                    console.log(input.value);
-                });
                 this.hideContactModal();
+                inputs.map(input => {
+                    const fields = {
+                        input: input.id,
+                        inputValue: input.value,
+                    }
+                    return fields;
+                })
+                .forEach((field) => console.log(field.input + " : " + field.inputValue));
             } else {
-                console.log("veuillez rensigner les champs, merci !")
+                console.log("Merci de rensigner les champs")
             }
         });
         modalBody.appendChild(modalButton);
@@ -185,7 +190,7 @@ export class ContactModal {
     validateFieldsFormat(input) {
         const fieldFormat = /^[A-Za-z\-\sàáâãäåçèéêëìíîïðòóôõöùúûüýÿ']{2,}$/;
         const emailAddressFormat = /\S+@\S+\.\S+/;
-        const messageFormat = /^[A-Za-z\-\sàáâãäåçèéêëìíîïðòóôõöùúûüýÿ'.,;!?]{5,200}$/;
+        const messageFormat = /^[A-Za-z\-\sàáâãäåçèéêëìíîïðòóôõöùúûüýÿ'.,;:!?]{5,500}$/;
 
         if (input.id === "email") {
             if ((input.value.length != 0) && (emailAddressFormat.test(input.value))) {
@@ -200,7 +205,7 @@ export class ContactModal {
             } else {
                 return false;
             }
-        
+
         } else {
             if ((input.value.length != 0) && (fieldFormat.test(input.value))) {
                 return true;

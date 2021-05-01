@@ -17,10 +17,10 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  //   @include desktop {
-  //       margin: 2rem;
-  //   }
+  margin: 2rem;
+    @include desktop {
+        //margin: 3rem;
+    }
   &__picture {
     border-radius: 50%;
     width: 200px;
@@ -33,23 +33,38 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: auto;
+    margin: 2rem auto;
+    @include desktop {
+      margin: 1rem auto;
+    }
     .photographer_name {
       color: $color-secondary;
-      font-size: 36px;
+      font-size: 3.5rem;
+      @include desktop {
+        font-size: 2rem;
+      }
     }
     .photographer_location {
       color: $color-primary;
-      font-size: 13px;
+      font-size: 1.8rem;
+      @include desktop {
+        font-size: 1rem;
+      }
     }
     .photographer_desc {
       color: black;
-      font-size: 11px;
+      font-size: 1.7rem;
       margin: 0.2rem;
+      @include desktop {
+        font-size: 0.8rem;
+      }
     }
     .photographer_price {
       color: #757575;
-      font-size: 10px;
+      font-size: 1.6rem;
+      @include desktop {
+        font-size: 0.7rem;
+      }
     }
   }
 }
@@ -74,14 +89,14 @@ main {
   &__item {
     text-decoration: none;
     color: $color-primary;
-    font-size: 13px;
+    font-size: 1.8rem;
     font-weight: 500;
     border-radius: 20px;
     border: solid 1px #c4c4c4;
     padding: 0.1rem 0.3rem;
     margin: 0.2rem;
     @include desktop {
-      font-size: 18px;
+      font-size: 1rem;
     }
   }
 }

@@ -27,11 +27,11 @@ export class LightboxMedia {
         lightboxBody.className = 'lightbox_media__body';
 
         this.appendCloseButton(lightboxBody);
-        this.appendPreviousButton(lightboxBody);
+        this.appendNavButtons(lightboxBody);
+        this.handleNav(lightboxBody);
         this.appendMediumBox(lightboxBody);
         this.appendMediumTitle(lightboxBody);
-        this.appendNextButton(lightboxBody);
-
+       
         document.querySelector('.lightbox_media').appendChild(lightboxBody);
     }
 
@@ -45,10 +45,26 @@ export class LightboxMedia {
         lightboxBody.appendChild(closeButton);
     }
 
-    appendPreviousButton(lightboxBody) {
-        const previousButton = document.createElement('button');
-        previousButton.className = 'previous_button';
-        previousButton.innerHTML = `<i class="fas fa-chevron-left fa-3x"></i>`;
+    createNavButton(buttonClass, buttonIcon) {
+        const button = document.createElement('button');
+        button.className = buttonClass;
+        button.innerHTML = `<i class="fas ${buttonIcon} fa-3x"></i>`;
+        return button;
+    }
+
+    appendNavButtons(lightboxBody) {
+        const previousButton = this.createNavButton("previous_button", "fa-chevron-left");
+        const nextButton = this.createNavButton("next_button", "fa-chevron-right");
+
+        lightboxBody.appendChild(previousButton);
+        lightboxBody.appendChild(nextButton);
+    }
+
+    handleNav(lightboxBody) {
+
+        const previousButton = lightboxBody.querySelector('.previous_button');
+        const nextButton = lightboxBody.querySelector('.next_button');
+
         previousButton.addEventListener('click', () => {
 
             const currentIndex = this.allMedia.indexOf(this.medium);
@@ -66,25 +82,6 @@ export class LightboxMedia {
             }
         });
 
-        lightboxBody.appendChild(previousButton);
-    }
-    
-    appendMediumBox(lightboxBody) {
-        const mediumBox = document.createElement('div');
-        mediumBox.className = "medium_box";
-        lightboxBody.appendChild(mediumBox);
-    }
-
-    appendMediumTitle(lightboxBody) {
-        const mediumTitle = document.createElement('h2');
-        mediumTitle.className = 'lightbox_title';
-        lightboxBody.appendChild(mediumTitle);
-    }
-
-    appendNextButton(lightboxBody) {
-        const nextButton = document.createElement('button');
-        nextButton.className = 'next_button';
-        nextButton.innerHTML = `<i class="fas fa-chevron-right fa-3x"></i>`;
         nextButton.addEventListener('click', () => {
             const currentIndex = this.allMedia.indexOf(this.medium);
             const newIndex = currentIndex + 1;
@@ -100,9 +97,68 @@ export class LightboxMedia {
                 nextButton.style.display = "none";
             }
         });
-
-        lightboxBody.appendChild(nextButton);
     }
+
+    // appendPreviousButton(lightboxBody) {
+    //     const previousButton = document.createElement('button');
+    //     previousButton.className = 'previous_button';
+    //     previousButton.innerHTML = `<i class="fas fa-chevron-left fa-3x"></i>`;
+    //     previousButton.addEventListener('click', () => {
+
+    //         const currentIndex = this.allMedia.indexOf(this.medium);
+    //         const newIndex = currentIndex - 1;
+
+    //         const nextButton = lightboxBody.querySelector('.next_button');
+    //         nextButton.style.display = "block";
+            
+    //         if (newIndex >= 0 ) {
+    //             this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
+    //         } 
+
+    //         if (newIndex == 0) {
+    //             previousButton.style.display = "none"; //disable prev button
+    //         }
+    //     });
+
+    //     lightboxBody.appendChild(previousButton);
+    // }
+    
+    // appendNextButton(lightboxBody) {
+    //     const nextButton = document.createElement('button');
+    //     nextButton.className = 'next_button';
+    //     nextButton.innerHTML = `<i class="fas fa-chevron-right fa-3x"></i>`;
+    //     nextButton.addEventListener('click', () => {
+    //         const currentIndex = this.allMedia.indexOf(this.medium);
+    //         const newIndex = currentIndex + 1;
+
+    //         const previousButton = lightboxBody.querySelector('.previous_button');
+    //         previousButton.style.display = "block";
+
+    //         if (newIndex <= this.allMedia.length -1) {
+    //             this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
+    //         }
+
+    //         if (newIndex == this.allMedia.length -1) {
+    //             nextButton.style.display = "none";
+    //         }
+    //     });
+
+    //     lightboxBody.appendChild(nextButton);
+    // }
+
+    appendMediumBox(lightboxBody) {
+        const mediumBox = document.createElement('div');
+        mediumBox.className = "medium_box";
+        lightboxBody.appendChild(mediumBox);
+    }
+
+    appendMediumTitle(lightboxBody) {
+        const mediumTitle = document.createElement('h2');
+        mediumTitle.className = 'lightbox_title';
+        lightboxBody.querySelector('.medium_box').appendChild(mediumTitle);
+    }
+
+    
 
     showLightboxMedia(medium, currentPhotographer, allMedia) {
         this.allMedia = allMedia;
@@ -115,6 +171,7 @@ export class LightboxMedia {
         document.querySelector('.medium_box').appendChild(lightboxMedium);
         this.lightboxMedia.style.display = "block";
 
+        console.log(document.querySelector('.medium_box'))
         const mediumTitle = document.querySelector('.lightbox_title');
         mediumTitle.innerHTML = title;
     }
@@ -127,7 +184,7 @@ export class LightboxMedia {
         const mainNode = document.querySelector('.medium_box')
         for (let index = mainNode.childNodes.length - 1; index >= 0; index--) {
             const child = mainNode.childNodes[index];
-            mainNode.removeChild(child)
+            if (child.className != "lightbox_title") mainNode.removeChild(child)
         }
     }
 }
