@@ -610,14 +610,14 @@ var _LightboxMedia = require("./LightboxMedia");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 class PhotographerPageBuilder {
-  constructor(props) {
+  constructor(json) {
     _defineProperty(this, "SortEnum", {
       DATE: "Date",
       POPULARITY: "Popularité",
       TITLE: "Titre"
     });
 
-    this.jsonPromise = props.json;
+    this.jsonPromise = json;
     this.isDropdownVisible = false; //dropdown menu hidden by default
 
     this.allMedia = [];
@@ -1034,8 +1034,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.HomePageBuilder = void 0;
 
 class HomePageBuilder {
-  constructor(props) {
-    this.dataPromise = props.json;
+  constructor(json) {
+    this.dataPromise = json;
     this.clickedNavTags = [];
   } //display header and main (home page)
 
@@ -1269,17 +1269,14 @@ var _DataFetcher = require("./scripts/utils/DataFetcher");
 
 const dataFetcher = new _DataFetcher.DataFetcher('/static/FishEyeDataFR.json');
 const json = dataFetcher.fetchSource();
-const pageFactory = new _PageFactory.PageFactory();
-const props = {
-  json: json
-}; //possible routes
+const pageFactory = new _PageFactory.PageFactory(); //possible routes
 
 const routes = [{
   regex: /\/{1}$/gm,
-  component: pageFactory.getPage(_PageFactory.PageFactoryEnum.HOME, props)
+  component: pageFactory.getPage(_PageFactory.PageFactoryEnum.HOME, json)
 }, {
   regex: /\/[A-Za-z\-]{1,}\/[0-9]{0,3}?$/,
-  component: pageFactory.getPage(_PageFactory.PageFactoryEnum.PHOTOGRAPHER, props)
+  component: pageFactory.getPage(_PageFactory.PageFactoryEnum.PHOTOGRAPHER, json)
 }];
 
 const router = () => {

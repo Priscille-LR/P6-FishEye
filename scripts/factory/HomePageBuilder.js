@@ -1,6 +1,6 @@
 export class HomePageBuilder {
-    constructor(props) {
-        this.dataPromise = props.json
+    constructor(json) {
+        this.dataPromise = json
         this.clickedNavTags = [];
     }
 

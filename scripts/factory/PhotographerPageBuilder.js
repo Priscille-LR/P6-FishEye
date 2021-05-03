@@ -10,8 +10,8 @@ export class PhotographerPageBuilder {
         TITLE: "Titre",
     }
 
-    constructor(props) {
-        this.jsonPromise = props.json
+    constructor(json) {
+        this.jsonPromise = json
         this.isDropdownVisible = false //dropdown menu hidden by default
         this.allMedia = [];
         this.photographerTags = [];
