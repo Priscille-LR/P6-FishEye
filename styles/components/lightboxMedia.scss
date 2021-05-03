@@ -26,6 +26,7 @@
       top: 2rem;
       right: 2rem;
     }
+    
     .close_button_lightbox,
     .previous_button,
     .next_button {
@@ -37,7 +38,7 @@
     }
     .medium_box {
       display: flex;
-      //flex-direction: column;
+      flex-direction: column;
       .lightbox_medium {
         width: 1050px;
         height: 900px;
@@ -50,13 +51,12 @@
       }
     }
     .lightbox_title {
-      align-self: flex-end;
-      justify-self: flex-end;
       color: $color-primary;
       font-size: 14px;
-      margin: 0.4rem;
+      margin: 0.5rem;
       @include desktop {
         font-size: 24px;
+        margin: 1rem 0;
       }
     }
   }

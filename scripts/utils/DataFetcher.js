@@ -3,11 +3,9 @@ export class DataFetcher {
         this.dataSource = dataSource; //json file
     }
 
-    fetchSource() {
-        return fetch(this.dataSource) // ressource request
-            .then(function (resp) {
-                console.log(resp)
-                return resp.json(); 
-            });
+    async fetchSource() {
+        const resp = await fetch(this.dataSource); // ressource request
+        //console.log(resp);
+        return await resp.json();
     }
 }

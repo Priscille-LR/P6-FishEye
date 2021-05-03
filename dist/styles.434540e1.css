@@ -837,6 +837,7 @@ main {
 }
 .lightbox_media__body .medium_box {
   display: flex;
+  flex-direction: column;
 }
 .lightbox_media__body .medium_box .lightbox_medium {
   width: 1050px;
@@ -849,15 +850,14 @@ main {
   object-fit: cover;
 }
 .lightbox_media__body .lightbox_title {
-  align-self: flex-end;
-  justify-self: flex-end;
   color: #901C1C;
   font-size: 14px;
-  margin: 0.4rem;
+  margin: 0.5rem;
 }
 @media screen and (min-width: 1000px) {
   .lightbox_media__body .lightbox_title {
     font-size: 24px;
+    margin: 1rem 0;
   }
 }
 

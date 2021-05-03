@@ -99,57 +99,12 @@ export class LightboxMedia {
         });
     }
 
-    // appendPreviousButton(lightboxBody) {
-    //     const previousButton = document.createElement('button');
-    //     previousButton.className = 'previous_button';
-    //     previousButton.innerHTML = `<i class="fas fa-chevron-left fa-3x"></i>`;
-    //     previousButton.addEventListener('click', () => {
-
-    //         const currentIndex = this.allMedia.indexOf(this.medium);
-    //         const newIndex = currentIndex - 1;
-
-    //         const nextButton = lightboxBody.querySelector('.next_button');
-    //         nextButton.style.display = "block";
-            
-    //         if (newIndex >= 0 ) {
-    //             this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
-    //         } 
-
-    //         if (newIndex == 0) {
-    //             previousButton.style.display = "none"; //disable prev button
-    //         }
-    //     });
-
-    //     lightboxBody.appendChild(previousButton);
-    // }
-    
-    // appendNextButton(lightboxBody) {
-    //     const nextButton = document.createElement('button');
-    //     nextButton.className = 'next_button';
-    //     nextButton.innerHTML = `<i class="fas fa-chevron-right fa-3x"></i>`;
-    //     nextButton.addEventListener('click', () => {
-    //         const currentIndex = this.allMedia.indexOf(this.medium);
-    //         const newIndex = currentIndex + 1;
-
-    //         const previousButton = lightboxBody.querySelector('.previous_button');
-    //         previousButton.style.display = "block";
-
-    //         if (newIndex <= this.allMedia.length -1) {
-    //             this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
-    //         }
-
-    //         if (newIndex == this.allMedia.length -1) {
-    //             nextButton.style.display = "none";
-    //         }
-    //     });
-
-    //     lightboxBody.appendChild(nextButton);
-    // }
 
     appendMediumBox(lightboxBody) {
+        const nextButton = lightboxBody.querySelector('.next_button');
         const mediumBox = document.createElement('div');
         mediumBox.className = "medium_box";
-        lightboxBody.appendChild(mediumBox);
+        lightboxBody.insertBefore(mediumBox, nextButton);
     }
 
     appendMediumTitle(lightboxBody) {
@@ -158,22 +113,18 @@ export class LightboxMedia {
         lightboxBody.querySelector('.medium_box').appendChild(mediumTitle);
     }
 
-    
-
     showLightboxMedia(medium, currentPhotographer, allMedia) {
         this.allMedia = allMedia;
         this.medium = medium;
         this.removeLightboxMedium();
 
         const title =this.mediaFactory.extractMediumTitle(medium);
+        const mediumTitle = document.querySelector('.lightbox_title')
+        mediumTitle.innerHTML = title;
 
         const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium", true);
-        document.querySelector('.medium_box').appendChild(lightboxMedium);
-        this.lightboxMedia.style.display = "block";
-
-        console.log(document.querySelector('.medium_box'))
-        const mediumTitle = document.querySelector('.lightbox_title');
-        mediumTitle.innerHTML = title;
+        document.querySelector('.medium_box').insertBefore(lightboxMedium, mediumTitle);
+        this.lightboxMedia.style.display = "block";        
     }
 
     hideLightboxMedia() {
