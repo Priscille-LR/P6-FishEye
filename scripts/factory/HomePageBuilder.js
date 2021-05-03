@@ -1,3 +1,5 @@
+import { Utils } from "../utils/Utils";
+
 export class HomePageBuilder {
     constructor(json) {
         this.dataPromise = json
@@ -87,32 +89,9 @@ export class HomePageBuilder {
         });
     }
 
-    createLabel(forParam, textParam) {
-        const label = document.createElement('label');
-        label.setAttribute("for", forParam);
-        label.innerHTML = `${textParam}`;
-        return label;
-    }
-
-    createInputField(id) {
-        const inputField = document.createElement('input');
-        inputField.className = 'input_field';
-        inputField.type = "text";
-        inputField.setAttribute("id", id);
-        return inputField;
-    }
-
     handleTagClick(photographers) {
-        this.removeAllThumbnails();
+        Utils.removeChildOf(".photographers", "article")
         this.sortPhotographers(photographers)
-    }
-
-    removeAllThumbnails() {
-        const photographersNode = document.querySelector('.photographers')
-        for (let index = photographersNode.childNodes.length - 1; index >= 0 ; index--) {
-            const child = photographersNode.childNodes[index];
-            photographersNode.removeChild(child)
-        }
     }
 
     sortPhotographers(photographers) {

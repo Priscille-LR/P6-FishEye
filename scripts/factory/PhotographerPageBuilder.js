@@ -1,6 +1,7 @@
 import { MediaFactory } from './MediaFactory';
 import { ContactModal } from "./ContactModal";
 import { LightboxMedia } from "./LightboxMedia";
+import { Utils } from "../utils/Utils"
 
 export class PhotographerPageBuilder {
 
@@ -209,7 +210,7 @@ export class PhotographerPageBuilder {
     }
 
     handleTagClick() {
-        this.removeAllThumbnails();
+        Utils.removeChildOf("#app", "medium_thumbnail");
         this.sortMedia()
     }
 
@@ -401,21 +402,10 @@ export class PhotographerPageBuilder {
         this.incrementNumberOfLikes(mediumThumbnail);
     }
 
-    removeAllThumbnails() {
-        const mainNode = document.querySelector('main')
-        for (let index = mainNode.childNodes.length - 1; index >= 0; index--) {
-            const child = mainNode.childNodes[index];
-            if (child.className == "medium_thumbnail") {
-                mainNode.removeChild(child)
-            }
-        }
-    }
-
-
     handleDropdownItemClick(dropdrownButton, item) {
         dropdrownButton.click();
 
-        this.removeAllThumbnails(); //remove everything
+        Utils.removeChildOf("#app", "medium_thumbnail");//remove everything
         this.sortBy(item.innerHTML); //sort
         this.swapDropdownItems(item, dropdrownButton); //swap
     }

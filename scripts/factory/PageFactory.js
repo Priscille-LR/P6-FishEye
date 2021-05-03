@@ -1,5 +1,6 @@
-import { PhotographerPageBuilder } from "./PhotographerPageBuilder";
 import { HomePageBuilder } from "./HomePageBuilder";
+import { PhotographerPageBuilder } from "./PhotographerPageBuilder";
+
 
 export const PageFactoryEnum = {
     HOME: "home",
@@ -12,8 +13,8 @@ let registeredPages = new Map([
 ])
 
 export class PageFactory {
-    getPage(type, props) {
-        return new (registeredPages.get(type))(props);
+    getPage(type, json) {
+        return new (registeredPages.get(type))(json);
     }
 }
 

@@ -117,7 +117,213 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"scripts/factory/MediaFactory.js":[function(require,module,exports) {
+})({"scripts/utils/Utils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Utils = void 0;
+
+class Utils {
+  static removeChildOf(node, classToRemove) {
+    const parentNode = document.querySelector(node);
+    console.log(parentNode);
+
+    for (let index = parentNode.childNodes.length - 1; index >= 0; index--) {
+      const child = parentNode.childNodes[index];
+
+      if (child.className == classToRemove) {
+        parentNode.removeChild(child);
+      }
+    }
+  } //HOME
+
+
+  removeAllThumbnails() {
+    const photographersNode = document.querySelector('.photographers');
+
+    for (let index = photographersNode.childNodes.length - 1; index >= 0; index--) {
+      const child = photographersNode.childNodes[index];
+      photographersNode.removeChild(child);
+    }
+  } //PHOTOGRAPHER
+
+
+  removeAllThumbnails() {
+    const mainNode = document.querySelector('main');
+
+    for (let index = mainNode.childNodes.length - 1; index >= 0; index--) {
+      const child = mainNode.childNodes[index];
+
+      if (child.className == "medium_thumbnail") {
+        mainNode.removeChild(child);
+      }
+    }
+  }
+
+}
+
+exports.Utils = Utils;
+},{}],"scripts/factory/HomePageBuilder.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.HomePageBuilder = void 0;
+
+var _Utils = require("../utils/Utils");
+
+class HomePageBuilder {
+  constructor(json) {
+    this.dataPromise = json;
+    this.clickedNavTags = [];
+  } //display header and main (home page)
+
+
+  render() {
+    this.dataPromise.then(jsonData => {
+      let photographers = jsonData.photographers;
+      this.renderHeader(photographers);
+      this.renderMain(photographers);
+    });
+  }
+
+  renderHeader(photographers) {
+    const header = this.createHeader();
+    this.appendLogo(header);
+    this.appendMainNav(photographers, header);
+    const main = document.querySelector("main");
+    document.querySelector('body').insertBefore(header, main);
+  }
+
+  createHeader() {
+    const header = document.createElement('header');
+    header.className = 'header_home';
+    return header;
+  }
+
+  appendLogo(header) {
+    const logo = document.createElement('a');
+    logo.className = 'logo';
+    logo.innerHTML = "\n        <img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"logo\" />\n        ";
+    header.appendChild(logo);
+  }
+
+  appendMainNav(photographers, header) {
+    const mainNav = document.createElement('nav');
+    mainNav.className = 'main_nav';
+    this.appendNavTags(photographers, mainNav);
+    header.appendChild(mainNav);
+  }
+
+  appendNavTags(photographers, nav) {
+    const allTags = photographers.map(photographer => photographer.tags).flat();
+    const distinctTags = [...new Set(allTags)]; //remove duplicates
+    //add each tag dynamically in the nav
+
+    distinctTags.forEach(tag => {
+      const tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
+      const headerTag = document.createElement('div');
+      headerTag.className = 'main_nav__item';
+      const checkboxTag = document.createElement('input');
+      checkboxTag.type = "checkbox";
+      checkboxTag.className = "tag_checkbox";
+      checkboxTag.id = tagName;
+      headerTag.appendChild(checkboxTag);
+      const labelTag = document.createElement('label');
+      labelTag.className = "tag_name";
+      labelTag.setAttribute("for", tagName);
+      labelTag.innerHTML = "#".concat(tagName);
+      headerTag.appendChild(labelTag);
+      nav.appendChild(headerTag); //listen to clicks on main nav tags
+
+      headerTag.addEventListener("change", () => {
+        if (checkboxTag.checked) {
+          this.clickedNavTags.push(tag);
+          this.clickedNavTags = [...new Set(this.clickedNavTags)];
+        } else {
+          const currentIndex = this.clickedNavTags.indexOf(tag);
+          this.clickedNavTags.splice(currentIndex, 1);
+        }
+
+        this.handleTagClick(photographers);
+      });
+    });
+  }
+
+  handleTagClick(photographers) {
+    _Utils.Utils.removeChildOf(".photographers", "article");
+
+    this.sortPhotographers(photographers);
+  }
+
+  sortPhotographers(photographers) {
+    let selectedPhotographers = [];
+    this.clickedNavTags.forEach(clickedNavTag => {
+      photographers.forEach(photographer => {
+        if (photographer.tags.includes(clickedNavTag)) {
+          selectedPhotographers.push(photographer);
+        }
+      });
+    });
+
+    if (this.clickedNavTags.length == 0) {
+      this.createArticle(photographers);
+    } else {
+      selectedPhotographers = [...new Set(selectedPhotographers)];
+      this.createArticle(selectedPhotographers);
+    }
+  }
+
+  renderMain(photographers) {
+    this.createMainTitle();
+    this.createArticle(photographers);
+  }
+
+  createMainTitle() {
+    const title = document.createElement('h1');
+    title.className = 'main_title';
+    title.innerHTML = "Nos photographes";
+    document.querySelector("main").appendChild(title);
+  }
+
+  createArticle(photographers) {
+    photographers.forEach(photographer => {
+      const article = document.createElement('article');
+      article.className = 'article';
+      article.innerHTML = "<a class=\"photographer_thumbnail\" href=\"/photographers-profile/".concat(photographer.id, "\">");
+      this.appendPhotographerThumbnailPicture(article, photographer);
+      this.appendPhotographerThumbnailContent(article, photographer);
+      document.querySelector('.photographers').appendChild(article);
+    });
+  }
+
+  appendPhotographerThumbnailPicture(article, photographer) {
+    const thumbnailPicture = document.createElement('a');
+    thumbnailPicture.className = 'photographer_thumbnail__picture';
+    thumbnailPicture.innerHTML = "\n        <img class=\"photographer_thumbnail__picture\"\n        src=\"/static/Photographers ID Photos/".concat(photographer.portrait, "\"\n        alt=\"photographer's thumbnail picture\" />");
+    article.querySelector('.photographer_thumbnail').appendChild(thumbnailPicture);
+  }
+
+  appendPhotographerThumbnailContent(article, photographer) {
+    const thumbnailContent = document.createElement('div');
+    thumbnailContent.className = 'photographer_thumbnail__content';
+    thumbnailContent.innerHTML = "\n        <h2 class=\"photographer_name\">".concat(photographer.name, "</h2>\n        <h3 class=\"photographer_location\">").concat(photographer.city, ", ").concat(photographer.country, "</h3>\n        <p class=\"photographer_desc\">").concat(photographer.tagline, "</p>\n        <p class=\"photographer_price\">").concat(photographer.price, "\u20AC/jour</p>\n        <div class=\"tags\"></div>");
+    photographer.tags.forEach(photographerTag => {
+      const tag = document.createElement('a');
+      tag.className = 'tags__item';
+      tag.innerHTML = "<span>#".concat(photographerTag, "</span>");
+      thumbnailContent.querySelector('.tags').appendChild(tag);
+    });
+    article.querySelector('.photographer_thumbnail').appendChild(thumbnailContent);
+  }
+
+}
+
+exports.HomePageBuilder = HomePageBuilder;
+},{"../utils/Utils":"scripts/utils/Utils.js"}],"scripts/factory/MediaFactory.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -607,6 +813,8 @@ var _ContactModal = require("./ContactModal");
 
 var _LightboxMedia = require("./LightboxMedia");
 
+var _Utils = require("../utils/Utils");
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 class PhotographerPageBuilder {
@@ -799,7 +1007,8 @@ class PhotographerPageBuilder {
   }
 
   handleTagClick() {
-    this.removeAllThumbnails();
+    _Utils.Utils.removeChildOf("#app", "medium_thumbnail");
+
     this.sortMedia();
   }
 
@@ -966,21 +1175,11 @@ class PhotographerPageBuilder {
     this.incrementNumberOfLikes(mediumThumbnail);
   }
 
-  removeAllThumbnails() {
-    const mainNode = document.querySelector('main');
-
-    for (let index = mainNode.childNodes.length - 1; index >= 0; index--) {
-      const child = mainNode.childNodes[index];
-
-      if (child.className == "medium_thumbnail") {
-        mainNode.removeChild(child);
-      }
-    }
-  }
-
   handleDropdownItemClick(dropdrownButton, item) {
     dropdrownButton.click();
-    this.removeAllThumbnails(); //remove everything
+
+    _Utils.Utils.removeChildOf("#app", "medium_thumbnail"); //remove everything
+
 
     this.sortBy(item.innerHTML); //sort
 
@@ -1025,186 +1224,7 @@ class PhotographerPageBuilder {
 }
 
 exports.PhotographerPageBuilder = PhotographerPageBuilder;
-},{"./MediaFactory":"scripts/factory/MediaFactory.js","./ContactModal":"scripts/factory/ContactModal.js","./LightboxMedia":"scripts/factory/LightboxMedia.js"}],"scripts/factory/HomePageBuilder.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.HomePageBuilder = void 0;
-
-class HomePageBuilder {
-  constructor(json) {
-    this.dataPromise = json;
-    this.clickedNavTags = [];
-  } //display header and main (home page)
-
-
-  render() {
-    this.dataPromise.then(jsonData => {
-      let photographers = jsonData.photographers;
-      this.renderHeader(photographers);
-      this.renderMain(photographers);
-    });
-  }
-
-  renderHeader(photographers) {
-    const header = this.createHeader();
-    this.appendLogo(header);
-    this.appendMainNav(photographers, header);
-    const main = document.querySelector("main");
-    document.querySelector('body').insertBefore(header, main);
-  }
-
-  createHeader() {
-    const header = document.createElement('header');
-    header.className = 'header_home';
-    return header;
-  }
-
-  appendLogo(header) {
-    const logo = document.createElement('a');
-    logo.className = 'logo';
-    logo.innerHTML = "\n        <img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"logo\" />\n        ";
-    header.appendChild(logo);
-  }
-
-  appendMainNav(photographers, header) {
-    const mainNav = document.createElement('nav');
-    mainNav.className = 'main_nav';
-    this.appendNavTags(photographers, mainNav);
-    header.appendChild(mainNav);
-  }
-
-  appendNavTags(photographers, nav) {
-    const allTags = photographers.map(photographer => photographer.tags).flat();
-    const distinctTags = [...new Set(allTags)]; //remove duplicates
-    //add each tag dynamically in the nav
-
-    distinctTags.forEach(tag => {
-      const tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
-      const headerTag = document.createElement('div');
-      headerTag.className = 'main_nav__item';
-      const checkboxTag = document.createElement('input');
-      checkboxTag.type = "checkbox";
-      checkboxTag.className = "tag_checkbox";
-      checkboxTag.id = tagName;
-      headerTag.appendChild(checkboxTag);
-      const labelTag = document.createElement('label');
-      labelTag.className = "tag_name";
-      labelTag.setAttribute("for", tagName);
-      labelTag.innerHTML = "#".concat(tagName);
-      headerTag.appendChild(labelTag);
-      nav.appendChild(headerTag); //listen to clicks on main nav tags
-
-      headerTag.addEventListener("change", () => {
-        if (checkboxTag.checked) {
-          this.clickedNavTags.push(tag);
-          this.clickedNavTags = [...new Set(this.clickedNavTags)];
-        } else {
-          const currentIndex = this.clickedNavTags.indexOf(tag);
-          this.clickedNavTags.splice(currentIndex, 1);
-        }
-
-        this.handleTagClick(photographers);
-      });
-    });
-  }
-
-  createLabel(forParam, textParam) {
-    const label = document.createElement('label');
-    label.setAttribute("for", forParam);
-    label.innerHTML = "".concat(textParam);
-    return label;
-  }
-
-  createInputField(id) {
-    const inputField = document.createElement('input');
-    inputField.className = 'input_field';
-    inputField.type = "text";
-    inputField.setAttribute("id", id);
-    return inputField;
-  }
-
-  handleTagClick(photographers) {
-    this.removeAllThumbnails();
-    this.sortPhotographers(photographers);
-  }
-
-  removeAllThumbnails() {
-    const photographersNode = document.querySelector('.photographers');
-
-    for (let index = photographersNode.childNodes.length - 1; index >= 0; index--) {
-      const child = photographersNode.childNodes[index];
-      photographersNode.removeChild(child);
-    }
-  }
-
-  sortPhotographers(photographers) {
-    let selectedPhotographers = [];
-    this.clickedNavTags.forEach(clickedNavTag => {
-      photographers.forEach(photographer => {
-        if (photographer.tags.includes(clickedNavTag)) {
-          selectedPhotographers.push(photographer);
-        }
-      });
-    });
-
-    if (this.clickedNavTags.length == 0) {
-      this.createArticle(photographers);
-    } else {
-      selectedPhotographers = [...new Set(selectedPhotographers)];
-      this.createArticle(selectedPhotographers);
-    }
-  }
-
-  renderMain(photographers) {
-    this.createMainTitle();
-    this.createArticle(photographers);
-  }
-
-  createMainTitle() {
-    const title = document.createElement('h1');
-    title.className = 'main_title';
-    title.innerHTML = "Nos photographes";
-    document.querySelector("main").appendChild(title);
-  }
-
-  createArticle(photographers) {
-    photographers.forEach(photographer => {
-      const article = document.createElement('article');
-      article.className = 'article';
-      article.innerHTML = "<a class=\"photographer_thumbnail\" href=\"/photographers-profile/".concat(photographer.id, "\">");
-      this.appendPhotographerThumbnailPicture(article, photographer);
-      this.appendPhotographerThumbnailContent(article, photographer);
-      document.querySelector('.photographers').appendChild(article);
-    });
-  }
-
-  appendPhotographerThumbnailPicture(article, photographer) {
-    const thumbnailPicture = document.createElement('a');
-    thumbnailPicture.className = 'photographer_thumbnail__picture';
-    thumbnailPicture.innerHTML = "\n        <img class=\"photographer_thumbnail__picture\"\n        src=\"/static/Photographers ID Photos/".concat(photographer.portrait, "\"\n        alt=\"photographer's thumbnail picture\" />");
-    article.querySelector('.photographer_thumbnail').appendChild(thumbnailPicture);
-  }
-
-  appendPhotographerThumbnailContent(article, photographer) {
-    const thumbnailContent = document.createElement('div');
-    thumbnailContent.className = 'photographer_thumbnail__content';
-    thumbnailContent.innerHTML = "\n        <h2 class=\"photographer_name\">".concat(photographer.name, "</h2>\n        <h3 class=\"photographer_location\">").concat(photographer.city, ", ").concat(photographer.country, "</h3>\n        <p class=\"photographer_desc\">").concat(photographer.tagline, "</p>\n        <p class=\"photographer_price\">").concat(photographer.price, "\u20AC/jour</p>\n        <div class=\"tags\"></div>");
-    photographer.tags.forEach(photographerTag => {
-      const tag = document.createElement('a');
-      tag.className = 'tags__item';
-      tag.innerHTML = "<span>#".concat(photographerTag, "</span>");
-      thumbnailContent.querySelector('.tags').appendChild(tag);
-    });
-    article.querySelector('.photographer_thumbnail').appendChild(thumbnailContent);
-  }
-
-}
-
-exports.HomePageBuilder = HomePageBuilder;
-},{}],"scripts/factory/PageFactory.js":[function(require,module,exports) {
+},{"./MediaFactory":"scripts/factory/MediaFactory.js","./ContactModal":"scripts/factory/ContactModal.js","./LightboxMedia":"scripts/factory/LightboxMedia.js","../utils/Utils":"scripts/utils/Utils.js"}],"scripts/factory/PageFactory.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1212,9 +1232,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PageFactory = exports.PageFactoryEnum = void 0;
 
-var _PhotographerPageBuilder = require("./PhotographerPageBuilder");
-
 var _HomePageBuilder = require("./HomePageBuilder");
+
+var _PhotographerPageBuilder = require("./PhotographerPageBuilder");
 
 const PageFactoryEnum = {
   HOME: "home",
@@ -1225,14 +1245,14 @@ exports.PageFactoryEnum = PageFactoryEnum;
 let registeredPages = new Map([[PageFactoryEnum.PHOTOGRAPHER, _PhotographerPageBuilder.PhotographerPageBuilder], [PageFactoryEnum.HOME, _HomePageBuilder.HomePageBuilder]]);
 
 class PageFactory {
-  getPage(type, props) {
-    return new (registeredPages.get(type))(props);
+  getPage(type, json) {
+    return new (registeredPages.get(type))(json);
   }
 
 }
 
 exports.PageFactory = PageFactory;
-},{"./PhotographerPageBuilder":"scripts/factory/PhotographerPageBuilder.js","./HomePageBuilder":"scripts/factory/HomePageBuilder.js"}],"scripts/utils/DataFetcher.js":[function(require,module,exports) {
+},{"./HomePageBuilder":"scripts/factory/HomePageBuilder.js","./PhotographerPageBuilder":"scripts/factory/PhotographerPageBuilder.js"}],"scripts/utils/DataFetcher.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
