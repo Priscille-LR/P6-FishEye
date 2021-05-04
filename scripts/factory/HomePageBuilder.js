@@ -1,16 +1,22 @@
 import { Utils } from "../utils/Utils";
-
+import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
+import { HomePageModel } from "../models/HomePageModel";
 export class HomePageBuilder {
-    constructor(json) {
-        this.dataPromise = json
+    /**
+     * 
+     * @param {Promise<HomePageModel>} homePageModel 
+     */
+    constructor(homePageModel) {
+        this.homePageModelPromise = homePageModel
         this.clickedNavTags = [];
     }
 
     //display header and main (home page)
     render() {
-        this.dataPromise
-            .then((jsonData) => {
-                let photographers = jsonData.photographers
+        this.homePageModelPromise
+            .then((homePageModel) => {
+                let photographers = homePageModel.photographersList
+                this.allTags = homePageModel.tagsList
 
                 this.renderHeader(photographers)
                 this.renderMain(photographers)
@@ -18,11 +24,12 @@ export class HomePageBuilder {
     }
 
     renderHeader(photographers) {
-        const header = this.createHeader()
-        this.appendLogo(header)
-        this.appendMainNav(photographers, header)
+        const header = this.createHeader();
+        this.appendLogo(header);
+        this.appendMainNav(photographers, header);
+        this.appendMainAnchor(header);
 
-        const main = document.querySelector("main");
+        const main = document.getElementById("app");
         document.querySelector('body').insertBefore(header, main);
     }
 
@@ -35,9 +42,7 @@ export class HomePageBuilder {
     appendLogo(header) {
         const logo = document.createElement('a');
         logo.className = 'logo';
-        logo.innerHTML = `
-        <img class="logo_img" src="/static/logo.svg" alt="logo" />
-        `;
+        logo.innerHTML = `<img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />`;
 
         header.appendChild(logo);
     }
@@ -45,17 +50,26 @@ export class HomePageBuilder {
     appendMainNav(photographers, header) {
         const mainNav = document.createElement('nav');
         mainNav.className = 'main_nav';
+        mainNav.ariaLabel = 'main navigation';
+        mainNav.role = 'navigation'
 
         this.appendNavTags(photographers, mainNav)
         header.appendChild(mainNav);
     }
 
-    appendNavTags(photographers, nav) {
-        const allTags = photographers.map(photographer => photographer.tags).flat()
-        const distinctTags = [...new Set(allTags)] //remove duplicates
+    appendMainAnchor(header) {
+        const mainAnchor = document.createElement('a');
+        mainAnchor.className = "go_main";
+        mainAnchor.setAttribute = ("href", "#app");
+        mainAnchor.innerHTML = `Passer au contenu`;
 
+        header.appendChild(mainAnchor);
+    }
+
+
+    appendNavTags(photographers, nav) {
         //add each tag dynamically in the nav
-        distinctTags.forEach(tag => {
+        this.allTags.forEach(tag => {
             const tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
             const headerTag = document.createElement('div');
             headerTag.className = 'main_nav__item';
@@ -98,7 +112,7 @@ export class HomePageBuilder {
         let selectedPhotographers = [];
         this.clickedNavTags.forEach(clickedNavTag => {
             photographers.forEach(photographer => {
-                if (photographer.tags.includes(clickedNavTag)) {
+                if (photographer.getTags().includes(clickedNavTag)) {
                     selectedPhotographers.push(photographer)
                 }
             });
@@ -115,23 +129,37 @@ export class HomePageBuilder {
 
     renderMain(photographers) {
         this.createMainTitle()
+        this.createPhotographersWrapper()
         this.createArticle(photographers)
     }
 
     createMainTitle() {
         const title = document.createElement('h1')
         title.className = 'main_title'
+        title.ariaLabel = 'photographers'
         title.innerHTML = `Nos photographes`
-        document.querySelector("main").appendChild(title)
+        document.getElementById("app").appendChild(title)
     }
 
+    createPhotographersWrapper() {
+        const photographersWrapper = document.createElement('div')
+        photographersWrapper.className = 'photographers'
+        photographersWrapper.ariaLabelledby = 'photographers'
+        document.getElementById("app").appendChild(photographersWrapper)
+    }
+
+
+    /**
+     * 
+     * @param {Array<PhotographerProfileModel>} photographers 
+     */
     createArticle(photographers) {
 
         photographers.forEach(photographer => {
 
             const article = document.createElement('article')
             article.className = 'article';
-            article.innerHTML = `<a class="photographer_thumbnail" href="/photographers-profile/${photographer.id}">`;
+            article.innerHTML = `<a class="photographer_thumbnail" href="/photographers-profile/${photographer.getId()}">`;
 
             this.appendPhotographerThumbnailPicture(article, photographer);
             this.appendPhotographerThumbnailContent(article, photographer);
@@ -140,28 +168,36 @@ export class HomePageBuilder {
         });
     }
 
+    /**
+     * 
+     * @param {PhotographerProfileModel} photographer 
+     */
     appendPhotographerThumbnailPicture(article, photographer) {
         const thumbnailPicture = document.createElement('a')
         thumbnailPicture.className = 'photographer_thumbnail__picture';
         thumbnailPicture.innerHTML = `
         <img class="photographer_thumbnail__picture"
-        src="/static/Photographers ID Photos/${photographer.portrait}"
+        src="/static/Photographers ID Photos/${photographer.getPortrait()}"
         alt="photographer's thumbnail picture" />`;
 
         article.querySelector('.photographer_thumbnail').appendChild(thumbnailPicture);
     }
 
+    /**
+     * 
+     * @param {PhotographerProfileModel} photographer 
+     */
     appendPhotographerThumbnailContent(article, photographer) {
         const thumbnailContent = document.createElement('div')
         thumbnailContent.className = 'photographer_thumbnail__content';
         thumbnailContent.innerHTML = `
-        <h2 class="photographer_name">${photographer.name}</h2>
-        <h3 class="photographer_location">${photographer.city}, ${photographer.country}</h3>
-        <p class="photographer_desc">${photographer.tagline}</p>
-        <p class="photographer_price">${photographer.price}€/jour</p>
+        <h2 class="photographer_name">${photographer.getName()}</h2>
+        <h3 class="photographer_location">${photographer.getLocation()}</h3>
+        <p class="photographer_desc">${photographer.getTagline()}</p>
+        <p class="photographer_price">${photographer.getPrice()}€/jour</p>
         <div class="tags"></div>`;
 
-        photographer.tags.forEach(photographerTag => {
+        photographer.getTags().forEach(photographerTag => {
             const tag = document.createElement('a')
             tag.className = 'tags__item';
             tag.innerHTML = `<span>#${photographerTag}</span>`

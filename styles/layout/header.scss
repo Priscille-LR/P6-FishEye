@@ -7,7 +7,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  margin: 2rem;
+  margin: 3rem;
   @include desktop {
     flex-direction: row;
     justify-content: space-around;
@@ -21,6 +21,18 @@
       display: flex;
       width: 90%;
     }
+  }
+  .go_main {
+    visibility: hidden;
+    position: fixed;
+    top: 1%;
+    left: 45%;
+    background-color: $color-tertiary;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.3rem;
+    margin: 0 auto;
   }
   .main_nav {
     display: flex;

@@ -1,4 +1,10 @@
+import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
+
 export class ContactModal {
+    /**
+     * 
+     * @param {PhotographerProfileModel} currentPhotographer 
+     */
     constructor(currentPhotographer) {
         this.currentPhotographer = currentPhotographer;
     }
@@ -12,10 +18,10 @@ export class ContactModal {
     }
 
     createContactModal() {
-        const contactModal = document.createElement('div');
+        const contactModal = document.createElement('dialog');
         contactModal.className = 'contact_modal';
 
-        document.querySelector('main').appendChild(contactModal);
+        document.getElementById("app").appendChild(contactModal);
     }
 
     createContactModalBody() {
@@ -33,7 +39,7 @@ export class ContactModal {
     appendModalTitle(modalBody) {
         const modalTitle = document.createElement('h2');
         modalTitle.className = 'contact_modal__body__title';
-        modalTitle.innerHTML = `Contactez-moi </br> ${this.currentPhotographer.name}`;
+        modalTitle.innerHTML = `Contactez-moi </br> ${this.currentPhotographer.getName()}`;
 
         modalBody.appendChild(modalTitle);
 
@@ -42,6 +48,8 @@ export class ContactModal {
     appendCloseButton(modalBody) {
         const closeButton = document.createElement('button');
         closeButton.className = 'close_button';
+        closeButton.role = "button";
+        closeButton.ariaLabel = "close dialog"
         closeButton.innerHTML = `<i class="fas fa-times fa-3x"></i>`;
         closeButton.addEventListener('click', () => {
             this.hideContactModal();

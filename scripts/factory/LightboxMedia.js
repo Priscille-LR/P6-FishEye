@@ -1,8 +1,15 @@
 import { MediaFactory } from './MediaFactory';
+import { MediumModel } from '../models/MediumModel';
+import { PhotographerProfileModel } from '../models/PhotographerProfileModel';
+import { Utils } from '../utils/Utils';
 
 export class LightboxMedia {
-    constructor(allMedia = [], currentPhotographer) {
-        this.allMedia = allMedia;
+    /**
+     * @param {Array<MediumModel>} mediaList 
+     * @param {PhotographerProfileModel} currentPhotographer 
+     */
+    constructor(mediaList = [], currentPhotographer) {
+        this.mediaList = mediaList;
         this.currentPhotographer = currentPhotographer;
 
         this.mediaFactory = new MediaFactory();
@@ -16,10 +23,10 @@ export class LightboxMedia {
     }
 
     createLightboxMedia() {
-        const lightboxMedia = document.createElement('div');
+        const lightboxMedia = document.createElement('dialog');
         lightboxMedia.className = 'lightbox_media';
-
-        document.querySelector('main').appendChild(lightboxMedia);
+        lightboxMedia.ariaLabel = "image close-up view"
+        document.getElementById("app").appendChild(lightboxMedia);
     }
 
     createLightboxMediaBody() {
@@ -38,6 +45,8 @@ export class LightboxMedia {
     appendCloseButton(lightboxBody) {
         const closeButton = document.createElement('button');
         closeButton.className = 'close_button_lightbox';
+        closeButton.role = "button";
+        closeButton.ariaLabel = "close dialog";
         closeButton.innerHTML = `<i class="fas fa-times fa-3x"></i>`;
         closeButton.addEventListener('click', () => {
             this.hideLightboxMedia();
@@ -45,16 +54,17 @@ export class LightboxMedia {
         lightboxBody.appendChild(closeButton);
     }
 
-    createNavButton(buttonClass, buttonIcon) {
+    createNavButton(buttonClass, buttonIcon, accessibleName) {
         const button = document.createElement('button');
         button.className = buttonClass;
         button.innerHTML = `<i class="fas ${buttonIcon} fa-3x"></i>`;
+        button.ariaLabel = accessibleName
         return button;
     }
 
     appendNavButtons(lightboxBody) {
-        const previousButton = this.createNavButton("previous_button", "fa-chevron-left");
-        const nextButton = this.createNavButton("next_button", "fa-chevron-right");
+        const previousButton = this.createNavButton("previous_button", "fa-chevron-left", "previous image");
+        const nextButton = this.createNavButton("next_button", "fa-chevron-right", "next image");
 
         lightboxBody.appendChild(previousButton);
         lightboxBody.appendChild(nextButton);
@@ -67,14 +77,14 @@ export class LightboxMedia {
 
         previousButton.addEventListener('click', () => {
 
-            const currentIndex = this.allMedia.indexOf(this.medium);
+            const currentIndex = this.mediaList.indexOf(this.medium);
             const newIndex = currentIndex - 1;
 
             const nextButton = lightboxBody.querySelector('.next_button');
             nextButton.style.display = "block";
-            
+            console.log(newIndex)
             if (newIndex >= 0 ) {
-                this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
+                this.showLightboxMedia(this.mediaList[newIndex], this.currentPhotographer, this.mediaList);
             } 
 
             if (newIndex == 0) {
@@ -83,17 +93,17 @@ export class LightboxMedia {
         });
 
         nextButton.addEventListener('click', () => {
-            const currentIndex = this.allMedia.indexOf(this.medium);
+            const currentIndex = this.mediaList.indexOf(this.medium);
             const newIndex = currentIndex + 1;
 
             const previousButton = lightboxBody.querySelector('.previous_button');
             previousButton.style.display = "block";
 
-            if (newIndex <= this.allMedia.length -1) {
-                this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
+            if (newIndex <= this.mediaList.length -1) {
+                this.showLightboxMedia(this.mediaList[newIndex], this.currentPhotographer, this.mediaList);
             }
 
-            if (newIndex == this.allMedia.length -1) {
+            if (newIndex == this.mediaList.length -1) {
                 nextButton.style.display = "none";
             }
         });
@@ -113,16 +123,16 @@ export class LightboxMedia {
         lightboxBody.querySelector('.medium_box').appendChild(mediumTitle);
     }
 
-    showLightboxMedia(medium, currentPhotographer, allMedia) {
-        this.allMedia = allMedia;
+    showLightboxMedia(medium, currentPhotographer, mediaList) {
+        this.mediaList = mediaList;
         this.medium = medium;
-        this.removeLightboxMedium();
+        Utils.removeChildOf('.medium_box', 'lightbox_medium');
 
-        const title =this.mediaFactory.extractMediumTitle(medium);
+        
         const mediumTitle = document.querySelector('.lightbox_title')
-        mediumTitle.innerHTML = title;
+        mediumTitle.innerHTML = medium.getTitle();
 
-        const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium", true);
+        const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, "lightbox_medium", true);
         document.querySelector('.medium_box').insertBefore(lightboxMedium, mediumTitle);
         this.lightboxMedia.style.display = "block";        
     }
@@ -131,11 +141,4 @@ export class LightboxMedia {
         this.lightboxMedia.style.display = "none";
     }
 
-    removeLightboxMedium() {
-        const mainNode = document.querySelector('.medium_box')
-        for (let index = mainNode.childNodes.length - 1; index >= 0; index--) {
-            const child = mainNode.childNodes[index];
-            if (child.className != "lightbox_title") mainNode.removeChild(child)
-        }
-    }
 }

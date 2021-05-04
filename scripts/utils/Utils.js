@@ -10,25 +10,4 @@ export class Utils {
             }
         }
     }
-
-    //HOME
-    removeAllThumbnails() {
-        const photographersNode = document.querySelector('.photographers')
-        for (let index = photographersNode.childNodes.length - 1; index >= 0 ; index--) {
-            const child = photographersNode.childNodes[index];
-            photographersNode.removeChild(child)
-        }
-    }
-
-    //PHOTOGRAPHER
-    removeAllThumbnails() {
-        const mainNode = document.querySelector('main')
-        for (let index = mainNode.childNodes.length - 1; index >= 0; index--) {
-            const child = mainNode.childNodes[index];
-            if (child.className == "medium_thumbnail") {
-                mainNode.removeChild(child)
-            }
-        }
-    }
-    
 }

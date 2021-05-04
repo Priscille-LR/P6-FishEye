@@ -108,7 +108,7 @@ a {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  margin: 2rem;
+  margin: 3rem;
 }
 @media screen and (min-width: 1000px) {
   .header_home {
@@ -126,6 +126,18 @@ a {
     display: flex;
     width: 90%;
   }
+}
+.header_home .go_main {
+  visibility: hidden;
+  position: fixed;
+  top: 1%;
+  left: 45%;
+  background-color: #DB8876;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.3rem;
+  margin: 0 auto;
 }
 .header_home .main_nav {
   display: flex;
@@ -198,7 +210,7 @@ a {
 main .main_title {
   font-size: 2rem;
   position: absolute;
-  top: 2rem;
+  top: 3.5rem;
   right: 2rem;
   width: 35%;
   color: #901C1C;

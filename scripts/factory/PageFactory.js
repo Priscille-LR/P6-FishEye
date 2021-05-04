@@ -13,8 +13,8 @@ let registeredPages = new Map([
 ])
 
 export class PageFactory {
-    getPage(type, json) {
-        return new (registeredPages.get(type))(json);
+    getPage(type, pageModel) {
+        return new (registeredPages.get(type))(pageModel);
     }
 }
 

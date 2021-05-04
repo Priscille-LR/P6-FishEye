@@ -137,35 +137,87 @@ class Utils {
         parentNode.removeChild(child);
       }
     }
-  } //HOME
-
-
-  removeAllThumbnails() {
-    const photographersNode = document.querySelector('.photographers');
-
-    for (let index = photographersNode.childNodes.length - 1; index >= 0; index--) {
-      const child = photographersNode.childNodes[index];
-      photographersNode.removeChild(child);
-    }
-  } //PHOTOGRAPHER
-
-
-  removeAllThumbnails() {
-    const mainNode = document.querySelector('main');
-
-    for (let index = mainNode.childNodes.length - 1; index >= 0; index--) {
-      const child = mainNode.childNodes[index];
-
-      if (child.className == "medium_thumbnail") {
-        mainNode.removeChild(child);
-      }
-    }
   }
 
 }
 
 exports.Utils = Utils;
-},{}],"scripts/factory/HomePageBuilder.js":[function(require,module,exports) {
+},{}],"scripts/models/PhotographerProfileModel.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PhotographerProfileModel = void 0;
+
+class PhotographerProfileModel {
+  constructor(photographer) {
+    this.photographer = photographer;
+  }
+
+  getName() {
+    return this.photographer.name;
+  }
+
+  getLocation() {
+    return "".concat(this.photographer.city, ", ").concat(this.photographer.country);
+  }
+
+  getTagline() {
+    return this.photographer.tagline;
+  }
+
+  getPrice() {
+    return this.photographer.price;
+  }
+
+  getTags() {
+    return this.photographer.tags;
+  }
+
+  getPortrait() {
+    return this.photographer.portrait;
+  }
+
+  getId() {
+    return this.photographer.id;
+  }
+
+}
+
+exports.PhotographerProfileModel = PhotographerProfileModel;
+},{}],"scripts/models/HomePageModel.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.HomePageModel = void 0;
+
+var _PhotographerProfileModel = require("./PhotographerProfileModel");
+
+class HomePageModel {
+  /**
+  * @param {Array<PhotographerProfileModel>} photographersList
+  * @param {Array<string>} tagsList
+  */
+  constructor(photographersList, tagsList) {
+    this.photographersList = photographersList;
+    this.tagsList = tagsList;
+  }
+
+  getPhotographersList() {
+    return this.photographersList;
+  }
+
+  getTagsList() {
+    return this.tagsList;
+  }
+
+}
+
+exports.HomePageModel = HomePageModel;
+},{"./PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js"}],"scripts/factory/HomePageBuilder.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -175,16 +227,25 @@ exports.HomePageBuilder = void 0;
 
 var _Utils = require("../utils/Utils");
 
+var _PhotographerProfileModel = require("../models/PhotographerProfileModel");
+
+var _HomePageModel = require("../models/HomePageModel");
+
 class HomePageBuilder {
-  constructor(json) {
-    this.dataPromise = json;
+  /**
+   * 
+   * @param {Promise<HomePageModel>} homePageModel 
+   */
+  constructor(homePageModel) {
+    this.homePageModelPromise = homePageModel;
     this.clickedNavTags = [];
   } //display header and main (home page)
 
 
   render() {
-    this.dataPromise.then(jsonData => {
-      let photographers = jsonData.photographers;
+    this.homePageModelPromise.then(homePageModel => {
+      let photographers = homePageModel.photographersList;
+      this.allTags = homePageModel.tagsList;
       this.renderHeader(photographers);
       this.renderMain(photographers);
     });
@@ -194,7 +255,8 @@ class HomePageBuilder {
     const header = this.createHeader();
     this.appendLogo(header);
     this.appendMainNav(photographers, header);
-    const main = document.querySelector("main");
+    this.appendMainAnchor(header);
+    const main = document.getElementById("app");
     document.querySelector('body').insertBefore(header, main);
   }
 
@@ -207,23 +269,30 @@ class HomePageBuilder {
   appendLogo(header) {
     const logo = document.createElement('a');
     logo.className = 'logo';
-    logo.innerHTML = "\n        <img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"logo\" />\n        ";
+    logo.innerHTML = "<img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"Fisheye Home Page\" />";
     header.appendChild(logo);
   }
 
   appendMainNav(photographers, header) {
     const mainNav = document.createElement('nav');
     mainNav.className = 'main_nav';
+    mainNav.ariaLabel = 'main navigation';
+    mainNav.role = 'navigation';
     this.appendNavTags(photographers, mainNav);
     header.appendChild(mainNav);
   }
 
-  appendNavTags(photographers, nav) {
-    const allTags = photographers.map(photographer => photographer.tags).flat();
-    const distinctTags = [...new Set(allTags)]; //remove duplicates
-    //add each tag dynamically in the nav
+  appendMainAnchor(header) {
+    const mainAnchor = document.createElement('a');
+    mainAnchor.className = "go_main";
+    mainAnchor.setAttribute = ("href", "#app");
+    mainAnchor.innerHTML = "Passer au contenu";
+    header.appendChild(mainAnchor);
+  }
 
-    distinctTags.forEach(tag => {
+  appendNavTags(photographers, nav) {
+    //add each tag dynamically in the nav
+    this.allTags.forEach(tag => {
       const tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
       const headerTag = document.createElement('div');
       headerTag.className = 'main_nav__item';
@@ -263,7 +332,7 @@ class HomePageBuilder {
     let selectedPhotographers = [];
     this.clickedNavTags.forEach(clickedNavTag => {
       photographers.forEach(photographer => {
-        if (photographer.tags.includes(clickedNavTag)) {
+        if (photographer.getTags().includes(clickedNavTag)) {
           selectedPhotographers.push(photographer);
         }
       });
@@ -279,39 +348,63 @@ class HomePageBuilder {
 
   renderMain(photographers) {
     this.createMainTitle();
+    this.createPhotographersWrapper();
     this.createArticle(photographers);
   }
 
   createMainTitle() {
     const title = document.createElement('h1');
     title.className = 'main_title';
+    title.ariaLabel = 'photographers';
     title.innerHTML = "Nos photographes";
-    document.querySelector("main").appendChild(title);
+    document.getElementById("app").appendChild(title);
   }
+
+  createPhotographersWrapper() {
+    const photographersWrapper = document.createElement('div');
+    photographersWrapper.className = 'photographers';
+    photographersWrapper.ariaLabelledby = 'photographers';
+    document.getElementById("app").appendChild(photographersWrapper);
+  }
+  /**
+   * 
+   * @param {Array<PhotographerProfileModel>} photographers 
+   */
+
 
   createArticle(photographers) {
     photographers.forEach(photographer => {
       const article = document.createElement('article');
       article.className = 'article';
-      article.innerHTML = "<a class=\"photographer_thumbnail\" href=\"/photographers-profile/".concat(photographer.id, "\">");
+      article.innerHTML = "<a class=\"photographer_thumbnail\" href=\"/photographers-profile/".concat(photographer.getId(), "\">");
       this.appendPhotographerThumbnailPicture(article, photographer);
       this.appendPhotographerThumbnailContent(article, photographer);
       document.querySelector('.photographers').appendChild(article);
     });
   }
+  /**
+   * 
+   * @param {PhotographerProfileModel} photographer 
+   */
+
 
   appendPhotographerThumbnailPicture(article, photographer) {
     const thumbnailPicture = document.createElement('a');
     thumbnailPicture.className = 'photographer_thumbnail__picture';
-    thumbnailPicture.innerHTML = "\n        <img class=\"photographer_thumbnail__picture\"\n        src=\"/static/Photographers ID Photos/".concat(photographer.portrait, "\"\n        alt=\"photographer's thumbnail picture\" />");
+    thumbnailPicture.innerHTML = "\n        <img class=\"photographer_thumbnail__picture\"\n        src=\"/static/Photographers ID Photos/".concat(photographer.getPortrait(), "\"\n        alt=\"photographer's thumbnail picture\" />");
     article.querySelector('.photographer_thumbnail').appendChild(thumbnailPicture);
   }
+  /**
+   * 
+   * @param {PhotographerProfileModel} photographer 
+   */
+
 
   appendPhotographerThumbnailContent(article, photographer) {
     const thumbnailContent = document.createElement('div');
     thumbnailContent.className = 'photographer_thumbnail__content';
-    thumbnailContent.innerHTML = "\n        <h2 class=\"photographer_name\">".concat(photographer.name, "</h2>\n        <h3 class=\"photographer_location\">").concat(photographer.city, ", ").concat(photographer.country, "</h3>\n        <p class=\"photographer_desc\">").concat(photographer.tagline, "</p>\n        <p class=\"photographer_price\">").concat(photographer.price, "\u20AC/jour</p>\n        <div class=\"tags\"></div>");
-    photographer.tags.forEach(photographerTag => {
+    thumbnailContent.innerHTML = "\n        <h2 class=\"photographer_name\">".concat(photographer.getName(), "</h2>\n        <h3 class=\"photographer_location\">").concat(photographer.getLocation(), "</h3>\n        <p class=\"photographer_desc\">").concat(photographer.getTagline(), "</p>\n        <p class=\"photographer_price\">").concat(photographer.getPrice(), "\u20AC/jour</p>\n        <div class=\"tags\"></div>");
+    photographer.getTags().forEach(photographerTag => {
       const tag = document.createElement('a');
       tag.className = 'tags__item';
       tag.innerHTML = "<span>#".concat(photographerTag, "</span>");
@@ -323,7 +416,111 @@ class HomePageBuilder {
 }
 
 exports.HomePageBuilder = HomePageBuilder;
-},{"../utils/Utils":"scripts/utils/Utils.js"}],"scripts/factory/MediaFactory.js":[function(require,module,exports) {
+},{"../utils/Utils":"scripts/utils/Utils.js","../models/PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js","../models/HomePageModel":"scripts/models/HomePageModel.js"}],"scripts/utils/MediaUtils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.MediaUtils = exports.mediaEnum = void 0;
+const mediaEnum = {
+  PICTURE: "picture",
+  VIDEO: "video"
+};
+exports.mediaEnum = mediaEnum;
+
+class MediaUtils {
+  // static getMediaTitle(medium) {
+  //     let tmpMedium = this.getMediaSource(medium)
+  //     let mediumTitle = tmpMedium.toLowerCase();
+  //     let mediumTitleArray = mediumTitle.split(".");
+  //     mediumTitle = mediumTitleArray[0];
+  //     mediumTitleArray = mediumTitle.split("_");
+  //     mediumTitle = mediumTitleArray.shift(); //remove 1st element in array 
+  //     mediumTitle = mediumTitleArray.join(" "); //add elements of array into a string
+  //     mediumTitle = mediumTitle.charAt(0).toUpperCase() + mediumTitle.slice(1);
+  //     return mediumTitle;
+  // }
+  static getMediaSource(medium) {
+    let source = medium.image;
+
+    if (source == null) {
+      source = medium.video;
+    }
+
+    return source;
+  }
+
+  static getMediumType(medium) {
+    let extension = this.getMediaSource(medium).split('.').pop();
+
+    if (/(jpg)$/ig.test(extension)) {
+      return mediaEnum.PICTURE;
+    }
+
+    if (/(mp4)$/ig.test(extension)) {
+      return mediaEnum.VIDEO;
+    }
+  }
+
+}
+
+exports.MediaUtils = MediaUtils;
+},{}],"scripts/models/MediumModel.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.MediumModel = void 0;
+
+var _MediaUtils = require("../utils/MediaUtils");
+
+class MediumModel {
+  constructor(medium) {
+    this.medium = medium;
+  }
+
+  getMediumType() {
+    return _MediaUtils.MediaUtils.getMediumType(this.medium);
+  }
+
+  getSource() {
+    return _MediaUtils.MediaUtils.getMediaSource(this.medium);
+  }
+
+  getTitle() {
+    return this.medium.title;
+  }
+
+  getPrice() {
+    return this.medium.price;
+  }
+
+  getLikes() {
+    return this.medium.likes;
+  }
+
+  getTags() {
+    return this.medium.tags;
+  }
+
+  getId() {
+    return this.medium.id;
+  }
+
+  getPhotographerId() {
+    return this.medium.photographerId;
+  }
+
+  getDate() {
+    return this.medium.date;
+  }
+
+}
+
+exports.MediumModel = MediumModel;
+},{"../utils/MediaUtils":"scripts/utils/MediaUtils.js"}],"scripts/factory/MediaFactory.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -331,78 +528,63 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.MediaFactory = void 0;
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+var _MediumModel = require("../models/MediumModel");
+
+var _MediaUtils = require("../utils/MediaUtils");
+
+var _PhotographerProfileModel = require("../models/PhotographerProfileModel");
 
 class MediaFactory {
-  constructor() {
-    _defineProperty(this, "mediaEnum", {
-      PICTURE: "picture",
-      VIDEO: "video"
-    });
-  }
-
-  getMediumType(tmpMedium) {
-    let extension = tmpMedium.split('.').pop();
-
-    if (/(jpg)$/ig.test(extension)) {
-      return this.mediaEnum.PICTURE;
-    }
-
-    if (/(mp4)$/ig.test(extension)) {
-      return this.mediaEnum.VIDEO;
-    }
-  }
-
-  extractMediumTitle(medium) {
-    let tmpMedium = this.getMediumFile(medium);
-    let mediumTitle = tmpMedium.toLowerCase();
-    let mediumTitleArray = mediumTitle.split(".");
-    mediumTitle = mediumTitleArray[0];
-    mediumTitleArray = mediumTitle.split("_");
-    mediumTitle = mediumTitleArray.shift(); //remove 1st element in array 
-
-    mediumTitle = mediumTitleArray.join(" "); //add elements of array into a string
-
-    mediumTitle = mediumTitle.charAt(0).toUpperCase() + mediumTitle.slice(1);
-    return mediumTitle;
-  }
-
+  /**
+   * 
+   * @param {MediumModel} medium 
+   * @param {PhotographerProfileModel} currentPhotographer 
+   * @returns 
+   */
   renderMedium(medium, currentPhotographer) {
-    let mediumTitle = this.extractMediumTitle(medium);
-    let mediumThumbnail = this.createMediumDisplay(medium, currentPhotographer, mediumTitle, "medium_thumbnail");
-    this.appendThumbnailContent(mediumTitle, medium, mediumThumbnail);
+    let mediumThumbnail = this.createMediumDisplay(medium, currentPhotographer, "medium_thumbnail");
+    this.appendThumbnailContent(medium, mediumThumbnail);
     return mediumThumbnail;
   }
 
-  appendThumbnailContent(mediumTitle, medium, mediumThumbnail) {
+  appendThumbnailContent(medium, mediumThumbnail) {
     let mediumThumbnailContent = document.createElement('div');
     mediumThumbnailContent.className = "medium_thumbnail__content";
-    mediumThumbnailContent.innerHTML = "\n            <h2 class=\"medium_title\">".concat(mediumTitle, "</h2>\n            <div class=\"price_and_likes\">\n              <span class=\"medium_price\">").concat(medium.price, "\u20AC</span>\n              <span class=\"medium_number_of_likes\">").concat(medium.likes, "</span>\n              <label class=\"checkbox__like\"> \n                <input type=\"checkbox\" class=\"checkbox__input\" name=\"like\">\n                    <i class=\"far fa-heart like__unchecked\"></i>\n                    <i class=\"fas fa-heart like__checked\"></i>\n                </input>   \n                </label>\n            </div>\n          </div>");
+    mediumThumbnailContent.innerHTML = "\n            <h2 class=\"medium_title\">".concat(medium.getTitle(), "</h2>\n            <div class=\"price_and_likes\">\n              <span class=\"medium_price\">").concat(medium.getPrice(), "\u20AC</span>\n              <span class=\"medium_number_of_likes\">").concat(medium.getLikes(), "</span>\n              <label class=\"checkbox__like aria-label=\"likes\"> \n                <input type=\"checkbox\" class=\"checkbox__input\" name=\"like\" aria-labelledby=\"likes\">\n                    <i class=\"far fa-heart like__unchecked\"></i>\n                    <i class=\"fas fa-heart like__checked\"></i>\n                </input>   \n                </label>\n            </div>\n          </div>");
     mediumThumbnail.appendChild(mediumThumbnailContent);
   }
+  /**
+   * 
+   * @param {MediumModel} medium 
+   * @param {PhotographerProfileModel} currentPhotographer 
+   * @param {string} className 
+   * @param {boolean} controls 
+   * @returns 
+   */
 
-  createMediumDisplay(medium, currentPhotographer, mediumTitle, className) {
-    let controls = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+
+  createMediumDisplay(medium, currentPhotographer, className) {
+    let controls = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     let mediumThumbnail = document.createElement('div');
     mediumThumbnail.className = className;
-    const mediumType = this.getMediumType(this.getMediumFile(medium));
+    mediumThumbnail.ariaLabel = medium.getTitle();
+    const mediumType = medium.getMediumType();
+    let mediumSource = String(medium.getSource());
     var media;
 
     switch (mediumType) {
-      case this.mediaEnum.PICTURE:
+      case _MediaUtils.mediaEnum.PICTURE:
         {
-          let tmpMedium = String(medium.image);
           media = document.createElement('img');
-          media.src = "/static/".concat(currentPhotographer.name.split(' ')[0], "/").concat(tmpMedium);
+          media.src = "/static/".concat(currentPhotographer.getName().split(' ')[0], "/").concat(mediumSource);
           break;
         }
 
-      case this.mediaEnum.VIDEO:
+      case _MediaUtils.mediaEnum.VIDEO:
         {
-          let tmpMedium = String(medium.video);
           media = document.createElement('video');
           let source = document.createElement('source');
-          source.src = "/static/".concat(currentPhotographer.name.split(' ')[0], "/").concat(tmpMedium);
+          source.src = "/static/".concat(currentPhotographer.getName().split(' ')[0], "/").concat(mediumSource);
           source.type = "video/mp4";
           media.controls = controls;
 
@@ -415,29 +597,19 @@ class MediaFactory {
         }
 
       default:
-        tmpMedium = String("");
+        mediumSource = String("");
     }
 
     media.className = "".concat(className, "__miniature");
-    media.alt = mediumTitle;
+    media.alt = medium.getTitle();
     mediumThumbnail.appendChild(media);
     return mediumThumbnail;
-  }
-
-  getMediumFile(medium) {
-    let tmpMedium = medium.image;
-
-    if (tmpMedium == null) {
-      tmpMedium = medium.video;
-    }
-
-    return tmpMedium;
   }
 
 }
 
 exports.MediaFactory = MediaFactory;
-},{}],"scripts/factory/ContactModal.js":[function(require,module,exports) {
+},{"../models/MediumModel":"scripts/models/MediumModel.js","../utils/MediaUtils":"scripts/utils/MediaUtils.js","../models/PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js"}],"scripts/factory/ContactModal.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -445,7 +617,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ContactModal = void 0;
 
+var _PhotographerProfileModel = require("../models/PhotographerProfileModel");
+
 class ContactModal {
+  /**
+   * 
+   * @param {PhotographerProfileModel} currentPhotographer 
+   */
   constructor(currentPhotographer) {
     this.currentPhotographer = currentPhotographer;
   } //modal creation 
@@ -458,9 +636,9 @@ class ContactModal {
   }
 
   createContactModal() {
-    const contactModal = document.createElement('div');
+    const contactModal = document.createElement('dialog');
     contactModal.className = 'contact_modal';
-    document.querySelector('main').appendChild(contactModal);
+    document.getElementById("app").appendChild(contactModal);
   }
 
   createContactModalBody() {
@@ -476,13 +654,15 @@ class ContactModal {
   appendModalTitle(modalBody) {
     const modalTitle = document.createElement('h2');
     modalTitle.className = 'contact_modal__body__title';
-    modalTitle.innerHTML = "Contactez-moi </br> ".concat(this.currentPhotographer.name);
+    modalTitle.innerHTML = "Contactez-moi </br> ".concat(this.currentPhotographer.getName());
     modalBody.appendChild(modalTitle);
   }
 
   appendCloseButton(modalBody) {
     const closeButton = document.createElement('button');
     closeButton.className = 'close_button';
+    closeButton.role = "button";
+    closeButton.ariaLabel = "close dialog";
     closeButton.innerHTML = "<i class=\"fas fa-times fa-3x\"></i>";
     closeButton.addEventListener('click', () => {
       this.hideContactModal();
@@ -659,7 +839,7 @@ class ContactModal {
 }
 
 exports.ContactModal = ContactModal;
-},{}],"scripts/factory/LightboxMedia.js":[function(require,module,exports) {
+},{"../models/PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js"}],"scripts/factory/LightboxMedia.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -669,11 +849,21 @@ exports.LightboxMedia = void 0;
 
 var _MediaFactory = require("./MediaFactory");
 
+var _MediumModel = require("../models/MediumModel");
+
+var _PhotographerProfileModel = require("../models/PhotographerProfileModel");
+
+var _Utils = require("../utils/Utils");
+
 class LightboxMedia {
+  /**
+   * @param {Array<MediumModel>} mediaList 
+   * @param {PhotographerProfileModel} currentPhotographer 
+   */
   constructor() {
-    let allMedia = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+    let mediaList = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
     let currentPhotographer = arguments.length > 1 ? arguments[1] : undefined;
-    this.allMedia = allMedia;
+    this.mediaList = mediaList;
     this.currentPhotographer = currentPhotographer;
     this.mediaFactory = new _MediaFactory.MediaFactory();
   }
@@ -685,9 +875,10 @@ class LightboxMedia {
   }
 
   createLightboxMedia() {
-    const lightboxMedia = document.createElement('div');
+    const lightboxMedia = document.createElement('dialog');
     lightboxMedia.className = 'lightbox_media';
-    document.querySelector('main').appendChild(lightboxMedia);
+    lightboxMedia.ariaLabel = "image close-up view";
+    document.getElementById("app").appendChild(lightboxMedia);
   }
 
   createLightboxMediaBody() {
@@ -704,6 +895,8 @@ class LightboxMedia {
   appendCloseButton(lightboxBody) {
     const closeButton = document.createElement('button');
     closeButton.className = 'close_button_lightbox';
+    closeButton.role = "button";
+    closeButton.ariaLabel = "close dialog";
     closeButton.innerHTML = "<i class=\"fas fa-times fa-3x\"></i>";
     closeButton.addEventListener('click', () => {
       this.hideLightboxMedia();
@@ -711,16 +904,17 @@ class LightboxMedia {
     lightboxBody.appendChild(closeButton);
   }
 
-  createNavButton(buttonClass, buttonIcon) {
+  createNavButton(buttonClass, buttonIcon, accessibleName) {
     const button = document.createElement('button');
     button.className = buttonClass;
     button.innerHTML = "<i class=\"fas ".concat(buttonIcon, " fa-3x\"></i>");
+    button.ariaLabel = accessibleName;
     return button;
   }
 
   appendNavButtons(lightboxBody) {
-    const previousButton = this.createNavButton("previous_button", "fa-chevron-left");
-    const nextButton = this.createNavButton("next_button", "fa-chevron-right");
+    const previousButton = this.createNavButton("previous_button", "fa-chevron-left", "previous image");
+    const nextButton = this.createNavButton("next_button", "fa-chevron-right", "next image");
     lightboxBody.appendChild(previousButton);
     lightboxBody.appendChild(nextButton);
   }
@@ -729,13 +923,14 @@ class LightboxMedia {
     const previousButton = lightboxBody.querySelector('.previous_button');
     const nextButton = lightboxBody.querySelector('.next_button');
     previousButton.addEventListener('click', () => {
-      const currentIndex = this.allMedia.indexOf(this.medium);
+      const currentIndex = this.mediaList.indexOf(this.medium);
       const newIndex = currentIndex - 1;
       const nextButton = lightboxBody.querySelector('.next_button');
       nextButton.style.display = "block";
+      console.log(newIndex);
 
       if (newIndex >= 0) {
-        this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
+        this.showLightboxMedia(this.mediaList[newIndex], this.currentPhotographer, this.mediaList);
       }
 
       if (newIndex == 0) {
@@ -743,16 +938,16 @@ class LightboxMedia {
       }
     });
     nextButton.addEventListener('click', () => {
-      const currentIndex = this.allMedia.indexOf(this.medium);
+      const currentIndex = this.mediaList.indexOf(this.medium);
       const newIndex = currentIndex + 1;
       const previousButton = lightboxBody.querySelector('.previous_button');
       previousButton.style.display = "block";
 
-      if (newIndex <= this.allMedia.length - 1) {
-        this.showLightboxMedia(this.allMedia[newIndex], this.currentPhotographer, this.allMedia);
+      if (newIndex <= this.mediaList.length - 1) {
+        this.showLightboxMedia(this.mediaList[newIndex], this.currentPhotographer, this.mediaList);
       }
 
-      if (newIndex == this.allMedia.length - 1) {
+      if (newIndex == this.mediaList.length - 1) {
         nextButton.style.display = "none";
       }
     });
@@ -771,14 +966,15 @@ class LightboxMedia {
     lightboxBody.querySelector('.medium_box').appendChild(mediumTitle);
   }
 
-  showLightboxMedia(medium, currentPhotographer, allMedia) {
-    this.allMedia = allMedia;
+  showLightboxMedia(medium, currentPhotographer, mediaList) {
+    this.mediaList = mediaList;
     this.medium = medium;
-    this.removeLightboxMedium();
-    const title = this.mediaFactory.extractMediumTitle(medium);
+
+    _Utils.Utils.removeChildOf('.medium_box', 'lightbox_medium');
+
     const mediumTitle = document.querySelector('.lightbox_title');
-    mediumTitle.innerHTML = title;
-    const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, title, "lightbox_medium", true);
+    mediumTitle.innerHTML = medium.getTitle();
+    const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, "lightbox_medium", true);
     document.querySelector('.medium_box').insertBefore(lightboxMedium, mediumTitle);
     this.lightboxMedia.style.display = "block";
   }
@@ -787,19 +983,43 @@ class LightboxMedia {
     this.lightboxMedia.style.display = "none";
   }
 
-  removeLightboxMedium() {
-    const mainNode = document.querySelector('.medium_box');
+}
 
-    for (let index = mainNode.childNodes.length - 1; index >= 0; index--) {
-      const child = mainNode.childNodes[index];
-      if (child.className != "lightbox_title") mainNode.removeChild(child);
-    }
+exports.LightboxMedia = LightboxMedia;
+},{"./MediaFactory":"scripts/factory/MediaFactory.js","../models/MediumModel":"scripts/models/MediumModel.js","../models/PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js","../utils/Utils":"scripts/utils/Utils.js"}],"scripts/models/PhotographerPageModel.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PhotographerPageModel = void 0;
+
+var _MediumModel = require("./MediumModel");
+
+var _PhotographerProfileModel = require("./PhotographerProfileModel");
+
+class PhotographerPageModel {
+  /**
+  * @param {Array<PhotographerProfileModel>} photographersList
+  * @param {Array<MediumModel>} mediaList
+  */
+  constructor(photographersList, mediaList) {
+    this.photographersList = photographersList;
+    this.mediaList = mediaList;
+  }
+
+  getPhotographersList() {
+    return this.photographersList;
+  }
+
+  getMediaList() {
+    return this.mediaList;
   }
 
 }
 
-exports.LightboxMedia = LightboxMedia;
-},{"./MediaFactory":"scripts/factory/MediaFactory.js"}],"scripts/factory/PhotographerPageBuilder.js":[function(require,module,exports) {
+exports.PhotographerPageModel = PhotographerPageModel;
+},{"./MediumModel":"scripts/models/MediumModel.js","./PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js"}],"scripts/factory/PhotographerPageBuilder.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -815,20 +1035,30 @@ var _LightboxMedia = require("./LightboxMedia");
 
 var _Utils = require("../utils/Utils");
 
+var _PhotographerPageModel = require("../models/PhotographerPageModel");
+
+var _PhotographerProfileModel = require("../models/PhotographerProfileModel");
+
+var _MediumModel = require("../models/MediumModel");
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 class PhotographerPageBuilder {
-  constructor(json) {
+  /**
+   * 
+   * @param {Promise<PhotographerPageModel>} photographerPageModel 
+   */
+  constructor(photographerPageModel) {
     _defineProperty(this, "SortEnum", {
       DATE: "Date",
       POPULARITY: "Popularité",
       TITLE: "Titre"
     });
 
-    this.jsonPromise = json;
+    this.photographerPageModelPromise = photographerPageModel;
     this.isDropdownVisible = false; //dropdown menu hidden by default
 
-    this.allMedia = [];
+    this.mediaList = [];
     this.photographerTags = [];
     this.selectedMedia = [];
     this.mediaFactory = new _MediaFactory.MediaFactory();
@@ -836,9 +1066,9 @@ class PhotographerPageBuilder {
 
   render(id) {
     this.idPhotographer = id;
-    this.jsonPromise.then(jsonData => {
-      this.determineCurrentPhotographer(jsonData.photographers);
-      this.determineCurrentPhotographerMedia(jsonData.media);
+    this.photographerPageModelPromise.then(photographerPageModel => {
+      this.determineCurrentPhotographer(photographerPageModel.getPhotographersList());
+      this.determineCurrentPhotographerMedia(photographerPageModel.getMediaList());
       this.renderHeader();
       this.renderMain();
       this.contactModal = new _ContactModal.ContactModal(this.currentPhotographer);
@@ -865,16 +1095,21 @@ class PhotographerPageBuilder {
     const logo = document.createElement('a');
     logo.className = 'logo';
     logo.setAttribute("href", "/");
-    logo.innerHTML = "<img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"logo\" />";
+    logo.innerHTML = "<img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"Fisheye Home Page\" />";
     header.appendChild(logo);
   } // for each photographer, 
   //  if their id == photographer wanted 
   //  then save photographer in currentPhotographer 
 
+  /**
+   * 
+   * @param {Array<PhotographerProfileModel} photographers 
+   */
+
 
   determineCurrentPhotographer(photographers) {
     photographers.forEach(photographer => {
-      if (photographer.id == this.idPhotographer) {
+      if (photographer.getId() == this.idPhotographer) {
         this.currentPhotographer = photographer;
       }
     });
@@ -882,11 +1117,16 @@ class PhotographerPageBuilder {
   //  if photographer id in media object = id in photographers object,
   //  then add medium to array
 
+  /**
+   * 
+   * @param {Array<MediumModel>} media 
+   */
+
 
   determineCurrentPhotographerMedia(media) {
     media.forEach(medium => {
-      if (medium.photographerId == this.idPhotographer) {
-        this.allMedia.push(medium);
+      if (medium.getPhotographerId() == this.idPhotographer) {
+        this.mediaList.push(medium);
       }
     });
   }
@@ -931,21 +1171,21 @@ class PhotographerPageBuilder {
   appendBannerName(bannerContent) {
     const bannerTitle = document.createElement('h2');
     bannerTitle.className = 'photographer_name';
-    bannerTitle.innerHTML = this.currentPhotographer.name;
+    bannerTitle.innerHTML = this.currentPhotographer.getName();
     bannerContent.appendChild(bannerTitle);
   }
 
   appendBannerLocation(bannerContent) {
     const bannerLocation = document.createElement('h3');
     bannerLocation.className = 'photographer_location';
-    bannerLocation.innerHTML = "".concat(this.currentPhotographer.city, ", ").concat(this.currentPhotographer.country);
+    bannerLocation.innerHTML = this.currentPhotographer.getLocation();
     bannerContent.appendChild(bannerLocation);
   }
 
   appendBannerDesc(bannerContent) {
     const bannerDesc = document.createElement('p');
     bannerDesc.className = 'photographer_desc';
-    bannerDesc.innerHTML = this.currentPhotographer.tagline;
+    bannerDesc.innerHTML = this.currentPhotographer.getTagline();
     bannerContent.appendChild(bannerDesc);
   }
 
@@ -966,7 +1206,7 @@ class PhotographerPageBuilder {
   createBannerPicture() {
     const bannerPicture = document.createElement('div');
     bannerPicture.className = 'photographer__picture';
-    bannerPicture.innerHTML = "\n            <img\n                class=\"photographer_thumbnail__picture picture_profile\"\n                src=\"/static/Photographers ID Photos/".concat(this.currentPhotographer.portrait, "\"\n                alt=\"photographer's thumbnail picture\"\n              />");
+    bannerPicture.innerHTML = "\n            <img\n                class=\"photographer_thumbnail__picture picture_profile\"\n                src=\"/static/Photographers ID Photos/".concat(this.currentPhotographer.getPortrait(), "\"\n                alt=\"\"\n              />");
     document.querySelector('.banner').appendChild(bannerPicture);
   }
 
@@ -977,7 +1217,7 @@ class PhotographerPageBuilder {
   }
 
   appendBannerContentTags(bannerContent) {
-    this.currentPhotographer.tags.forEach(photographerTag => {
+    this.currentPhotographer.getTags().forEach(photographerTag => {
       const bannerTag = document.createElement('div');
       bannerTag.className = 'photographer_tags__item';
       const checkboxTag = document.createElement('input');
@@ -1015,8 +1255,8 @@ class PhotographerPageBuilder {
   sortMedia() {
     this.selectedMedia = [];
     this.photographerTags.forEach(clickedPhotographerTag => {
-      this.allMedia.forEach(medium => {
-        medium.tags.forEach(tag => {
+      this.mediaList.forEach(medium => {
+        medium.getTags().forEach(tag => {
           if (tag == clickedPhotographerTag) {
             this.selectedMedia.push(medium);
           }
@@ -1025,7 +1265,7 @@ class PhotographerPageBuilder {
     });
 
     if (this.selectedMedia.length == 0) {
-      this.allMedia.forEach(medium => {
+      this.mediaList.forEach(medium => {
         this.createMediumThumbnail(medium);
       });
     } else {
@@ -1086,6 +1326,7 @@ class PhotographerPageBuilder {
   appendDropdownButton(dropdown) {
     const dropdownButton = document.createElement('button');
     dropdownButton.className = 'dropdown__button';
+    dropdownButton.role = "button";
     dropdownButton.innerHTML = this.SortEnum.POPULARITY;
     dropdown.appendChild(dropdownButton);
   }
@@ -1127,21 +1368,20 @@ class PhotographerPageBuilder {
   }
 
   createPhotographerPrice(summary) {
-    const price = this.currentPhotographer.price;
     const photographerPrice = document.createElement('div');
     photographerPrice.className = "photographer_price";
-    photographerPrice.innerHTML = price + "€/jour";
+    photographerPrice.innerHTML = this.currentPhotographer.getPrice() + "€/jour";
     summary.appendChild(photographerPrice);
   }
 
   createTotalLikes(summary) {
     let numberOfLikes = 0;
-    this.allMedia.forEach(medium => {
-      numberOfLikes = numberOfLikes + medium.likes;
+    this.mediaList.forEach(medium => {
+      numberOfLikes = numberOfLikes + medium.getLikes();
     });
     const totalNumberOfLikes = document.createElement('div');
     totalNumberOfLikes.className = "total_likes";
-    totalNumberOfLikes.innerHTML = "\n        <p class=\"total_number_of_likes\">" + numberOfLikes + "</p>\n        <i class=\"fas fa-heart fa-lg\"></i>";
+    totalNumberOfLikes.innerHTML = "\n        <p class=\"total_number_of_likes\">" + numberOfLikes + "</p>\n        <i class=\"fas fa-heart fa-lg\" aria-label=\"likes\"></i>";
     summary.appendChild(totalNumberOfLikes);
   }
 
@@ -1159,6 +1399,11 @@ class PhotographerPageBuilder {
       }
     });
   }
+  /**
+   * 
+   * @param {MediumModel} medium 
+   */
+
 
   createMediumThumbnail(medium) {
     const mediumThumbnail = this.mediaFactory.renderMedium(medium, this.currentPhotographer);
@@ -1167,7 +1412,7 @@ class PhotographerPageBuilder {
     const mediumThumbnailMiniature = mediumThumbnail.querySelector('.medium_thumbnail__miniature');
     mediumThumbnailMiniature.addEventListener('click', () => {
       if (this.selectedMedia.length == 0) {
-        this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.allMedia);
+        this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.mediaList);
       } else {
         this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.selectedMedia);
       }
@@ -1198,33 +1443,28 @@ class PhotographerPageBuilder {
 
     switch (sortType) {
       case this.SortEnum.DATE:
-        sortedMedia = this.allMedia.sort((a, b) => new Date(b.date) - new Date(a.date));
+        sortedMedia = this.mediaList.sort((a, b) => new Date(b.getDate()) - new Date(a.getDate()));
         break;
 
       case this.SortEnum.POPULARITY:
-        sortedMedia = this.allMedia.sort((a, b) => b.likes - a.likes);
+        sortedMedia = this.mediaList.sort((a, b) => b.getLikes() - a.getLikes());
         break;
 
       case this.SortEnum.TITLE:
-        sortedMedia = this.allMedia.sort((a, b) => this.compareTitle(a, b));
+        sortedMedia = this.mediaList.sort((a, b) => a.getTitle().localeCompare(b.getTitle(), 'fr'));
         break;
     }
 
+    console.log(sortedMedia);
     sortedMedia.forEach(sortedMedium => {
       this.createMediumThumbnail(sortedMedium);
     });
   }
 
-  compareTitle(a, b) {
-    const t1 = this.mediaFactory.extractMediumTitle(a);
-    const t2 = this.mediaFactory.extractMediumTitle(b);
-    return t1.localeCompare(t2, 'fr');
-  }
-
 }
 
 exports.PhotographerPageBuilder = PhotographerPageBuilder;
-},{"./MediaFactory":"scripts/factory/MediaFactory.js","./ContactModal":"scripts/factory/ContactModal.js","./LightboxMedia":"scripts/factory/LightboxMedia.js","../utils/Utils":"scripts/utils/Utils.js"}],"scripts/factory/PageFactory.js":[function(require,module,exports) {
+},{"./MediaFactory":"scripts/factory/MediaFactory.js","./ContactModal":"scripts/factory/ContactModal.js","./LightboxMedia":"scripts/factory/LightboxMedia.js","../utils/Utils":"scripts/utils/Utils.js","../models/PhotographerPageModel":"scripts/models/PhotographerPageModel.js","../models/PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js","../models/MediumModel":"scripts/models/MediumModel.js"}],"scripts/factory/PageFactory.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1245,14 +1485,68 @@ exports.PageFactoryEnum = PageFactoryEnum;
 let registeredPages = new Map([[PageFactoryEnum.PHOTOGRAPHER, _PhotographerPageBuilder.PhotographerPageBuilder], [PageFactoryEnum.HOME, _HomePageBuilder.HomePageBuilder]]);
 
 class PageFactory {
-  getPage(type, json) {
-    return new (registeredPages.get(type))(json);
+  getPage(type, pageModel) {
+    return new (registeredPages.get(type))(pageModel);
   }
 
 }
 
 exports.PageFactory = PageFactory;
-},{"./HomePageBuilder":"scripts/factory/HomePageBuilder.js","./PhotographerPageBuilder":"scripts/factory/PhotographerPageBuilder.js"}],"scripts/utils/DataFetcher.js":[function(require,module,exports) {
+},{"./HomePageBuilder":"scripts/factory/HomePageBuilder.js","./PhotographerPageBuilder":"scripts/factory/PhotographerPageBuilder.js"}],"scripts/models/AppModel.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.AppModel = void 0;
+
+var _HomePageModel = require("../models/HomePageModel");
+
+var _MediumModel = require("./MediumModel");
+
+var _PhotographerPageModel = require("./PhotographerPageModel");
+
+class AppModel {
+  /**
+  * @param {HomePageModel} homePage
+  * @param {PhotographerPageModel} photographerPageModel
+  */
+  constructor(homePage, photographerPageModel) {
+    this.homePageModel = homePage;
+    this.photographerPageModel = photographerPageModel;
+  }
+
+  getHomePage() {
+    return this.homePageModel;
+  }
+
+  getMediaPageModel() {
+    return this.photographerPageModel;
+  }
+
+}
+
+exports.AppModel = AppModel;
+},{"../models/HomePageModel":"scripts/models/HomePageModel.js","./MediumModel":"scripts/models/MediumModel.js","./PhotographerPageModel":"scripts/models/PhotographerPageModel.js"}],"scripts/utils/PhotographersUtils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PhotographersUtils = void 0;
+
+class PhotographersUtils {
+  static getAllTags(json) {
+    let photographers = json.photographers;
+    const allTags = photographers.map(photographer => photographer.tags).flat();
+    const tagsList = [...new Set(allTags)];
+    return tagsList;
+  }
+
+}
+
+exports.PhotographersUtils = PhotographersUtils;
+},{}],"scripts/utils/DataFetcher.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1260,22 +1554,49 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DataFetcher = void 0;
 
+var _AppModel = require("../models/AppModel");
+
+var _HomePageModel = require("../models/HomePageModel");
+
+var _MediumModel = require("../models/MediumModel");
+
+var _PhotographerPageModel = require("../models/PhotographerPageModel");
+
+var _PhotographerProfileModel = require("../models/PhotographerProfileModel");
+
+var _PhotographersUtils = require("./PhotographersUtils");
+
 class DataFetcher {
   constructor(dataSource) {
     this.dataSource = dataSource; //json file
   }
 
-  async fetchSource() {
-    const resp = await fetch(this.dataSource); // ressource request
-    //console.log(resp);
+  fetchSource() {
+    const result = fetch(this.dataSource) // ressource request
+    .then(resp => resp.json()).then(json => this.appPageWrapper(json));
+    return result;
+  }
 
-    return await resp.json();
+  appPageWrapper(json) {
+    const tagsList = _PhotographersUtils.PhotographersUtils.getAllTags(json);
+
+    const photographersList = json.photographers.map(photographer => new _PhotographerProfileModel.PhotographerProfileModel(photographer));
+    const homePageModel = new _HomePageModel.HomePageModel(photographersList, tagsList);
+    const mediaList = this.createMediaList(json);
+    const mediaPageModel = new _PhotographerPageModel.PhotographerPageModel(photographersList, mediaList);
+    return new _AppModel.AppModel(homePageModel, mediaPageModel);
+  }
+
+  createMediaList(json) {
+    const mediaList = json.media.map(medium => new _MediumModel.MediumModel(medium)); //map array<JSON medium> => array<mediumModel>
+
+    return mediaList;
   }
 
 }
 
 exports.DataFetcher = DataFetcher;
-},{}],"Router.js":[function(require,module,exports) {
+},{"../models/AppModel":"scripts/models/AppModel.js","../models/HomePageModel":"scripts/models/HomePageModel.js","../models/MediumModel":"scripts/models/MediumModel.js","../models/PhotographerPageModel":"scripts/models/PhotographerPageModel.js","../models/PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js","./PhotographersUtils":"scripts/utils/PhotographersUtils.js"}],"Router.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1285,18 +1606,20 @@ exports.router = void 0;
 
 var _PageFactory = require("./scripts/factory/PageFactory");
 
+var _AppModel = require("./scripts/models/AppModel");
+
 var _DataFetcher = require("./scripts/utils/DataFetcher");
 
-const dataFetcher = new _DataFetcher.DataFetcher('/static/FishEyeDataFR.json');
+const dataFetcher = new _DataFetcher.DataFetcher('/static/FishEyeData-new.json');
 const json = dataFetcher.fetchSource();
 const pageFactory = new _PageFactory.PageFactory(); //possible routes
 
 const routes = [{
   regex: /\/{1}$/gm,
-  component: pageFactory.getPage(_PageFactory.PageFactoryEnum.HOME, json)
+  component: pageFactory.getPage(_PageFactory.PageFactoryEnum.HOME, json.then(appModel => appModel.homePageModel))
 }, {
   regex: /\/[A-Za-z\-]{1,}\/[0-9]{0,3}?$/,
-  component: pageFactory.getPage(_PageFactory.PageFactoryEnum.PHOTOGRAPHER, json)
+  component: pageFactory.getPage(_PageFactory.PageFactoryEnum.PHOTOGRAPHER, json.then(appModel => appModel.photographerPageModel))
 }];
 
 const router = () => {
@@ -1305,7 +1628,7 @@ const router = () => {
 };
 
 exports.router = router;
-},{"./scripts/factory/PageFactory":"scripts/factory/PageFactory.js","./scripts/utils/DataFetcher":"scripts/utils/DataFetcher.js"}],"index.js":[function(require,module,exports) {
+},{"./scripts/factory/PageFactory":"scripts/factory/PageFactory.js","./scripts/models/AppModel":"scripts/models/AppModel.js","./scripts/utils/DataFetcher":"scripts/utils/DataFetcher.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _Router = require("./Router");
@@ -1341,7 +1664,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65131" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63039" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
