@@ -142,6 +142,64 @@ class Utils {
 }
 
 exports.Utils = Utils;
+},{}],"scripts/factory/Tags.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Tags = void 0;
+
+class Tags {
+  /**
+  * @param {Array<string>} tagsList
+  */
+  constructor(tagsList) {
+    this.tagsList = tagsList;
+  }
+  /**
+   * 
+   * @param {HTMLDivElement} parentElement 
+   * @param {*} tagsList 
+   * @param {*} className 
+   */
+
+
+  appendTags(parentElement, className) {
+    //console.log(parentElement)
+    this.tagsList.forEach(tag => {
+      const tagItem = document.createElement('div');
+      tagItem.className = className;
+      const checkboxTag = document.createElement('input');
+      checkboxTag.type = "checkbox";
+      checkboxTag.className = "tag_checkbox";
+      checkboxTag.id = tag;
+      tagItem.appendChild(checkboxTag);
+      const labelTag = document.createElement('label');
+      labelTag.className = "tag_name";
+      labelTag.setAttribute("for", tag);
+      labelTag.innerHTML = "#".concat(tag);
+      tagItem.appendChild(labelTag);
+      parentElement.appendChild(tagItem);
+    });
+  }
+  /**
+   * 
+   * @param {HTMLDivElement} parentElement 
+   */
+
+
+  addEventOnChange(parentElement, callback) {
+    parentElement.childNodes.forEach(child => {
+      child.addEventListener("change", () => {
+        callback(child.firstChild.checked, child.firstChild.id);
+      });
+    });
+  }
+
+}
+
+exports.Tags = Tags;
 },{}],"scripts/models/PhotographerProfileModel.js":[function(require,module,exports) {
 "use strict";
 
@@ -227,6 +285,8 @@ exports.HomePageBuilder = void 0;
 
 var _Utils = require("../utils/Utils");
 
+var _Tags = require("./Tags");
+
 var _PhotographerProfileModel = require("../models/PhotographerProfileModel");
 
 var _HomePageModel = require("../models/HomePageModel");
@@ -291,7 +351,6 @@ class HomePageBuilder {
   }
 
   appendNavTags(photographers, nav) {
-    //add each tag dynamically in the nav
     this.allTags.forEach(tag => {
       const tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
       const headerTag = document.createElement('div');
@@ -416,7 +475,7 @@ class HomePageBuilder {
 }
 
 exports.HomePageBuilder = HomePageBuilder;
-},{"../utils/Utils":"scripts/utils/Utils.js","../models/PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js","../models/HomePageModel":"scripts/models/HomePageModel.js"}],"scripts/utils/MediaUtils.js":[function(require,module,exports) {
+},{"../utils/Utils":"scripts/utils/Utils.js","./Tags":"scripts/factory/Tags.js","../models/PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js","../models/HomePageModel":"scripts/models/HomePageModel.js"}],"scripts/utils/MediaUtils.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1033,6 +1092,8 @@ var _ContactModal = require("./ContactModal");
 
 var _LightboxMedia = require("./LightboxMedia");
 
+var _Tags = require("./Tags");
+
 var _Utils = require("../utils/Utils");
 
 var _PhotographerPageModel = require("../models/PhotographerPageModel");
@@ -1059,7 +1120,7 @@ class PhotographerPageBuilder {
     this.isDropdownVisible = false; //dropdown menu hidden by default
 
     this.mediaList = [];
-    this.photographerTags = [];
+    this.activeTags = [];
     this.selectedMedia = [];
     this.mediaFactory = new _MediaFactory.MediaFactory();
   }
@@ -1140,113 +1201,38 @@ class PhotographerPageBuilder {
 
 
   renderBanner() {
-    this.createBanner();
-    this.renderBannerContent();
-    this.createBannerButton();
-    this.createBannerPicture();
-  }
-
-  createBanner() {
     const banner = document.createElement('div');
     banner.className = 'banner';
-    document.querySelector('main').appendChild(banner);
-  }
-
-  renderBannerContent() {
-    const bannerContent = this.createBannerContent();
-    this.appendBannerName(bannerContent);
-    this.appendBannerLocation(bannerContent);
-    this.appendBannerDesc(bannerContent);
-    this.appendBannerTags(bannerContent);
-    this.appendBannerContentTags(bannerContent);
-  }
-
-  createBannerContent() {
-    const bannerContent = document.createElement('div');
-    bannerContent.className = 'banner__text_content';
-    document.querySelector('.banner').appendChild(bannerContent);
-    return bannerContent;
-  }
-
-  appendBannerName(bannerContent) {
-    const bannerTitle = document.createElement('h2');
-    bannerTitle.className = 'photographer_name';
-    bannerTitle.innerHTML = this.currentPhotographer.getName();
-    bannerContent.appendChild(bannerTitle);
-  }
-
-  appendBannerLocation(bannerContent) {
-    const bannerLocation = document.createElement('h3');
-    bannerLocation.className = 'photographer_location';
-    bannerLocation.innerHTML = this.currentPhotographer.getLocation();
-    bannerContent.appendChild(bannerLocation);
-  }
-
-  appendBannerDesc(bannerContent) {
-    const bannerDesc = document.createElement('p');
-    bannerDesc.className = 'photographer_desc';
-    bannerDesc.innerHTML = this.currentPhotographer.getTagline();
-    bannerContent.appendChild(bannerDesc);
-  }
-
-  createBannerButton() {
-    const contactButton = document.createElement('button');
-    contactButton.className = 'button_contact button_banner';
-    contactButton.innerHTML = "Contactez-moi";
-    contactButton.addEventListener('click', () => {
+    banner.innerHTML = "\n        <div class=\"banner__text_content\">\n            <h2 class=\"photographer_name\">".concat(this.currentPhotographer.getName(), "</h2>\n            <h3 class=\"photographer_location\">").concat(this.currentPhotographer.getLocation(), "</h3>\n            <p class=\"photographer_desc\">").concat(this.currentPhotographer.getTagline(), "</p>\n            <div class=\"tags tags_photographer_page\"></div>\n        </div>\n        <button class=\"button_contact button_banner\" aria-label=\"Contact Me\"> Contactez-moi </button>\n        <div class=\"photographer__picture\">\n            <img class=\"photographer_thumbnail__picture picture_profile\" src=\"/static/Photographers ID Photos/").concat(this.currentPhotographer.getPortrait(), "\" alt=\"\">\n        </div>");
+    banner.querySelector(".button_banner").addEventListener('click', () => {
       this.launchContactModal();
     });
-    document.querySelector('.banner').appendChild(contactButton);
+    this.appendBannerTags(banner.querySelector(".tags_photographer_page"));
+    document.getElementById('app').appendChild(banner);
   }
 
   launchContactModal() {
     this.contactModal.showContactModal();
   }
 
-  createBannerPicture() {
-    const bannerPicture = document.createElement('div');
-    bannerPicture.className = 'photographer__picture';
-    bannerPicture.innerHTML = "\n            <img\n                class=\"photographer_thumbnail__picture picture_profile\"\n                src=\"/static/Photographers ID Photos/".concat(this.currentPhotographer.getPortrait(), "\"\n                alt=\"\"\n              />");
-    document.querySelector('.banner').appendChild(bannerPicture);
+  appendBannerTags(bannerTags) {
+    const tags = new _Tags.Tags(this.currentPhotographer.getTags());
+    tags.appendTags(bannerTags, 'photographer_tags__item');
+    tags.addEventOnChange(bannerTags, (isChecked, tag) => this.handleTagClick(isChecked, tag));
   }
 
-  appendBannerTags(bannerContent) {
-    const bannerTags = document.createElement('div');
-    bannerTags.className = 'tags tags_photographer_page';
-    bannerContent.appendChild(bannerTags);
-  }
+  handleTagClick(isChecked, tag) {
+    console.log(isChecked);
+    console.log(tag);
 
-  appendBannerContentTags(bannerContent) {
-    this.currentPhotographer.getTags().forEach(photographerTag => {
-      const bannerTag = document.createElement('div');
-      bannerTag.className = 'photographer_tags__item';
-      const checkboxTag = document.createElement('input');
-      checkboxTag.type = "checkbox";
-      checkboxTag.className = "tag_checkbox";
-      checkboxTag.id = photographerTag;
-      bannerTag.appendChild(checkboxTag);
-      const labelTag = document.createElement('label');
-      labelTag.className = "tag_name";
-      labelTag.setAttribute("for", photographerTag);
-      labelTag.innerHTML = "#".concat(photographerTag);
-      bannerTag.appendChild(labelTag);
-      bannerContent.querySelector('.tags_photographer_page').appendChild(bannerTag);
-      checkboxTag.addEventListener('change', () => {
-        if (checkboxTag.checked) {
-          this.photographerTags.push(photographerTag);
-          this.photographerTags = [...new Set(this.photographerTags)];
-        } else {
-          const currentIndex = this.photographerTags.indexOf(photographerTag);
-          this.photographerTags.splice(currentIndex, 1);
-        }
+    if (isChecked) {
+      this.activeTags.push(tag);
+      this.activeTags = [...new Set(this.activeTags)];
+    } else {
+      const currentIndex = this.activeTags.indexOf(tag);
+      this.activeTags.splice(currentIndex, 1);
+    }
 
-        console.log(this.photographerTags);
-        this.handleTagClick();
-      });
-    });
-  }
-
-  handleTagClick() {
     _Utils.Utils.removeChildOf("#app", "medium_thumbnail");
 
     this.sortMedia();
@@ -1254,15 +1240,19 @@ class PhotographerPageBuilder {
 
   sortMedia() {
     this.selectedMedia = [];
-    this.photographerTags.forEach(clickedPhotographerTag => {
+    console.log(this.activeTags);
+    this.activeTags.forEach(clickedPhotographerTag => {
       this.mediaList.forEach(medium => {
         medium.getTags().forEach(tag => {
+          console.log(tag);
+
           if (tag == clickedPhotographerTag) {
             this.selectedMedia.push(medium);
           }
         });
       });
     });
+    console.log(this.selectedMedia);
 
     if (this.selectedMedia.length == 0) {
       this.mediaList.forEach(medium => {
@@ -1464,7 +1454,7 @@ class PhotographerPageBuilder {
 }
 
 exports.PhotographerPageBuilder = PhotographerPageBuilder;
-},{"./MediaFactory":"scripts/factory/MediaFactory.js","./ContactModal":"scripts/factory/ContactModal.js","./LightboxMedia":"scripts/factory/LightboxMedia.js","../utils/Utils":"scripts/utils/Utils.js","../models/PhotographerPageModel":"scripts/models/PhotographerPageModel.js","../models/PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js","../models/MediumModel":"scripts/models/MediumModel.js"}],"scripts/factory/PageFactory.js":[function(require,module,exports) {
+},{"./MediaFactory":"scripts/factory/MediaFactory.js","./ContactModal":"scripts/factory/ContactModal.js","./LightboxMedia":"scripts/factory/LightboxMedia.js","./Tags":"scripts/factory/Tags.js","../utils/Utils":"scripts/utils/Utils.js","../models/PhotographerPageModel":"scripts/models/PhotographerPageModel.js","../models/PhotographerProfileModel":"scripts/models/PhotographerProfileModel.js","../models/MediumModel":"scripts/models/MediumModel.js"}],"scripts/factory/PageFactory.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

@@ -1,4 +1,5 @@
 import { Utils } from "../utils/Utils";
+import { Tags } from "./Tags";
 import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
 import { HomePageModel } from "../models/HomePageModel";
 export class HomePageBuilder {
@@ -66,9 +67,9 @@ export class HomePageBuilder {
         header.appendChild(mainAnchor);
     }
 
-
+    
+      
     appendNavTags(photographers, nav) {
-        //add each tag dynamically in the nav
         this.allTags.forEach(tag => {
             const tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
             const headerTag = document.createElement('div');

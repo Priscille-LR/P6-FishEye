@@ -1,6 +1,7 @@
 import { MediaFactory } from './MediaFactory';
 import { ContactModal } from "./ContactModal";
 import { LightboxMedia } from "./LightboxMedia";
+import { Tags } from "./Tags";
 import { Utils } from "../utils/Utils";
 import { PhotographerPageModel } from "../models/PhotographerPageModel";
 import { PhotographerProfileModel } from '../models/PhotographerProfileModel';
@@ -22,7 +23,7 @@ export class PhotographerPageBuilder {
         this.photographerPageModelPromise = photographerPageModel
         this.isDropdownVisible = false //dropdown menu hidden by default
         this.mediaList = [];
-        this.photographerTags = [];
+        this.activeTags = [];
         this.selectedMedia = [];
         this.mediaFactory = new MediaFactory();
     }
@@ -58,7 +59,7 @@ export class PhotographerPageBuilder {
         header.className = 'header_photographer_page';
         return header;
     }
-
+    
     appendLogo(header) {
         const logo = document.createElement('a');
         logo.className = 'logo';
@@ -107,140 +108,67 @@ export class PhotographerPageBuilder {
 
 
     //Banner
-
     renderBanner() {
-        this.createBanner();
-        this.renderBannerContent();
-        this.createBannerButton();
-        this.createBannerPicture();
-    }
-
-    createBanner() {
         const banner = document.createElement('div');
         banner.className = 'banner';
-        document.querySelector('main').appendChild(banner);
-    }
+        banner.innerHTML = `
+        <div class="banner__text_content">
+            <h2 class="photographer_name">${this.currentPhotographer.getName()}</h2>
+            <h3 class="photographer_location">${this.currentPhotographer.getLocation()}</h3>
+            <p class="photographer_desc">${this.currentPhotographer.getTagline()}</p>
+            <div class="tags tags_photographer_page"></div>
+        </div>
+        <button class="button_contact button_banner" aria-label="Contact Me"> Contactez-moi </button>
+        <div class="photographer__picture">
+            <img class="photographer_thumbnail__picture picture_profile" src="/static/Photographers ID Photos/${this.currentPhotographer.getPortrait()}" alt="">
+        </div>`
 
-    renderBannerContent() {
-        const bannerContent = this.createBannerContent();
-        this.appendBannerName(bannerContent);
-        this.appendBannerLocation(bannerContent);
-        this.appendBannerDesc(bannerContent);
-        this.appendBannerTags(bannerContent);
-        this.appendBannerContentTags(bannerContent);
-    }
-
-    createBannerContent() {
-        const bannerContent = document.createElement('div');
-        bannerContent.className = 'banner__text_content';
-        document.querySelector('.banner').appendChild(bannerContent);
-        return bannerContent;
-
-    }
-
-    appendBannerName(bannerContent) {
-        const bannerTitle = document.createElement('h2');
-        bannerTitle.className = 'photographer_name';
-        bannerTitle.innerHTML = this.currentPhotographer.getName();
-        bannerContent.appendChild(bannerTitle);
-    }
-
-    appendBannerLocation(bannerContent) {
-        const bannerLocation = document.createElement('h3');
-        bannerLocation.className = 'photographer_location';
-        bannerLocation.innerHTML = this.currentPhotographer.getLocation();
-        bannerContent.appendChild(bannerLocation);
-    }
-
-    appendBannerDesc(bannerContent) {
-        const bannerDesc = document.createElement('p');
-        bannerDesc.className = 'photographer_desc';
-        bannerDesc.innerHTML = this.currentPhotographer.getTagline();
-        bannerContent.appendChild(bannerDesc);
-    }
-
-    createBannerButton() {
-        const contactButton = document.createElement('button');
-        contactButton.className = 'button_contact button_banner';
-        contactButton.innerHTML = `Contactez-moi`;
-        contactButton.addEventListener('click', () => {
+        banner.querySelector(".button_banner").addEventListener('click', () => {
             this.launchContactModal()
         });
-        document.querySelector('.banner').appendChild(contactButton);
+        this.appendBannerTags(banner.querySelector(".tags_photographer_page"))
+        document.getElementById('app').appendChild(banner);
     }
 
     launchContactModal() {
         this.contactModal.showContactModal();
     }
 
-    createBannerPicture() {
-        const bannerPicture = document.createElement('div');
-        bannerPicture.className = 'photographer__picture';
-        bannerPicture.innerHTML = `
-            <img
-                class="photographer_thumbnail__picture picture_profile"
-                src="/static/Photographers ID Photos/${this.currentPhotographer.getPortrait()}"
-                alt=""
-              />`;
-
-        document.querySelector('.banner').appendChild(bannerPicture);
+    appendBannerTags(bannerTags) {
+        const tags = new Tags(this.currentPhotographer.getTags());
+        tags.appendTags(bannerTags,'photographer_tags__item')
+        tags.addEventOnChange(bannerTags, (isChecked, tag) => this.handleTagClick(isChecked, tag));
     }
 
-    appendBannerTags(bannerContent) {
-        const bannerTags = document.createElement('div');
-        bannerTags.className = 'tags tags_photographer_page';
-        bannerContent.appendChild(bannerTags);
-    }
-
-    appendBannerContentTags(bannerContent) {
-        this.currentPhotographer.getTags().forEach(photographerTag => {
-            const bannerTag = document.createElement('div');
-            bannerTag.className = 'photographer_tags__item';
-
-            const checkboxTag = document.createElement('input');
-            checkboxTag.type = "checkbox";
-            checkboxTag.className = "tag_checkbox"
-            checkboxTag.id = photographerTag;
-            bannerTag.appendChild(checkboxTag)
-
-            const labelTag = document.createElement('label');
-            labelTag.className = "tag_name"
-            labelTag.setAttribute("for", photographerTag);
-            labelTag.innerHTML = `#${photographerTag}`;
-            bannerTag.appendChild(labelTag)
-
-            bannerContent.querySelector('.tags_photographer_page').appendChild(bannerTag);
-
-            checkboxTag.addEventListener('change', () => {
-                if (checkboxTag.checked) {
-                    this.photographerTags.push(photographerTag);
-                    this.photographerTags = [...new Set(this.photographerTags)];
-                } else {
-                    const currentIndex = this.photographerTags.indexOf(photographerTag);
-                    this.photographerTags.splice(currentIndex, 1);
-                }
-                console.log(this.photographerTags)
-                this.handleTagClick();
-            });
-        });
-    }
-
-    handleTagClick() {
+    handleTagClick(isChecked, tag) {
+        console.log(isChecked)
+        console.log(tag)
+        if (isChecked) {
+            this.activeTags.push(tag);
+            this.activeTags = [...new Set(this.activeTags)];
+        } else {
+            const currentIndex = this.activeTags.indexOf(tag);
+            this.activeTags.splice(currentIndex, 1);
+        }
         Utils.removeChildOf("#app", "medium_thumbnail");
         this.sortMedia()
     }
 
     sortMedia() {
        this.selectedMedia = [];
-        this.photographerTags.forEach(clickedPhotographerTag => {
+       console.log(this.activeTags)
+        this.activeTags.forEach(clickedPhotographerTag => {
             this.mediaList.forEach(medium => {
                 medium.getTags().forEach(tag => {
+                    console.log(tag)
                     if (tag == clickedPhotographerTag) {
                         this.selectedMedia.push(medium)
                     }
                 })
             });
         });
+        console.log(this.selectedMedia)
+        
 
         if (this.selectedMedia.length == 0) {
             this.mediaList.forEach(medium => {
@@ -257,9 +185,7 @@ export class PhotographerPageBuilder {
 
     }
 
-
     //dropdown
-
     renderDropdown() {
 
         const dropdownMenu = this.createDropdownMenu();
@@ -343,7 +269,6 @@ export class PhotographerPageBuilder {
 
 
     //sticker photographer total number of likes and price
-
     renderSummary() {
         const summary = this.createSummary();
         this.createTotalLikes(summary);

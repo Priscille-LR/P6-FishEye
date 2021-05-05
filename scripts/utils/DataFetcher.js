@@ -22,8 +22,7 @@ export class DataFetcher {
         const tagsList = PhotographersUtils.getAllTags(json); 
         const photographersList = json.photographers.map(photographer => new PhotographerProfileModel(photographer));
         const homePageModel = new HomePageModel(photographersList, tagsList);
-       
-        const mediaList = this.createMediaList(json)
+        const mediaList = this.createMediaList(json);
         const mediaPageModel = new PhotographerPageModel(photographersList, mediaList);
         
         return new AppModel(homePageModel, mediaPageModel)

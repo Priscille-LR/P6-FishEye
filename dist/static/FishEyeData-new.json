@@ -96,7 +96,7 @@
       "id": 9275938,
       "photographerId": 82,
       "title": "Wedding Gazebo",
-      "image": "Event-_WeddingGazebo.jpg",
+      "image": "Event_WeddingGazebo.jpg",
       "tags": ["events"],
       "likes": 69,
       "date": "2018-02-22",
@@ -408,7 +408,7 @@
     {
       "id": 65235234,
       "photographerId": 243,
-      "title": "Boulder Wedding",
+      "title": "Pinto Wedding",
       "image": "Event_PintoWedding.jpg",
       "tags": ["events"],
       "likes": 52,
