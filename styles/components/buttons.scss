@@ -36,7 +36,11 @@
 
 //button like
 
-.checkbox__like input,
+.checkbox__like input {
+  opacity: 0;
+  width: 0px;
+  height: 0px;
+}
 .checkbox__like .like__checked {
   display: none;
 }

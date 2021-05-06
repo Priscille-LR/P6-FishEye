@@ -6,12 +6,12 @@
   display: flex;
   justify-content: center;
   margin: 2rem;
+  width: 100%;
   @include desktop {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
     background-color: #fafafa;
     margin: 2rem;
     padding: 3rem;
@@ -53,7 +53,9 @@
     .photographer_tags__item {
       margin: 0.3rem;
       .tag_checkbox {
-        display: none;
+        opacity: 0;
+        width: 0px;
+        height: 0px;
       }
       .tag_name {
         border-radius: 30px;
@@ -63,6 +65,10 @@
         font-weight: bold;
       }
       .tag_checkbox:hover ~ .tag_name,
+      .tag_checkbox:focus ~ .tag_name{
+        background-color: $color-tertiary;
+        color: #ffffff;
+      }
       .tag_checkbox:checked ~ .tag_name {
         background-color: $color-primary;
         border-radius: 20px;

@@ -92,10 +92,10 @@ export class PhotographerPageBuilder {
 
     //Banner
     renderBanner() {
-        const banner = document.createElement('div');
+        const banner = document.createElement('section');
         banner.className = 'banner';
         banner.innerHTML = `
-        <div class="banner__text_content">
+        <div class="banner__text_content" aria-label="${this.currentPhotographer.getName()} info" >
             <h2 class="photographer_name">${this.currentPhotographer.getName()}</h2>
             <h3 class="photographer_location">${this.currentPhotographer.getLocation()}</h3>
             <p class="photographer_desc">${this.currentPhotographer.getTagline()}</p>
@@ -167,7 +167,7 @@ export class PhotographerPageBuilder {
         const dropdownMenu = this.createDropdownMenu();
         document.querySelector('main').appendChild(dropdownMenu);
 
-        const dropdrownButton = document.querySelector('.dropdown__button');
+        const dropdrownButton = document.querySelector('.dropdown__trigger');
         const dropdrownContent = document.querySelector('.dropdown__content');
 
         dropdrownButton.addEventListener('click', () => {
@@ -194,7 +194,8 @@ export class PhotographerPageBuilder {
         dropdownMenu.innerHTML = `
         <span class="sort_by">Trier par</span>
         <div class="dropdown">
-        <button class="dropdown__button">${this.SortEnum.POPULARITY}</button>
+        <button class="dropdown__trigger" role="button" aria-label="sort by" aria-controls="dropdown_content" aria-haspopup="listbox" aria-expanded="false">${this.SortEnum.POPULARITY}</button>
+        
         <div class="dropdown__content">
         <a class="dropdown__content__item">${this.SortEnum.DATE}</a>
         <a class="dropdown__content__item">${this.SortEnum.TITLE}</a>

@@ -20,26 +20,6 @@ export class MediaFactory {
         return mediumThumbnail;
     }
 
-    appendThumbnailContent(medium, mediumThumbnail) {
-        let mediumThumbnailContent = document.createElement('div');
-        mediumThumbnailContent.className = "medium_thumbnail__content";
-        mediumThumbnailContent.innerHTML = `
-            <h2 class="medium_title">${medium.getTitle()}</h2>
-            <div class="price_and_likes">
-              <span class="medium_price" title="price:">${medium.getPrice()}€</span>
-              <span class="medium_number_of_likes">${medium.getLikes()}</span>
-              <label class="checkbox__like aria-label="likes"> 
-                <input type="checkbox" class="checkbox__input" name="like" aria-labelledby="likes">
-                    <i class="far fa-heart like__unchecked"></i>
-                    <i class="fas fa-heart like__checked"></i>
-                </input>   
-                </label>
-            </div>
-          </div>`;
-
-        mediumThumbnail.appendChild(mediumThumbnailContent);
-    }
-
     /**
      * 
      * @param {MediumModel} medium 
@@ -48,7 +28,7 @@ export class MediaFactory {
      * @param {boolean} controls 
      * @returns 
      */
-    createMediumDisplay(medium, currentPhotographer, className, controls = false) {
+     createMediumDisplay(medium, currentPhotographer, className, controls = false) {
         let mediumThumbnail = document.createElement('article');
         mediumThumbnail.className = className;
         mediumThumbnail.ariaLabel = medium.getTitle();
@@ -81,9 +61,32 @@ export class MediaFactory {
         }
         media.className = `${className}__miniature`;
         media.alt = medium.getTitle();
+        media.tabIndex = 0;
         mediumThumbnail.appendChild(media);
         return mediumThumbnail;
     }
+
+    appendThumbnailContent(medium, mediumThumbnail) {
+        let mediumThumbnailContent = document.createElement('div');
+        mediumThumbnailContent.className = "medium_thumbnail__content";
+        mediumThumbnailContent.innerHTML = `
+            <h2 class="medium_title">${medium.getTitle()}</h2>
+            <div class="price_and_likes">
+              <span class="medium_price" aria-label="price:">${medium.getPrice()}€</span>
+              <span class="medium_number_of_likes">${medium.getLikes()}</span>
+              <label class="checkbox__like aria-label="likes"> 
+                <input type="checkbox" class="checkbox__input" name="like" aria-labelledby="likes" tabindex="0">
+                    <i class="far fa-heart like__unchecked"></i>
+                    <i class="fas fa-heart like__checked"></i>
+                </input>   
+                </label>
+            </div>
+          </div>`;
+
+        mediumThumbnail.appendChild(mediumThumbnailContent);
+    }
+
+    
 
 }
 

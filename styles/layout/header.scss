@@ -15,7 +15,6 @@
     width: 80%;
   }
   .logo_img {
-    //margin: 1rem;
     width: 70%;
     @include desktop {
       display: flex;
@@ -37,16 +36,16 @@
   .main_nav {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-self: flex-end;
     flex-wrap: wrap;
-    width: 80%;
+    width: 70%;
     margin: 3rem auto;
     @include desktop {
-      margin: 1rem auto;
-      //width: 75%;
+      justify-content: flex-start;
+      margin: auto 0;
     }
     &__item {
-      margin: 0.5rem;
+      margin: 0.5rem 0rem;
       .tag_name {
         border-radius: 30px;
         border: solid 1px #c4c4c4;
@@ -59,9 +58,16 @@
         }
       }
       .tag_checkbox {
-        display: none;
-      }
+        opacity: 0;
+        width: 0px;
+        height: 0px;
+      
+  }
       .tag_checkbox:hover ~ .tag_name,
+      .tag_checkbox:focus ~ .tag_name{
+        background-color: $color-tertiary;
+        color: #ffffff;
+      }
       .tag_checkbox:checked ~ .tag_name {
         background-color: $color-primary;
         border-radius: 20px;

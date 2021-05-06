@@ -134,7 +134,7 @@ export class LightboxMedia {
 
         const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, "lightbox_medium", true);
         document.querySelector('.medium_box').insertBefore(lightboxMedium, mediumTitle);
-        this.lightboxMedia.style.display = "block";        
+        this.lightboxMedia.style.display = "flex";        
     }
 
     hideLightboxMedia() {

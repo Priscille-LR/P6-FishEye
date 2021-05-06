@@ -107,6 +107,7 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin: 0 1rem;
   @include desktop {
     width: 350px;
     margin: 3rem;

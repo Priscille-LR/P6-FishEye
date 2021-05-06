@@ -10,55 +10,42 @@ export class ContactModal {
     }
 
     //modal creation 
+
     renderContactModal() {
         this.createContactModal();
-        this.createContactModalBody();
-
-        this.contactModal = document.querySelector('.contact_modal');
+        this.eventOnClose()
     }
 
     createContactModal() {
         const contactModal = document.createElement('dialog');
         contactModal.className = 'contact_modal';
-
+        contactModal.innerHTML = `
+        <div class="contact_modal__body">
+            <h2 class="contact_modal__body__title">Contactez-moi <br> ${this.currentPhotographer.getName()}</h2>
+            <button class="close_button" aria-label="close dialog">
+                <i class="fas fa-times fa-3x" aria-hidden="true"></i>
+            </button>    
+            <form class="contact_form"></form>    
+        </div> 
+        `;
         document.getElementById("app").appendChild(contactModal);
+        
+        this.contactModal = document.querySelector('.contact_modal')
+
+        this.appendContactForm();
+        this.createModalButton();
+        
+        
     }
 
-    createContactModalBody() {
-        const modalBody = document.createElement('div');
-        modalBody.className = 'contact_modal__body';
-
-        this.appendModalTitle(modalBody);
-        this.appendCloseButton(modalBody);
-        this.appendContactForm(modalBody);
-        this.createModalButton(modalBody);
-
-        document.querySelector('.contact_modal').appendChild(modalBody);
-    }
-
-    appendModalTitle(modalBody) {
-        const modalTitle = document.createElement('h2');
-        modalTitle.className = 'contact_modal__body__title';
-        modalTitle.innerHTML = `Contactez-moi </br> ${this.currentPhotographer.getName()}`;
-
-        modalBody.appendChild(modalTitle);
-
-    }
-
-    appendCloseButton(modalBody) {
-        const closeButton = document.createElement('button');
-        closeButton.className = 'close_button';
-        closeButton.role = "button";
-        closeButton.ariaLabel = "close dialog"
-        closeButton.innerHTML = `<i class="fas fa-times fa-3x"></i>`;
+    eventOnClose() {
+        const closeButton = document.querySelector('.close_button')
         closeButton.addEventListener('click', () => {
             this.hideContactModal();
         });
-        modalBody.appendChild(closeButton);
-
     }
 
-    appendContactForm(modalBody) {
+    appendContactForm() {
         const contactForm = document.createElement('form');
         contactForm.className = 'contact_form';
         contactForm.setAttribute = ("method", "post");
@@ -67,7 +54,7 @@ export class ContactModal {
         this.createFormFields(contactForm);
         this.addEventListenerValidate(contactForm);
 
-        modalBody.appendChild(contactForm);
+        document.querySelector('.contact_form').appendChild(contactForm);
     }
 
     addEventListenerValidate(contactForm) {
@@ -90,10 +77,10 @@ export class ContactModal {
         });
     }
 
-    createFormData() {
-        const formData = document.createElement('div');
-        formData.className = 'formData';
-        return formData;
+    createFieldset() {
+        const fieldset = document.createElement('div');
+        fieldset.className = 'formData';
+        return fieldset;
     }
 
     createLabel(forParam, textParam) {
@@ -122,36 +109,43 @@ export class ContactModal {
     createFormFields(contactForm) {
 
         //Firstname
-        let formData = this.createFormData();
-        formData.appendChild(this.createLabel("firstname", "Prénom"));
-        formData.appendChild(this.createInputField("firstname"));
-        contactForm.appendChild(formData);
+        let fieldset = this.createFieldset();
+        fieldset.appendChild(this.createLabel("firstname", "Prénom"));
+        fieldset.appendChild(this.createInputField("firstname"));
+        contactForm.appendChild(fieldset);
 
         //Lastname
-        formData = this.createFormData();
-        formData.appendChild(this.createLabel("lastname", "Nom"));
-        formData.appendChild(this.createInputField("lastname"));
-        contactForm.appendChild(formData);
+        fieldset = this.createFieldset();
+        fieldset.appendChild(this.createLabel("lastname", "Nom"));
+        fieldset.appendChild(this.createInputField("lastname"));
+        contactForm.appendChild(fieldset);
 
         //Email
-        formData = this.createFormData();
-        formData.appendChild(this.createLabel("email", "Email"));
-        formData.appendChild(this.createInputField("email"));
-        contactForm.appendChild(formData);
+        fieldset = this.createFieldset();
+        fieldset.appendChild(this.createLabel("email", "Email"));
+        fieldset.appendChild(this.createInputField("email"));
+        contactForm.appendChild(fieldset);
 
         //Message
-        formData = this.createFormData();
-        formData.appendChild(this.createLabel("message", "Votre message"));
-        formData.appendChild(this.createTextArea("message"));
-        contactForm.appendChild(formData);
+        fieldset = this.createFieldset();
+        fieldset.appendChild(this.createLabel("message", "Votre message"));
+        fieldset.appendChild(this.createTextArea("message"));
+        contactForm.appendChild(fieldset);
     }
 
-    createModalButton(modalBody) {
+    createModalButton() {
+        const modalBody = document.querySelector('.contact_modal__body');
         const modalButton = document.createElement('button');
         modalButton.className = 'button_contact submit_button';
         modalButton.type = "submit";
         modalButton.innerHTML = `Envoyer`;
 
+        this.eventOnSubmit(modalButton, modalBody);
+        
+        document.querySelector('.contact_modal__body').appendChild(modalButton);
+    }
+
+    eventOnSubmit(modalButton, modalBody) {
         modalButton.addEventListener('click', (e) => {
             const inputs = [...modalBody.querySelectorAll('.input_field')];
             e.preventDefault();
@@ -161,15 +155,14 @@ export class ContactModal {
                     const fields = {
                         input: input.id,
                         inputValue: input.value,
-                    }
+                    };
                     return fields;
                 })
-                .forEach((field) => console.log(field.input + " : " + field.inputValue));
+                    .forEach((field) => console.log(field.input + " : " + field.inputValue));
             } else {
-                console.log("Merci de rensigner les champs")
+                console.log("Merci de rensigner les champs");
             }
         });
-        modalBody.appendChild(modalButton);
     }
 
     showContactModal() {
@@ -177,7 +170,7 @@ export class ContactModal {
     }
 
     hideContactModal() {
-        this.contactModal.style.display = "none";
+       this.contactModal.style.display = "none";
     }
 
 

@@ -23,7 +23,7 @@ export class HomePageBuilder {
                 this.renderMain(this.photographers)
             })
     }
-    
+
     renderHeader() {
         const header = document.createElement('header');
         header.className = 'header_home';
@@ -32,7 +32,7 @@ export class HomePageBuilder {
             <img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />
         </a>
         <a class="go_main" href="#app">Passer au contenu</a>
-        <nav class="main_nav" aria-label="main navigation" role="navigation">
+        <nav class="main_nav" role="navigation" aria-label="photographers categories">
         </nav>
         `;
         this.renderNavTags(header.querySelector(".main_nav"))
@@ -110,7 +110,7 @@ export class HomePageBuilder {
 
             const article = document.createElement('article')
             article.className = 'article';
-            article.innerHTML = `<a class="photographer_thumbnail" href="/photographers-profile/${photographer.getId()}">`;
+            article.innerHTML = `<a class="photographer_thumbnail" href="/photographers-profile/${photographer.getId()}" aria-label="${photographer.getName()}">`;
 
             this.appendPhotographerThumbnailPicture(article, photographer);
             this.appendPhotographerThumbnailContent(article, photographer);
@@ -129,7 +129,7 @@ export class HomePageBuilder {
         thumbnailPicture.innerHTML = `
         <img class="photographer_thumbnail__picture"
         src="/static/Photographers ID Photos/${photographer.getPortrait()}"
-        alt="photographer's thumbnail picture" />`;
+        alt="${photographer.getName()}'s thumbnail picture" />`;
 
         article.querySelector('.photographer_thumbnail').appendChild(thumbnailPicture);
     }
@@ -141,6 +141,7 @@ export class HomePageBuilder {
     appendPhotographerThumbnailContent(article, photographer) {
         const thumbnailContent = document.createElement('div')
         thumbnailContent.className = 'photographer_thumbnail__content';
+        thumbnailContent.ariaLabel = `${photographer.getName()} info`
         thumbnailContent.innerHTML = `
         <h2 class="photographer_name">${photographer.getName()}</h2>
         <h3 class="photographer_location">${photographer.getLocation()}</h3>

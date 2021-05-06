@@ -10,11 +10,12 @@
   top: 0%;
   height: 100%;
   width: 100%;
+  padding: 0;
   overflow: auto;
   background-color: $color-tertiary;
   border-radius: 5px;
+  border: none;
   @include desktop {
-    left: auto;
     top: 10%;
     height: 900px;
     width: 670px;

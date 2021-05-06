@@ -173,6 +173,8 @@ class Tags {
       checkboxTag.type = "checkbox";
       checkboxTag.className = "tag_checkbox";
       checkboxTag.id = tag;
+      checkboxTag.ariaChecked = "false";
+      checkboxTag.tabIndex = 0;
       tagItem.appendChild(checkboxTag);
       const labelTag = document.createElement('label');
       labelTag.className = "tag_name";
@@ -313,7 +315,7 @@ class HomePageBuilder {
   renderHeader() {
     const header = document.createElement('header');
     header.className = 'header_home';
-    header.innerHTML = "\n        <a class=\"logo\" href=\"/\">\n            <img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"Fisheye Home Page\" />\n        </a>\n        <a class=\"go_main\" href=\"#app\">Passer au contenu</a>\n        <nav class=\"main_nav\" aria-label=\"main navigation\" role=\"navigation\">\n        </nav>\n        ";
+    header.innerHTML = "\n        <a class=\"logo\" href=\"/\">\n            <img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"Fisheye Home Page\" />\n        </a>\n        <a class=\"go_main\" href=\"#app\">Passer au contenu</a>\n        <nav class=\"main_nav\" role=\"navigation\" aria-label=\"photographers categories\">\n        </nav>\n        ";
     this.renderNavTags(header.querySelector(".main_nav"));
     const main = document.getElementById('app');
     document.querySelector('body').insertBefore(header, main);
@@ -387,7 +389,7 @@ class HomePageBuilder {
     photographers.forEach(photographer => {
       const article = document.createElement('article');
       article.className = 'article';
-      article.innerHTML = "<a class=\"photographer_thumbnail\" href=\"/photographers-profile/".concat(photographer.getId(), "\">");
+      article.innerHTML = "<a class=\"photographer_thumbnail\" href=\"/photographers-profile/".concat(photographer.getId(), "\" aria-label=\"").concat(photographer.getName(), "\">");
       this.appendPhotographerThumbnailPicture(article, photographer);
       this.appendPhotographerThumbnailContent(article, photographer);
       document.querySelector('.photographers').appendChild(article);
@@ -402,7 +404,7 @@ class HomePageBuilder {
   appendPhotographerThumbnailPicture(article, photographer) {
     const thumbnailPicture = document.createElement('a');
     thumbnailPicture.className = 'photographer_thumbnail__picture';
-    thumbnailPicture.innerHTML = "\n        <img class=\"photographer_thumbnail__picture\"\n        src=\"/static/Photographers ID Photos/".concat(photographer.getPortrait(), "\"\n        alt=\"photographer's thumbnail picture\" />");
+    thumbnailPicture.innerHTML = "\n        <img class=\"photographer_thumbnail__picture\"\n        src=\"/static/Photographers ID Photos/".concat(photographer.getPortrait(), "\"\n        alt=\"").concat(photographer.getName(), "'s thumbnail picture\" />");
     article.querySelector('.photographer_thumbnail').appendChild(thumbnailPicture);
   }
   /**
@@ -414,6 +416,7 @@ class HomePageBuilder {
   appendPhotographerThumbnailContent(article, photographer) {
     const thumbnailContent = document.createElement('div');
     thumbnailContent.className = 'photographer_thumbnail__content';
+    thumbnailContent.ariaLabel = "".concat(photographer.getName(), " info");
     thumbnailContent.innerHTML = "\n        <h2 class=\"photographer_name\">".concat(photographer.getName(), "</h2>\n        <h3 class=\"photographer_location\">").concat(photographer.getLocation(), "</h3>\n        <p class=\"photographer_desc\">").concat(photographer.getTagline(), "</p>\n        <p class=\"photographer_price\">").concat(photographer.getPrice(), "\u20AC/jour</p>\n        <div class=\"tags\"></div>");
     photographer.getTags().forEach(photographerTag => {
       const tag = document.createElement('a');
@@ -557,13 +560,6 @@ class MediaFactory {
     this.appendThumbnailContent(medium, mediumThumbnail);
     return mediumThumbnail;
   }
-
-  appendThumbnailContent(medium, mediumThumbnail) {
-    let mediumThumbnailContent = document.createElement('div');
-    mediumThumbnailContent.className = "medium_thumbnail__content";
-    mediumThumbnailContent.innerHTML = "\n            <h2 class=\"medium_title\">".concat(medium.getTitle(), "</h2>\n            <div class=\"price_and_likes\">\n              <span class=\"medium_price\" title=\"price:\">").concat(medium.getPrice(), "\u20AC</span>\n              <span class=\"medium_number_of_likes\">").concat(medium.getLikes(), "</span>\n              <label class=\"checkbox__like aria-label=\"likes\"> \n                <input type=\"checkbox\" class=\"checkbox__input\" name=\"like\" aria-labelledby=\"likes\">\n                    <i class=\"far fa-heart like__unchecked\"></i>\n                    <i class=\"fas fa-heart like__checked\"></i>\n                </input>   \n                </label>\n            </div>\n          </div>");
-    mediumThumbnail.appendChild(mediumThumbnailContent);
-  }
   /**
    * 
    * @param {MediumModel} medium 
@@ -613,8 +609,16 @@ class MediaFactory {
 
     media.className = "".concat(className, "__miniature");
     media.alt = medium.getTitle();
+    media.tabIndex = 0;
     mediumThumbnail.appendChild(media);
     return mediumThumbnail;
+  }
+
+  appendThumbnailContent(medium, mediumThumbnail) {
+    let mediumThumbnailContent = document.createElement('div');
+    mediumThumbnailContent.className = "medium_thumbnail__content";
+    mediumThumbnailContent.innerHTML = "\n            <h2 class=\"medium_title\">".concat(medium.getTitle(), "</h2>\n            <div class=\"price_and_likes\">\n              <span class=\"medium_price\" aria-label=\"price:\">").concat(medium.getPrice(), "\u20AC</span>\n              <span class=\"medium_number_of_likes\">").concat(medium.getLikes(), "</span>\n              <label class=\"checkbox__like aria-label=\"likes\"> \n                <input type=\"checkbox\" class=\"checkbox__input\" name=\"like\" aria-labelledby=\"likes\" tabindex=\"0\">\n                    <i class=\"far fa-heart like__unchecked\"></i>\n                    <i class=\"fas fa-heart like__checked\"></i>\n                </input>   \n                </label>\n            </div>\n          </div>");
+    mediumThumbnail.appendChild(mediumThumbnailContent);
   }
 
 }
@@ -642,53 +646,34 @@ class ContactModal {
 
   renderContactModal() {
     this.createContactModal();
-    this.createContactModalBody();
-    this.contactModal = document.querySelector('.contact_modal');
+    this.eventOnClose();
   }
 
   createContactModal() {
     const contactModal = document.createElement('dialog');
     contactModal.className = 'contact_modal';
+    contactModal.innerHTML = "\n        <div class=\"contact_modal__body\">\n            <h2 class=\"contact_modal__body__title\">Contactez-moi <br> ".concat(this.currentPhotographer.getName(), "</h2>\n            <button class=\"close_button\" aria-label=\"close dialog\">\n                <i class=\"fas fa-times fa-3x\" aria-hidden=\"true\"></i>\n            </button>    \n            <form class=\"contact_form\"></form>    \n        </div> \n        ");
     document.getElementById("app").appendChild(contactModal);
+    this.contactModal = document.querySelector('.contact_modal');
+    this.appendContactForm();
+    this.createModalButton();
   }
 
-  createContactModalBody() {
-    const modalBody = document.createElement('div');
-    modalBody.className = 'contact_modal__body';
-    this.appendModalTitle(modalBody);
-    this.appendCloseButton(modalBody);
-    this.appendContactForm(modalBody);
-    this.createModalButton(modalBody);
-    document.querySelector('.contact_modal').appendChild(modalBody);
-  }
-
-  appendModalTitle(modalBody) {
-    const modalTitle = document.createElement('h2');
-    modalTitle.className = 'contact_modal__body__title';
-    modalTitle.innerHTML = "Contactez-moi </br> ".concat(this.currentPhotographer.getName());
-    modalBody.appendChild(modalTitle);
-  }
-
-  appendCloseButton(modalBody) {
-    const closeButton = document.createElement('button');
-    closeButton.className = 'close_button';
-    closeButton.role = "button";
-    closeButton.ariaLabel = "close dialog";
-    closeButton.innerHTML = "<i class=\"fas fa-times fa-3x\"></i>";
+  eventOnClose() {
+    const closeButton = document.querySelector('.close_button');
     closeButton.addEventListener('click', () => {
       this.hideContactModal();
     });
-    modalBody.appendChild(closeButton);
   }
 
-  appendContactForm(modalBody) {
+  appendContactForm() {
     const contactForm = document.createElement('form');
     contactForm.className = 'contact_form';
     contactForm.setAttribute = ("method", "post");
     contactForm.setAttribute = ("action", "submit");
     this.createFormFields(contactForm);
     this.addEventListenerValidate(contactForm);
-    modalBody.appendChild(contactForm);
+    document.querySelector('.contact_form').appendChild(contactForm);
   }
 
   addEventListenerValidate(contactForm) {
@@ -710,10 +695,10 @@ class ContactModal {
     });
   }
 
-  createFormData() {
-    const formData = document.createElement('div');
-    formData.className = 'formData';
-    return formData;
+  createFieldset() {
+    const fieldset = document.createElement('div');
+    fieldset.className = 'formData';
+    return fieldset;
   }
 
   createLabel(forParam, textParam) {
@@ -741,32 +726,38 @@ class ContactModal {
 
   createFormFields(contactForm) {
     //Firstname
-    let formData = this.createFormData();
-    formData.appendChild(this.createLabel("firstname", "Prénom"));
-    formData.appendChild(this.createInputField("firstname"));
-    contactForm.appendChild(formData); //Lastname
+    let fieldset = this.createFieldset();
+    fieldset.appendChild(this.createLabel("firstname", "Prénom"));
+    fieldset.appendChild(this.createInputField("firstname"));
+    contactForm.appendChild(fieldset); //Lastname
 
-    formData = this.createFormData();
-    formData.appendChild(this.createLabel("lastname", "Nom"));
-    formData.appendChild(this.createInputField("lastname"));
-    contactForm.appendChild(formData); //Email
+    fieldset = this.createFieldset();
+    fieldset.appendChild(this.createLabel("lastname", "Nom"));
+    fieldset.appendChild(this.createInputField("lastname"));
+    contactForm.appendChild(fieldset); //Email
 
-    formData = this.createFormData();
-    formData.appendChild(this.createLabel("email", "Email"));
-    formData.appendChild(this.createInputField("email"));
-    contactForm.appendChild(formData); //Message
+    fieldset = this.createFieldset();
+    fieldset.appendChild(this.createLabel("email", "Email"));
+    fieldset.appendChild(this.createInputField("email"));
+    contactForm.appendChild(fieldset); //Message
 
-    formData = this.createFormData();
-    formData.appendChild(this.createLabel("message", "Votre message"));
-    formData.appendChild(this.createTextArea("message"));
-    contactForm.appendChild(formData);
+    fieldset = this.createFieldset();
+    fieldset.appendChild(this.createLabel("message", "Votre message"));
+    fieldset.appendChild(this.createTextArea("message"));
+    contactForm.appendChild(fieldset);
   }
 
-  createModalButton(modalBody) {
+  createModalButton() {
+    const modalBody = document.querySelector('.contact_modal__body');
     const modalButton = document.createElement('button');
     modalButton.className = 'button_contact submit_button';
     modalButton.type = "submit";
     modalButton.innerHTML = "Envoyer";
+    this.eventOnSubmit(modalButton, modalBody);
+    document.querySelector('.contact_modal__body').appendChild(modalButton);
+  }
+
+  eventOnSubmit(modalButton, modalBody) {
     modalButton.addEventListener('click', e => {
       const inputs = [...modalBody.querySelectorAll('.input_field')];
       e.preventDefault();
@@ -784,7 +775,6 @@ class ContactModal {
         console.log("Merci de rensigner les champs");
       }
     });
-    modalBody.appendChild(modalButton);
   }
 
   showContactModal() {
@@ -987,7 +977,7 @@ class LightboxMedia {
     mediumTitle.innerHTML = medium.getTitle();
     const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, "lightbox_medium", true);
     document.querySelector('.medium_box').insertBefore(lightboxMedium, mediumTitle);
-    this.lightboxMedia.style.display = "block";
+    this.lightboxMedia.style.display = "flex";
   }
 
   hideLightboxMedia() {
@@ -1136,9 +1126,9 @@ class PhotographerPageBuilder {
 
 
   renderBanner() {
-    const banner = document.createElement('div');
+    const banner = document.createElement('section');
     banner.className = 'banner';
-    banner.innerHTML = "\n        <div class=\"banner__text_content\">\n            <h2 class=\"photographer_name\">".concat(this.currentPhotographer.getName(), "</h2>\n            <h3 class=\"photographer_location\">").concat(this.currentPhotographer.getLocation(), "</h3>\n            <p class=\"photographer_desc\">").concat(this.currentPhotographer.getTagline(), "</p>\n            <div class=\"tags tags_photographer_page\"></div>\n        </div>\n        <button class=\"button_contact button_banner\" aria-label=\"Contact Me\"> Contactez-moi </button>\n        <div class=\"photographer__picture\">\n            <img class=\"photographer_thumbnail__picture picture_profile\" src=\"/static/Photographers ID Photos/").concat(this.currentPhotographer.getPortrait(), "\" alt=\"\">\n        </div>");
+    banner.innerHTML = "\n        <div class=\"banner__text_content\" aria-label=\"".concat(this.currentPhotographer.getName(), " info\" >\n            <h2 class=\"photographer_name\">").concat(this.currentPhotographer.getName(), "</h2>\n            <h3 class=\"photographer_location\">").concat(this.currentPhotographer.getLocation(), "</h3>\n            <p class=\"photographer_desc\">").concat(this.currentPhotographer.getTagline(), "</p>\n            <div class=\"tags tags_photographer_page\"></div>\n        </div>\n        <button class=\"button_contact button_banner\" aria-label=\"Contact Me\"> Contactez-moi </button>\n        <div class=\"photographer__picture\">\n            <img class=\"photographer_thumbnail__picture picture_profile\" src=\"/static/Photographers ID Photos/").concat(this.currentPhotographer.getPortrait(), "\" alt=\"\">\n        </div>");
     banner.querySelector(".button_banner").addEventListener('click', () => {
       this.contactModal.showContactModal();
     });
@@ -1196,7 +1186,7 @@ class PhotographerPageBuilder {
   renderDropdown() {
     const dropdownMenu = this.createDropdownMenu();
     document.querySelector('main').appendChild(dropdownMenu);
-    const dropdrownButton = document.querySelector('.dropdown__button');
+    const dropdrownButton = document.querySelector('.dropdown__trigger');
     const dropdrownContent = document.querySelector('.dropdown__content');
     dropdrownButton.addEventListener('click', () => {
       if (this.isDropdownVisible == false) {
@@ -1219,7 +1209,7 @@ class PhotographerPageBuilder {
   createDropdownMenu() {
     const dropdownMenu = document.createElement('div');
     dropdownMenu.className = "dropdown_menu";
-    dropdownMenu.innerHTML = "\n        <span class=\"sort_by\">Trier par</span>\n        <div class=\"dropdown\">\n        <button class=\"dropdown__button\">".concat(this.SortEnum.POPULARITY, "</button>\n        <div class=\"dropdown__content\">\n        <a class=\"dropdown__content__item\">").concat(this.SortEnum.DATE, "</a>\n        <a class=\"dropdown__content__item\">").concat(this.SortEnum.TITLE, "</a>\n        </div></div>");
+    dropdownMenu.innerHTML = "\n        <span class=\"sort_by\">Trier par</span>\n        <div class=\"dropdown\">\n        <button class=\"dropdown__trigger\" role=\"button\" aria-label=\"sort by\" aria-controls=\"dropdown_content\" aria-haspopup=\"listbox\" aria-expanded=\"false\">".concat(this.SortEnum.POPULARITY, "</button>\n        \n        <div class=\"dropdown__content\">\n        <a class=\"dropdown__content__item\">").concat(this.SortEnum.DATE, "</a>\n        <a class=\"dropdown__content__item\">").concat(this.SortEnum.TITLE, "</a>\n        </div></div>");
     return dropdownMenu;
   } //sticker photographer total number of likes and price
 
@@ -1511,7 +1501,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63039" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49225" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
