@@ -166,7 +166,6 @@ class Tags {
 
 
   appendTags(parentElement, className) {
-    //console.log(parentElement)
     this.tagsList.forEach(tag => {
       const tagItem = document.createElement('div');
       tagItem.className = className;
@@ -304,87 +303,40 @@ class HomePageBuilder {
 
   render() {
     this.homePageModelPromise.then(homePageModel => {
-      let photographers = homePageModel.photographersList;
+      this.photographers = homePageModel.photographersList;
       this.allTags = homePageModel.tagsList;
-      this.renderHeader(photographers);
-      this.renderMain(photographers);
+      this.renderHeader();
+      this.renderMain(this.photographers);
     });
   }
 
-  renderHeader(photographers) {
-    const header = this.createHeader();
-    this.appendLogo(header);
-    this.appendMainNav(photographers, header);
-    this.appendMainAnchor(header);
-    const main = document.getElementById("app");
+  renderHeader() {
+    const header = document.createElement('header');
+    header.className = 'header_home';
+    header.innerHTML = "\n        <a class=\"logo\" href=\"/\">\n            <img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"Fisheye Home Page\" />\n        </a>\n        <a class=\"go_main\" href=\"#app\">Passer au contenu</a>\n        <nav class=\"main_nav\" aria-label=\"main navigation\" role=\"navigation\">\n        </nav>\n        ";
+    this.renderNavTags(header.querySelector(".main_nav"));
+    const main = document.getElementById('app');
     document.querySelector('body').insertBefore(header, main);
   }
 
-  createHeader() {
-    const header = document.createElement('header');
-    header.className = 'header_home';
-    return header;
+  renderNavTags(mainNav) {
+    const tags = new _Tags.Tags(this.allTags);
+    tags.appendTags(mainNav, 'main_nav__item');
+    tags.addEventOnChange(mainNav, (isChecked, tag) => this.handleTagClick(isChecked, tag));
   }
 
-  appendLogo(header) {
-    const logo = document.createElement('a');
-    logo.className = 'logo';
-    logo.innerHTML = "<img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"Fisheye Home Page\" />";
-    header.appendChild(logo);
-  }
+  handleTagClick(isChecked, tag) {
+    if (isChecked) {
+      this.clickedNavTags.push(tag);
+      this.clickedNavTags = [...new Set(this.clickedNavTags)];
+    } else {
+      const currentIndex = this.clickedNavTags.indexOf(tag);
+      this.clickedNavTags.splice(currentIndex, 1);
+    }
 
-  appendMainNav(photographers, header) {
-    const mainNav = document.createElement('nav');
-    mainNav.className = 'main_nav';
-    mainNav.ariaLabel = 'main navigation';
-    mainNav.role = 'navigation';
-    this.appendNavTags(photographers, mainNav);
-    header.appendChild(mainNav);
-  }
-
-  appendMainAnchor(header) {
-    const mainAnchor = document.createElement('a');
-    mainAnchor.className = "go_main";
-    mainAnchor.setAttribute = ("href", "#app");
-    mainAnchor.innerHTML = "Passer au contenu";
-    header.appendChild(mainAnchor);
-  }
-
-  appendNavTags(photographers, nav) {
-    this.allTags.forEach(tag => {
-      const tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
-      const headerTag = document.createElement('div');
-      headerTag.className = 'main_nav__item';
-      const checkboxTag = document.createElement('input');
-      checkboxTag.type = "checkbox";
-      checkboxTag.className = "tag_checkbox";
-      checkboxTag.id = tagName;
-      headerTag.appendChild(checkboxTag);
-      const labelTag = document.createElement('label');
-      labelTag.className = "tag_name";
-      labelTag.setAttribute("for", tagName);
-      labelTag.innerHTML = "#".concat(tagName);
-      headerTag.appendChild(labelTag);
-      nav.appendChild(headerTag); //listen to clicks on main nav tags
-
-      headerTag.addEventListener("change", () => {
-        if (checkboxTag.checked) {
-          this.clickedNavTags.push(tag);
-          this.clickedNavTags = [...new Set(this.clickedNavTags)];
-        } else {
-          const currentIndex = this.clickedNavTags.indexOf(tag);
-          this.clickedNavTags.splice(currentIndex, 1);
-        }
-
-        this.handleTagClick(photographers);
-      });
-    });
-  }
-
-  handleTagClick(photographers) {
     _Utils.Utils.removeChildOf(".photographers", "article");
 
-    this.sortPhotographers(photographers);
+    this.sortPhotographers(this.photographers);
   }
 
   sortPhotographers(photographers) {
@@ -426,7 +378,7 @@ class HomePageBuilder {
     document.getElementById("app").appendChild(photographersWrapper);
   }
   /**
-   * 
+   * create article for each photographer; add their picture and content
    * @param {Array<PhotographerProfileModel>} photographers 
    */
 
@@ -609,7 +561,7 @@ class MediaFactory {
   appendThumbnailContent(medium, mediumThumbnail) {
     let mediumThumbnailContent = document.createElement('div');
     mediumThumbnailContent.className = "medium_thumbnail__content";
-    mediumThumbnailContent.innerHTML = "\n            <h2 class=\"medium_title\">".concat(medium.getTitle(), "</h2>\n            <div class=\"price_and_likes\">\n              <span class=\"medium_price\">").concat(medium.getPrice(), "\u20AC</span>\n              <span class=\"medium_number_of_likes\">").concat(medium.getLikes(), "</span>\n              <label class=\"checkbox__like aria-label=\"likes\"> \n                <input type=\"checkbox\" class=\"checkbox__input\" name=\"like\" aria-labelledby=\"likes\">\n                    <i class=\"far fa-heart like__unchecked\"></i>\n                    <i class=\"fas fa-heart like__checked\"></i>\n                </input>   \n                </label>\n            </div>\n          </div>");
+    mediumThumbnailContent.innerHTML = "\n            <h2 class=\"medium_title\">".concat(medium.getTitle(), "</h2>\n            <div class=\"price_and_likes\">\n              <span class=\"medium_price\" title=\"price:\">").concat(medium.getPrice(), "\u20AC</span>\n              <span class=\"medium_number_of_likes\">").concat(medium.getLikes(), "</span>\n              <label class=\"checkbox__like aria-label=\"likes\"> \n                <input type=\"checkbox\" class=\"checkbox__input\" name=\"like\" aria-labelledby=\"likes\">\n                    <i class=\"far fa-heart like__unchecked\"></i>\n                    <i class=\"fas fa-heart like__checked\"></i>\n                </input>   \n                </label>\n            </div>\n          </div>");
     mediumThumbnail.appendChild(mediumThumbnailContent);
   }
   /**
@@ -624,7 +576,7 @@ class MediaFactory {
 
   createMediumDisplay(medium, currentPhotographer, className) {
     let controls = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-    let mediumThumbnail = document.createElement('div');
+    let mediumThumbnail = document.createElement('article');
     mediumThumbnail.className = className;
     mediumThumbnail.ariaLabel = medium.getTitle();
     const mediumType = medium.getMediumType();
@@ -1117,6 +1069,12 @@ class PhotographerPageBuilder {
     });
 
     this.photographerPageModelPromise = photographerPageModel;
+    this.photographerPageModelPromise.then(photographerPageModel => {
+      this.determineCurrentPhotographer(photographerPageModel.getPhotographersList());
+      this.determineCurrentPhotographerMedia(photographerPageModel.getMediaList());
+      this.contactModal = new _ContactModal.ContactModal(this.currentPhotographer);
+      this.lightboxMedia = new _LightboxMedia.LightboxMedia(this.allMedia, this.currentPhotographer);
+    });
     this.isDropdownVisible = false; //dropdown menu hidden by default
 
     this.mediaList = [];
@@ -1127,43 +1085,15 @@ class PhotographerPageBuilder {
 
   render(id) {
     this.idPhotographer = id;
-    this.photographerPageModelPromise.then(photographerPageModel => {
-      this.determineCurrentPhotographer(photographerPageModel.getPhotographersList());
-      this.determineCurrentPhotographerMedia(photographerPageModel.getMediaList());
+    this.photographerPageModelPromise.then(() => {
       this.renderHeader();
       this.renderMain();
-      this.contactModal = new _ContactModal.ContactModal(this.currentPhotographer);
       this.contactModal.renderContactModal();
-      this.lightboxMedia = new _LightboxMedia.LightboxMedia(this.allMedia, this.currentPhotographer);
       this.lightboxMedia.renderLightboxMedia();
     });
   }
-
-  renderHeader() {
-    const header = this.createHeader();
-    this.appendLogo(header);
-    const main = document.querySelector("main");
-    document.querySelector('body').insertBefore(header, main);
-  }
-
-  createHeader() {
-    const header = document.createElement('header');
-    header.className = 'header_photographer_page';
-    return header;
-  }
-
-  appendLogo(header) {
-    const logo = document.createElement('a');
-    logo.className = 'logo';
-    logo.setAttribute("href", "/");
-    logo.innerHTML = "<img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"Fisheye Home Page\" />";
-    header.appendChild(logo);
-  } // for each photographer, 
-  //  if their id == photographer wanted 
-  //  then save photographer in currentPhotographer 
-
   /**
-   * 
+   * save photographer in currentPhotographer if their id == photographer wanted 
    * @param {Array<PhotographerProfileModel} photographers 
    */
 
@@ -1174,12 +1104,9 @@ class PhotographerPageBuilder {
         this.currentPhotographer = photographer;
       }
     });
-  } //for each medium, 
-  //  if photographer id in media object = id in photographers object,
-  //  then add medium to array
-
+  }
   /**
-   * 
+   * add medium to array if photographer id in media object = id in photographers object
    * @param {Array<MediumModel>} media 
    */
 
@@ -1192,10 +1119,18 @@ class PhotographerPageBuilder {
     });
   }
 
+  renderHeader() {
+    const header = document.createElement('header');
+    header.className = 'header_photographer_page';
+    header.innerHTML = "\n        <a class=\"logo\" href=\"/\">\n        <img class=\"logo_img\" src=\"/static/logo.svg\" alt=\"Fisheye Home Page\" />\n        </a>\n        ";
+    const main = document.getElementById('app');
+    document.querySelector('body').insertBefore(header, main);
+  }
+
   renderMain() {
     this.renderBanner();
-    this.renderSummary();
     this.renderDropdown();
+    this.renderSummary();
     this.sortBy(this.SortEnum.POPULARITY);
   } //Banner
 
@@ -1205,26 +1140,19 @@ class PhotographerPageBuilder {
     banner.className = 'banner';
     banner.innerHTML = "\n        <div class=\"banner__text_content\">\n            <h2 class=\"photographer_name\">".concat(this.currentPhotographer.getName(), "</h2>\n            <h3 class=\"photographer_location\">").concat(this.currentPhotographer.getLocation(), "</h3>\n            <p class=\"photographer_desc\">").concat(this.currentPhotographer.getTagline(), "</p>\n            <div class=\"tags tags_photographer_page\"></div>\n        </div>\n        <button class=\"button_contact button_banner\" aria-label=\"Contact Me\"> Contactez-moi </button>\n        <div class=\"photographer__picture\">\n            <img class=\"photographer_thumbnail__picture picture_profile\" src=\"/static/Photographers ID Photos/").concat(this.currentPhotographer.getPortrait(), "\" alt=\"\">\n        </div>");
     banner.querySelector(".button_banner").addEventListener('click', () => {
-      this.launchContactModal();
+      this.contactModal.showContactModal();
     });
-    this.appendBannerTags(banner.querySelector(".tags_photographer_page"));
+    this.renderBannerTags(banner.querySelector(".tags_photographer_page"));
     document.getElementById('app').appendChild(banner);
   }
 
-  launchContactModal() {
-    this.contactModal.showContactModal();
-  }
-
-  appendBannerTags(bannerTags) {
+  renderBannerTags(bannerTags) {
     const tags = new _Tags.Tags(this.currentPhotographer.getTags());
     tags.appendTags(bannerTags, 'photographer_tags__item');
     tags.addEventOnChange(bannerTags, (isChecked, tag) => this.handleTagClick(isChecked, tag));
   }
 
   handleTagClick(isChecked, tag) {
-    console.log(isChecked);
-    console.log(tag);
-
     if (isChecked) {
       this.activeTags.push(tag);
       this.activeTags = [...new Set(this.activeTags)];
@@ -1240,7 +1168,6 @@ class PhotographerPageBuilder {
 
   sortMedia() {
     this.selectedMedia = [];
-    console.log(this.activeTags);
     this.activeTags.forEach(clickedPhotographerTag => {
       this.mediaList.forEach(medium => {
         medium.getTags().forEach(tag => {
@@ -1252,7 +1179,6 @@ class PhotographerPageBuilder {
         });
       });
     });
-    console.log(this.selectedMedia);
 
     if (this.selectedMedia.length == 0) {
       this.mediaList.forEach(medium => {
@@ -1269,8 +1195,6 @@ class PhotographerPageBuilder {
 
   renderDropdown() {
     const dropdownMenu = this.createDropdownMenu();
-    this.appendSortByText(dropdownMenu);
-    this.appendDropdown(dropdownMenu);
     document.querySelector('main').appendChild(dropdownMenu);
     const dropdrownButton = document.querySelector('.dropdown__button');
     const dropdrownContent = document.querySelector('.dropdown__content');
@@ -1295,84 +1219,20 @@ class PhotographerPageBuilder {
   createDropdownMenu() {
     const dropdownMenu = document.createElement('div');
     dropdownMenu.className = "dropdown_menu";
+    dropdownMenu.innerHTML = "\n        <span class=\"sort_by\">Trier par</span>\n        <div class=\"dropdown\">\n        <button class=\"dropdown__button\">".concat(this.SortEnum.POPULARITY, "</button>\n        <div class=\"dropdown__content\">\n        <a class=\"dropdown__content__item\">").concat(this.SortEnum.DATE, "</a>\n        <a class=\"dropdown__content__item\">").concat(this.SortEnum.TITLE, "</a>\n        </div></div>");
     return dropdownMenu;
-  }
-
-  appendSortByText(dropdownMenu) {
-    const sortBy = document.createElement('span');
-    sortBy.className = 'sort_by';
-    sortBy.innerHTML = "Trier par";
-    dropdownMenu.appendChild(sortBy);
-  }
-
-  appendDropdown(dropdownMenu) {
-    const dropdown = document.createElement('div');
-    dropdown.className = "dropdown";
-    this.appendDropdownButton(dropdown);
-    this.createDropdownContent(dropdown);
-    dropdownMenu.appendChild(dropdown);
-  }
-
-  appendDropdownButton(dropdown) {
-    const dropdownButton = document.createElement('button');
-    dropdownButton.className = 'dropdown__button';
-    dropdownButton.role = "button";
-    dropdownButton.innerHTML = this.SortEnum.POPULARITY;
-    dropdown.appendChild(dropdownButton);
-  }
-
-  createDropdownContent(dropdown) {
-    const dropdownContent = document.createElement('div');
-    dropdownContent.className = 'dropdown__content';
-    this.appendDropdownItemDATE(dropdownContent);
-    this.appendDropdownItemTITLE(dropdownContent);
-    dropdown.appendChild(dropdownContent);
-  }
-
-  appendDropdownItemDATE(dropdownContent) {
-    const dropdownItemDATE = document.createElement('a');
-    dropdownItemDATE.className = 'dropdown__content__item';
-    dropdownItemDATE.innerHTML = this.SortEnum.DATE;
-    dropdownContent.appendChild(dropdownItemDATE);
-  }
-
-  appendDropdownItemTITLE(dropdownContent) {
-    const dropdownItemTITLE = document.createElement('a');
-    dropdownItemTITLE.className = 'dropdown__content__item';
-    dropdownItemTITLE.innerHTML = this.SortEnum.TITLE;
-    dropdownContent.appendChild(dropdownItemTITLE);
   } //sticker photographer total number of likes and price
 
 
   renderSummary() {
-    const summary = this.createSummary();
-    this.createTotalLikes(summary);
-    this.createPhotographerPrice(summary);
-  }
-
-  createSummary() {
-    const stickerSummary = document.createElement('div');
-    stickerSummary.className = 'sticker_summary';
-    document.querySelector('main').appendChild(stickerSummary);
-    return stickerSummary;
-  }
-
-  createPhotographerPrice(summary) {
-    const photographerPrice = document.createElement('div');
-    photographerPrice.className = "photographer_price";
-    photographerPrice.innerHTML = this.currentPhotographer.getPrice() + "€/jour";
-    summary.appendChild(photographerPrice);
-  }
-
-  createTotalLikes(summary) {
     let numberOfLikes = 0;
     this.mediaList.forEach(medium => {
       numberOfLikes = numberOfLikes + medium.getLikes();
     });
-    const totalNumberOfLikes = document.createElement('div');
-    totalNumberOfLikes.className = "total_likes";
-    totalNumberOfLikes.innerHTML = "\n        <p class=\"total_number_of_likes\">" + numberOfLikes + "</p>\n        <i class=\"fas fa-heart fa-lg\" aria-label=\"likes\"></i>";
-    summary.appendChild(totalNumberOfLikes);
+    const stickerSummary = document.createElement('div');
+    stickerSummary.className = 'sticker_summary';
+    stickerSummary.innerHTML = "\n        <div class=\"total_likes\">\n            <p class=\"total_number_of_likes\">".concat(numberOfLikes, "</p>\n            <i class=\"fas fa-heart fa-lg\" aria-label=\"likes\" aria-hidden=\"true\"></i>\n        </div>\n        <div class=\"photographer_price\">").concat(this.currentPhotographer.getPrice(), "\u20AC/jour</div>\n        ");
+    document.querySelector('main').appendChild(stickerSummary);
   }
 
   incrementNumberOfLikes(mediumThumbnail) {
@@ -1413,12 +1273,10 @@ class PhotographerPageBuilder {
   handleDropdownItemClick(dropdrownButton, item) {
     dropdrownButton.click();
 
-    _Utils.Utils.removeChildOf("#app", "medium_thumbnail"); //remove everything
+    _Utils.Utils.removeChildOf("#app", "medium_thumbnail");
 
-
-    this.sortBy(item.innerHTML); //sort
-
-    this.swapDropdownItems(item, dropdrownButton); //swap
+    this.sortBy(item.innerHTML);
+    this.swapDropdownItems(item, dropdrownButton);
   }
 
   swapDropdownItems(item, dropdrownButton) {
@@ -1445,7 +1303,6 @@ class PhotographerPageBuilder {
         break;
     }
 
-    console.log(sortedMedia);
     sortedMedia.forEach(sortedMedium => {
       this.createMediumThumbnail(sortedMedium);
     });

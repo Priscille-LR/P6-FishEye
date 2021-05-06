@@ -26,7 +26,7 @@ export class MediaFactory {
         mediumThumbnailContent.innerHTML = `
             <h2 class="medium_title">${medium.getTitle()}</h2>
             <div class="price_and_likes">
-              <span class="medium_price">${medium.getPrice()}€</span>
+              <span class="medium_price" title="price:">${medium.getPrice()}€</span>
               <span class="medium_number_of_likes">${medium.getLikes()}</span>
               <label class="checkbox__like aria-label="likes"> 
                 <input type="checkbox" class="checkbox__input" name="like" aria-labelledby="likes">
@@ -49,7 +49,7 @@ export class MediaFactory {
      * @returns 
      */
     createMediumDisplay(medium, currentPhotographer, className, controls = false) {
-        let mediumThumbnail = document.createElement('div');
+        let mediumThumbnail = document.createElement('article');
         mediumThumbnail.className = className;
         mediumThumbnail.ariaLabel = medium.getTitle();
         

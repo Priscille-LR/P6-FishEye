@@ -14,7 +14,6 @@ export class Tags {
      * @param {*} className 
      */
     appendTags(parentElement, className) {
-        //console.log(parentElement)
         this.tagsList.forEach(tag => {
             const tagItem = document.createElement('div');
             tagItem.className = className;

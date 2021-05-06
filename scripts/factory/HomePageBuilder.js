@@ -16,97 +16,48 @@ export class HomePageBuilder {
     render() {
         this.homePageModelPromise
             .then((homePageModel) => {
-                let photographers = homePageModel.photographersList
+                this.photographers = homePageModel.photographersList
                 this.allTags = homePageModel.tagsList
 
-                this.renderHeader(photographers)
-                this.renderMain(photographers)
+                this.renderHeader()
+                this.renderMain(this.photographers)
             })
     }
+    
+    renderHeader() {
+        const header = document.createElement('header');
+        header.className = 'header_home';
+        header.innerHTML = `
+        <a class="logo" href="/">
+            <img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />
+        </a>
+        <a class="go_main" href="#app">Passer au contenu</a>
+        <nav class="main_nav" aria-label="main navigation" role="navigation">
+        </nav>
+        `;
+        this.renderNavTags(header.querySelector(".main_nav"))
 
-    renderHeader(photographers) {
-        const header = this.createHeader();
-        this.appendLogo(header);
-        this.appendMainNav(photographers, header);
-        this.appendMainAnchor(header);
-
-        const main = document.getElementById("app");
+        const main = document.getElementById('app');
         document.querySelector('body').insertBefore(header, main);
     }
 
-    createHeader() {
-        const header = document.createElement('header');
-        header.className = 'header_home';
-        return header;
+    renderNavTags(mainNav) {
+        const tags = new Tags(this.allTags)
+        tags.appendTags(mainNav, 'main_nav__item');
+        tags.addEventOnChange(mainNav, (isChecked, tag) => this.handleTagClick(isChecked, tag));
     }
 
-    appendLogo(header) {
-        const logo = document.createElement('a');
-        logo.className = 'logo';
-        logo.innerHTML = `<img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />`;
-
-        header.appendChild(logo);
-    }
-
-    appendMainNav(photographers, header) {
-        const mainNav = document.createElement('nav');
-        mainNav.className = 'main_nav';
-        mainNav.ariaLabel = 'main navigation';
-        mainNav.role = 'navigation'
-
-        this.appendNavTags(photographers, mainNav)
-        header.appendChild(mainNav);
-    }
-
-    appendMainAnchor(header) {
-        const mainAnchor = document.createElement('a');
-        mainAnchor.className = "go_main";
-        mainAnchor.setAttribute = ("href", "#app");
-        mainAnchor.innerHTML = `Passer au contenu`;
-
-        header.appendChild(mainAnchor);
-    }
-
-    
-      
-    appendNavTags(photographers, nav) {
-        this.allTags.forEach(tag => {
-            const tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
-            const headerTag = document.createElement('div');
-            headerTag.className = 'main_nav__item';
-
-            const checkboxTag = document.createElement('input');
-            checkboxTag.type = "checkbox";
-            checkboxTag.className = "tag_checkbox"
-            checkboxTag.id = tagName;
-            headerTag.appendChild(checkboxTag)
-
-            const labelTag = document.createElement('label');
-            labelTag.className = "tag_name"
-            labelTag.setAttribute("for", tagName);
-            labelTag.innerHTML = `#${tagName}`;
-            headerTag.appendChild(labelTag)
-
-            nav.appendChild(headerTag);
-
-            //listen to clicks on main nav tags
-            headerTag.addEventListener("change", () => {
-
-                if (checkboxTag.checked) {
-                this.clickedNavTags.push(tag);
-                this.clickedNavTags = [...new Set(this.clickedNavTags)];
-                } else {
-                    const currentIndex = this.clickedNavTags.indexOf(tag);
-                    this.clickedNavTags.splice(currentIndex, 1);
-                }
-                this.handleTagClick(photographers)
-            });
-        });
-    }
-
-    handleTagClick(photographers) {
+    handleTagClick(isChecked, tag) {
+        if (isChecked) {
+            this.clickedNavTags.push(tag);
+            this.clickedNavTags = [...new Set(this.clickedNavTags)];
+        } else {
+            const currentIndex = this.clickedNavTags.indexOf(tag);
+            this.clickedNavTags.splice(currentIndex, 1);
+        }
+        
         Utils.removeChildOf(".photographers", "article")
-        this.sortPhotographers(photographers)
+        this.sortPhotographers(this.photographers)
     }
 
     sortPhotographers(photographers) {
@@ -125,8 +76,8 @@ export class HomePageBuilder {
             selectedPhotographers = [...new Set(selectedPhotographers)];
             this.createArticle(selectedPhotographers)
         }
-        
-    }    
+
+    }
 
     renderMain(photographers) {
         this.createMainTitle()
@@ -149,9 +100,8 @@ export class HomePageBuilder {
         document.getElementById("app").appendChild(photographersWrapper)
     }
 
-
     /**
-     * 
+     * create article for each photographer; add their picture and content
      * @param {Array<PhotographerProfileModel>} photographers 
      */
     createArticle(photographers) {

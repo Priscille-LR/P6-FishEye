@@ -14,66 +14,39 @@ export class PhotographerPageBuilder {
         POPULARITY: "Popularité",
         TITLE: "Titre",
     }
-    
+
     /**
      * 
      * @param {Promise<PhotographerPageModel>} photographerPageModel 
      */
     constructor(photographerPageModel) {
         this.photographerPageModelPromise = photographerPageModel
+        this.photographerPageModelPromise.then((photographerPageModel) => {
+            this.determineCurrentPhotographer(photographerPageModel.getPhotographersList());
+            this.determineCurrentPhotographerMedia(photographerPageModel.getMediaList());
+            this.contactModal = new ContactModal(this.currentPhotographer);
+            this.lightboxMedia = new LightboxMedia(this.allMedia, this.currentPhotographer);
+        })
         this.isDropdownVisible = false //dropdown menu hidden by default
         this.mediaList = [];
         this.activeTags = [];
         this.selectedMedia = [];
         this.mediaFactory = new MediaFactory();
+
     }
 
     render(id) {
         this.idPhotographer = id
-        this.photographerPageModelPromise
-            .then((photographerPageModel) => {
-                this.determineCurrentPhotographer(photographerPageModel.getPhotographersList());
-                this.determineCurrentPhotographerMedia(photographerPageModel.getMediaList());
-
-                this.renderHeader();
-                this.renderMain();
-
-                this.contactModal = new ContactModal(this.currentPhotographer);
-                this.contactModal.renderContactModal();
-
-                this.lightboxMedia = new LightboxMedia(this.allMedia, this.currentPhotographer);
-                this.lightboxMedia.renderLightboxMedia();
-            })
+        this.photographerPageModelPromise.then(() => {
+            this.renderHeader();
+            this.renderMain();
+            this.contactModal.renderContactModal();
+            this.lightboxMedia.renderLightboxMedia();
+        })
     }
 
-    renderHeader() {
-        const header = this.createHeader();
-        this.appendLogo(header);
-
-        const main = document.querySelector("main");
-        document.querySelector('body').insertBefore(header, main);
-    }
-
-    createHeader() {
-        const header = document.createElement('header');
-        header.className = 'header_photographer_page';
-        return header;
-    }
-    
-    appendLogo(header) {
-        const logo = document.createElement('a');
-        logo.className = 'logo';
-        logo.setAttribute("href", "/");
-        logo.innerHTML = `<img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />`;
-
-        header.appendChild(logo);
-    }
-
-    // for each photographer, 
-    //  if their id == photographer wanted 
-    //  then save photographer in currentPhotographer 
     /**
-     * 
+     * save photographer in currentPhotographer if their id == photographer wanted 
      * @param {Array<PhotographerProfileModel} photographers 
      */
     determineCurrentPhotographer(photographers) {
@@ -84,11 +57,8 @@ export class PhotographerPageBuilder {
         });
     }
 
-    //for each medium, 
-    //  if photographer id in media object = id in photographers object,
-    //  then add medium to array
     /**
-     * 
+     * add medium to array if photographer id in media object = id in photographers object
      * @param {Array<MediumModel>} media 
      */
     determineCurrentPhotographerMedia(media) {
@@ -99,10 +69,23 @@ export class PhotographerPageBuilder {
         });
     }
 
+    renderHeader() {
+        const header = document.createElement('header');
+        header.className = 'header_photographer_page';
+        header.innerHTML = `
+        <a class="logo" href="/">
+        <img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />
+        </a>
+        `;
+
+        const main = document.getElementById('app');
+        document.querySelector('body').insertBefore(header, main);
+    }
+
     renderMain() {
         this.renderBanner();
-        this.renderSummary();
         this.renderDropdown();
+        this.renderSummary();
         this.sortBy(this.SortEnum.POPULARITY);
     }
 
@@ -124,25 +107,21 @@ export class PhotographerPageBuilder {
         </div>`
 
         banner.querySelector(".button_banner").addEventListener('click', () => {
-            this.launchContactModal()
+            this.contactModal.showContactModal();
         });
-        this.appendBannerTags(banner.querySelector(".tags_photographer_page"))
+
+        this.renderBannerTags(banner.querySelector(".tags_photographer_page"));
+
         document.getElementById('app').appendChild(banner);
     }
 
-    launchContactModal() {
-        this.contactModal.showContactModal();
-    }
-
-    appendBannerTags(bannerTags) {
+    renderBannerTags(bannerTags) {
         const tags = new Tags(this.currentPhotographer.getTags());
-        tags.appendTags(bannerTags,'photographer_tags__item')
+        tags.appendTags(bannerTags, 'photographer_tags__item')
         tags.addEventOnChange(bannerTags, (isChecked, tag) => this.handleTagClick(isChecked, tag));
     }
 
     handleTagClick(isChecked, tag) {
-        console.log(isChecked)
-        console.log(tag)
         if (isChecked) {
             this.activeTags.push(tag);
             this.activeTags = [...new Set(this.activeTags)];
@@ -155,8 +134,7 @@ export class PhotographerPageBuilder {
     }
 
     sortMedia() {
-       this.selectedMedia = [];
-       console.log(this.activeTags)
+        this.selectedMedia = [];
         this.activeTags.forEach(clickedPhotographerTag => {
             this.mediaList.forEach(medium => {
                 medium.getTags().forEach(tag => {
@@ -167,8 +145,6 @@ export class PhotographerPageBuilder {
                 })
             });
         });
-        console.log(this.selectedMedia)
-        
 
         if (this.selectedMedia.length == 0) {
             this.mediaList.forEach(medium => {
@@ -189,8 +165,6 @@ export class PhotographerPageBuilder {
     renderDropdown() {
 
         const dropdownMenu = this.createDropdownMenu();
-        this.appendSortByText(dropdownMenu);
-        this.appendDropdown(dropdownMenu);
         document.querySelector('main').appendChild(dropdownMenu);
 
         const dropdrownButton = document.querySelector('.dropdown__button');
@@ -217,94 +191,36 @@ export class PhotographerPageBuilder {
     createDropdownMenu() {
         const dropdownMenu = document.createElement('div');
         dropdownMenu.className = "dropdown_menu";
+        dropdownMenu.innerHTML = `
+        <span class="sort_by">Trier par</span>
+        <div class="dropdown">
+        <button class="dropdown__button">${this.SortEnum.POPULARITY}</button>
+        <div class="dropdown__content">
+        <a class="dropdown__content__item">${this.SortEnum.DATE}</a>
+        <a class="dropdown__content__item">${this.SortEnum.TITLE}</a>
+        </div></div>`
         return dropdownMenu;
-    }
-
-    appendSortByText(dropdownMenu) {
-        const sortBy = document.createElement('span');
-        sortBy.className = 'sort_by';
-        sortBy.innerHTML = `Trier par`;
-        dropdownMenu.appendChild(sortBy);
-    }
-
-    appendDropdown(dropdownMenu) {
-        const dropdown = document.createElement('div');
-        dropdown.className = "dropdown";
-        this.appendDropdownButton(dropdown);
-        this.createDropdownContent(dropdown);
-        dropdownMenu.appendChild(dropdown);
-    }
-
-    appendDropdownButton(dropdown) {
-        const dropdownButton = document.createElement('button');
-        dropdownButton.className = 'dropdown__button';
-        dropdownButton.role = "button"
-        dropdownButton.innerHTML = this.SortEnum.POPULARITY;
-        dropdown.appendChild(dropdownButton);
-    }
-
-    createDropdownContent(dropdown) {
-        const dropdownContent = document.createElement('div');
-        dropdownContent.className = 'dropdown__content';
-
-        this.appendDropdownItemDATE(dropdownContent);
-        this.appendDropdownItemTITLE(dropdownContent);
-
-        dropdown.appendChild(dropdownContent);
-    }
-
-    appendDropdownItemDATE(dropdownContent) {
-        const dropdownItemDATE = document.createElement('a');
-        dropdownItemDATE.className = 'dropdown__content__item';
-        dropdownItemDATE.innerHTML = this.SortEnum.DATE;
-        dropdownContent.appendChild(dropdownItemDATE);
-    }
-
-    appendDropdownItemTITLE(dropdownContent) {
-        const dropdownItemTITLE = document.createElement('a');
-        dropdownItemTITLE.className = 'dropdown__content__item';
-        dropdownItemTITLE.innerHTML = this.SortEnum.TITLE;
-        dropdownContent.appendChild(dropdownItemTITLE);
     }
 
 
     //sticker photographer total number of likes and price
     renderSummary() {
-        const summary = this.createSummary();
-        this.createTotalLikes(summary);
-        this.createPhotographerPrice(summary);
-
-    }
-
-    createSummary() {
-        const stickerSummary = document.createElement('div');
-        stickerSummary.className = 'sticker_summary';
-        document.querySelector('main').appendChild(stickerSummary);
-        return stickerSummary;
-    }
-
-    createPhotographerPrice(summary) {
-        const photographerPrice = document.createElement('div');
-        photographerPrice.className = "photographer_price";
-        photographerPrice.innerHTML = this.currentPhotographer.getPrice() + "€/jour";
-
-        summary.appendChild(photographerPrice);
-    }
-
-    createTotalLikes(summary) {
         let numberOfLikes = 0;
         this.mediaList.forEach(medium => {
             numberOfLikes = numberOfLikes + medium.getLikes()
         });
 
-        const totalNumberOfLikes = document.createElement('div');
-        totalNumberOfLikes.className = "total_likes";
+        const stickerSummary = document.createElement('div');
+        stickerSummary.className = 'sticker_summary';
+        stickerSummary.innerHTML = `
+        <div class="total_likes">
+            <p class="total_number_of_likes">${numberOfLikes}</p>
+            <i class="fas fa-heart fa-lg" aria-label="likes" aria-hidden="true"></i>
+        </div>
+        <div class="photographer_price">${this.currentPhotographer.getPrice()}€/jour</div>
+        `
+        document.querySelector('main').appendChild(stickerSummary);
 
-        totalNumberOfLikes.innerHTML = `
-        <p class="total_number_of_likes">` + numberOfLikes + `</p>
-        <i class="fas fa-heart fa-lg" aria-label="likes"></i>`;
-
-        summary.appendChild(totalNumberOfLikes);
     }
 
     incrementNumberOfLikes(mediumThumbnail) {
@@ -350,9 +266,9 @@ export class PhotographerPageBuilder {
     handleDropdownItemClick(dropdrownButton, item) {
         dropdrownButton.click();
 
-        Utils.removeChildOf("#app", "medium_thumbnail");//remove everything
-        this.sortBy(item.innerHTML); //sort
-        this.swapDropdownItems(item, dropdrownButton); //swap
+        Utils.removeChildOf("#app", "medium_thumbnail");
+        this.sortBy(item.innerHTML);
+        this.swapDropdownItems(item, dropdrownButton);
     }
 
     swapDropdownItems(item, dropdrownButton) {
@@ -372,10 +288,9 @@ export class PhotographerPageBuilder {
                 sortedMedia = this.mediaList.sort((a, b) => b.getLikes() - a.getLikes());
                 break;
             case this.SortEnum.TITLE:
-                sortedMedia = this.mediaList.sort((a,b) => a.getTitle().localeCompare(b.getTitle(), 'fr'));
+                sortedMedia = this.mediaList.sort((a, b) => a.getTitle().localeCompare(b.getTitle(), 'fr'));
                 break;
         }
-        console.log(sortedMedia)
         sortedMedia.forEach(sortedMedium => {
             this.createMediumThumbnail(sortedMedium)
         })
