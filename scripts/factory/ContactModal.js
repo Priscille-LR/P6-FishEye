@@ -19,6 +19,9 @@ export class ContactModal {
     createContactModal() {
         const contactModal = document.createElement('dialog');
         contactModal.className = 'contact_modal';
+        contactModal.role = 'dialog';
+        contactModal.ariaLabelledBy = 'contact_modal__body__title';
+        contactModal.tabIndex = "-1";
         contactModal.innerHTML = `
         <div class="contact_modal__body">
             <h2 class="contact_modal__body__title">Contactez-moi <br> ${this.currentPhotographer.getName()}</h2>
@@ -140,23 +143,25 @@ export class ContactModal {
     //modal closing
 
     eventOnClose() {
+        const body = document.querySelector('body');
+       //const header = document.querySelector('.header_photographer_page');
+        //const main = document.getElementById('app');
+        const contactModal = document.querySelector('.contact_modal');
 
-        // const header = document.querySelector('.header_photographer_page');
-        // const main = getElementById('app');
-        // const contactModal = document.querySelector('.contact_modal');
-
-        // header.setAttribute('aria-hidden', 'false');
-        // main.setAttribute('aria-hidden', 'false');
-        // contactModal.setAttribute('aria-hidden', 'true');
+        //header.setAttribute('aria-hidden', 'false');
+        //main.setAttribute('aria-hidden', 'false');
+        body.setAttribute('aria-hidden', 'false');
+        contactModal.setAttribute('aria-hidden', 'true');
 
 
-        // const closeButton = document.querySelector('.close_button')
-        // closeButton.addEventListener('click', this.hideContactModal);
-        // document.addEventListener('keydown', (e) => {
-        //     if(e.code === 'Escape') {
-        //         this.hideContactModal();
-        //     }
-        // })
+        const closeButton = document.querySelector('.close_button')
+        closeButton.addEventListener('click', () => this.hideContactModal());
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.code === 'Escape') {
+                this.hideContactModal();
+            }
+        })
     }
 
     eventOnSubmit(modalButton, modalBody) {
@@ -184,8 +189,8 @@ export class ContactModal {
     }
 
     hideContactModal() {
-       this.contactModal.style.display = "none";
-    }
+        this.contactModal.style.display = "none";
+     }
 
 
     //fields validation 

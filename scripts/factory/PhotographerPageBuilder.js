@@ -7,7 +7,7 @@ import { PhotographerPageModel } from "../models/PhotographerPageModel";
 import { PhotographerProfileModel } from '../models/PhotographerProfileModel';
 import { MediumModel } from '../models/MediumModel';
 
-//DOM elements
+
 const mainApp = document.getElementById('app');
 
 export class PhotographerPageBuilder {
@@ -106,7 +106,7 @@ export class PhotographerPageBuilder {
             <p class="photographer_desc">${this.currentPhotographer.getTagline()}</p>
             <div class="tags tags_photographer_page"></div>
         </div>
-        <button class="button_contact button_banner" aria-label="Contact Me"> Contactez-moi </button>
+        <button class="button_contact button_banner" aria-label="Contact Me" aria-haspopup="dialog" aria-controls="dialog"> Contactez-moi </button>
         <div class="photographer__picture">
             <img class="photographer_thumbnail__picture picture_profile" src="/static/Photographers ID Photos/${this.currentPhotographer.getPortrait()}" alt="">
         </div>`
@@ -120,11 +120,14 @@ export class PhotographerPageBuilder {
 
     //contact modal opening
     openModalOnClick(banner) {
+        const body = document.querySelector('body');
+        //const header = document.querySelector('.header_photographer_page');
         const contactModal = document.querySelector('.contact_modal');
-        const headerPhotographerPage = document.querySelector('.header_photographer_page');
         
-        headerPhotographerPage.setAttribute('aria-hidden', 'true');
-        mainApp.setAttribute('aria-hidden', 'true');
+        body.classList.add('no-scroll');
+        //header.setAttribute('aria-hidden', 'true');
+        //mainApp.setAttribute('aria-hidden', 'true');
+        body.setAttribute('aria-hidden', 'true');
         contactModal.setAttribute('aria-hidden', 'false');
 
         banner.querySelector(".button_banner").addEventListener('click', () => {
@@ -178,8 +181,8 @@ export class PhotographerPageBuilder {
         }
     }
 
-    //dropdown
 
+    //dropdown
     renderDropdownMenu() {
         const dropdownMenu = this.createDropdownMenu();
         mainApp.appendChild(dropdownMenu);
@@ -229,6 +232,26 @@ export class PhotographerPageBuilder {
             }
         })
     }
+    
+    createDropdownMenu() {
+        const dropdownMenu = document.createElement('div');
+        dropdownMenu.className = "dropdown_wrapper";
+        dropdownMenu.innerHTML = `
+        <span class="sort_by">Trier par</span>
+        <div class="dropdown">
+            <a class="dropdown__trigger" role="button" aria-label="sort by" aria-controls="dropdown_content" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
+                <span>${this.SortEnum.POPULARITY}</span>
+                <i class="expand fas fa-chevron-down"></i>
+            </a>
+        
+            <div class="dropdown__content" role="listbox">
+                <a class="dropdown__content__item selected" role="option" aria-label="sort by popularity" aria-selected="true" tabindex="0">${this.SortEnum.POPULARITY}</a>
+                <a class="dropdown__content__item" role="option" aria-label="sort by date" aria-selected="false" tabindex="0">${this.SortEnum.DATE}</a>
+                <a class="dropdown__content__item" role="option" aria-label="sort by title" aria-selected="false" tabindex="0">${this.SortEnum.TITLE}</a>
+            </div>
+        </div>`
+        return dropdownMenu;
+    }
 
     dropdownEvent(dropdrownItem, dropdown) {
         if (!dropdrownItem.classList.contains('selected')) {
@@ -262,26 +285,24 @@ export class PhotographerPageBuilder {
         dropdrownTrigger.setAttribute('aria-expanded', 'false');
     }
 
-    createDropdownMenu() {
-        const dropdownMenu = document.createElement('div');
-        dropdownMenu.className = "dropdown_wrapper";
-        dropdownMenu.innerHTML = `
-        <span class="sort_by">Trier par</span>
-        <div class="dropdown">
-            <a class="dropdown__trigger" role="button" aria-label="sort by" aria-controls="dropdown_content" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
-                <span>${this.SortEnum.POPULARITY}</span>
-                <i class="expand fas fa-chevron-down"></i>
-            </a>
-        
-            <div class="dropdown__content" role="listbox">
-                <a class="dropdown__content__item selected" role="option" aria-label="sort by popularity" aria-selected="true" tabindex="0">${this.SortEnum.POPULARITY}</a>
-                <a class="dropdown__content__item" role="option" aria-label="sort by date" aria-selected="false" tabindex="0">${this.SortEnum.DATE}</a>
-                <a class="dropdown__content__item" role="option" aria-label="sort by title" aria-selected="false" tabindex="0">${this.SortEnum.TITLE}</a>
-            </div>
-        </div>`
-        return dropdownMenu;
+    sortBy(sortType) {
+        let sortedMedia = null;
+        switch (sortType) {
+            case this.SortEnum.DATE:
+                sortedMedia = this.mediaList.sort((a, b) => new Date(b.getDate()) - new Date(a.getDate()));
+                break;
+            case this.SortEnum.POPULARITY:
+                sortedMedia = this.mediaList.sort((a, b) => b.getLikes() - a.getLikes());
+                break;
+            case this.SortEnum.TITLE:
+                sortedMedia = this.mediaList.sort((a, b) => a.getTitle().localeCompare(b.getTitle(), 'fr'));
+                break;
+        }
+        sortedMedia.forEach(sortedMedium => {
+            this.createMediumThumbnail(sortedMedium)
+        })
     }
-
+    
 
     //sticker photographer total number of likes and price
     renderSummary() {
@@ -339,25 +360,5 @@ export class PhotographerPageBuilder {
         })
 
         this.incrementNumberOfLikes(mediumThumbnail);
-    }
-
-
-    //a & b = media
-    sortBy(sortType) {
-        let sortedMedia = null;
-        switch (sortType) {
-            case this.SortEnum.DATE:
-                sortedMedia = this.mediaList.sort((a, b) => new Date(b.getDate()) - new Date(a.getDate()))
-                break;
-            case this.SortEnum.POPULARITY:
-                sortedMedia = this.mediaList.sort((a, b) => b.getLikes() - a.getLikes());
-                break;
-            case this.SortEnum.TITLE:
-                sortedMedia = this.mediaList.sort((a, b) => a.getTitle().localeCompare(b.getTitle(), 'fr'));
-                break;
-        }
-        sortedMedia.forEach(sortedMedium => {
-            this.createMediumThumbnail(sortedMedium)
-        })
-    }
+    }    
 }
