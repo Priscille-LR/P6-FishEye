@@ -20,19 +20,22 @@ export class Tags {
 
             const checkboxTag = document.createElement('input');
             checkboxTag.type = "checkbox";
-            checkboxTag.className = "tag_checkbox"
+            checkboxTag.className = "tag_checkbox";
             checkboxTag.id = tag;
+            //checkboxTag.setAttribute = ("aria-labelledby", `#${tag}`);
+            checkboxTag.ariaLabelledBy = `#${tag}`;
             checkboxTag.ariaChecked = "false";
-            checkboxTag.tabIndex = 0
+            checkboxTag.tabIndex = 0;
             tagItem.appendChild(checkboxTag);
 
             const labelTag = document.createElement('label');
-            labelTag.className = "tag_name"
+            labelTag.className = "tag_name";
             labelTag.setAttribute("for", tag);
+            labelTag.ariaLabel = `#${tag}`;
             labelTag.innerHTML = `#${tag}`;
             tagItem.appendChild(labelTag)
 
-            parentElement.appendChild(tagItem)
+            parentElement.appendChild(tagItem);
         });
     }
     /**

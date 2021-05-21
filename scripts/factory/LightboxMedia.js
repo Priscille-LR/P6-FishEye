@@ -82,7 +82,6 @@ export class LightboxMedia {
 
             const nextButton = lightboxBody.querySelector('.next_button');
             nextButton.style.display = "block";
-            console.log(newIndex)
             if (newIndex >= 0 ) {
                 this.showLightboxMedia(this.mediaList[newIndex], this.currentPhotographer, this.mediaList);
             } 
@@ -109,7 +108,6 @@ export class LightboxMedia {
         });
     }
 
-
     appendMediumBox(lightboxBody) {
         const nextButton = lightboxBody.querySelector('.next_button');
         const mediumBox = document.createElement('div');
@@ -127,7 +125,6 @@ export class LightboxMedia {
         this.mediaList = mediaList;
         this.medium = medium;
         Utils.removeChildOf('.medium_box', 'lightbox_medium');
-
         
         const mediumTitle = document.querySelector('.lightbox_title')
         mediumTitle.innerHTML = medium.getTitle();

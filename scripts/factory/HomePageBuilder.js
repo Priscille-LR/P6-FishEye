@@ -27,6 +27,8 @@ export class HomePageBuilder {
     renderHeader() {
         const header = document.createElement('header');
         header.className = 'header_home';
+        header.role = 'heading';
+        header.ariaLabel = 'Fisheye home page heading';
         header.innerHTML = `
         <a class="logo" href="/">
             <img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />

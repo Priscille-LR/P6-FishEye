@@ -7,6 +7,9 @@ import { PhotographerPageModel } from "../models/PhotographerPageModel";
 import { PhotographerProfileModel } from '../models/PhotographerProfileModel';
 import { MediumModel } from '../models/MediumModel';
 
+//DOM elements
+const mainApp = document.getElementById('app');
+
 export class PhotographerPageBuilder {
 
     SortEnum = {
@@ -20,28 +23,29 @@ export class PhotographerPageBuilder {
      * @param {Promise<PhotographerPageModel>} photographerPageModel 
      */
     constructor(photographerPageModel) {
-        this.photographerPageModelPromise = photographerPageModel
-        this.photographerPageModelPromise.then((photographerPageModel) => {
-            this.determineCurrentPhotographer(photographerPageModel.getPhotographersList());
-            this.determineCurrentPhotographerMedia(photographerPageModel.getMediaList());
-            this.contactModal = new ContactModal(this.currentPhotographer);
-            this.lightboxMedia = new LightboxMedia(this.allMedia, this.currentPhotographer);
-        })
-        this.isDropdownVisible = false //dropdown menu hidden by default
+        this.photographerPageModelPromise = photographerPageModel;
+    }
+
+    render(id) {
+        this.idPhotographer = id;
+        this.isDropdownVisible = false; //dropdown menu hidden by default
         this.mediaList = [];
         this.activeTags = [];
         this.selectedMedia = [];
         this.mediaFactory = new MediaFactory();
 
-    }
-
-    render(id) {
-        this.idPhotographer = id
-        this.photographerPageModelPromise.then(() => {
-            this.renderHeader();
-            this.renderMain();
+        this.photographerPageModelPromise.then((photographerPageModel) => {
+            this.determineCurrentPhotographer(photographerPageModel.getPhotographersList());
+            this.determineCurrentPhotographerMedia(photographerPageModel.getMediaList());
+            this.contactModal = new ContactModal(this.currentPhotographer);
+            this.lightboxMedia = new LightboxMedia(this.allMedia, this.currentPhotographer);
+            
             this.contactModal.renderContactModal();
             this.lightboxMedia.renderLightboxMedia();
+
+            this.renderHeader();
+            this.renderMain();
+            
         })
     }
 
@@ -72,19 +76,20 @@ export class PhotographerPageBuilder {
     renderHeader() {
         const header = document.createElement('header');
         header.className = 'header_photographer_page';
+        header.role = 'heading';
+        header.ariaLabel = 'Fisheye photographer page heading';
         header.innerHTML = `
         <a class="logo" href="/">
         <img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />
         </a>
         `;
 
-        const main = document.getElementById('app');
-        document.querySelector('body').insertBefore(header, main);
+        document.querySelector('body').insertBefore(header, mainApp);
     }
 
     renderMain() {
         this.renderBanner();
-        this.renderDropdown();
+        this.renderDropdownMenu();
         this.renderSummary();
         this.sortBy(this.SortEnum.POPULARITY);
     }
@@ -105,14 +110,27 @@ export class PhotographerPageBuilder {
         <div class="photographer__picture">
             <img class="photographer_thumbnail__picture picture_profile" src="/static/Photographers ID Photos/${this.currentPhotographer.getPortrait()}" alt="">
         </div>`
+        
+        this.renderBannerTags(banner.querySelector(".tags_photographer_page"));
+        
+        this.openModalOnClick(banner);
+
+        mainApp.appendChild(banner);
+    }
+
+    //contact modal opening
+    openModalOnClick(banner) {
+        const contactModal = document.querySelector('.contact_modal');
+        const headerPhotographerPage = document.querySelector('.header_photographer_page');
+        
+        headerPhotographerPage.setAttribute('aria-hidden', 'true');
+        mainApp.setAttribute('aria-hidden', 'true');
+        contactModal.setAttribute('aria-hidden', 'false');
 
         banner.querySelector(".button_banner").addEventListener('click', () => {
             this.contactModal.showContactModal();
         });
 
-        this.renderBannerTags(banner.querySelector(".tags_photographer_page"));
-
-        document.getElementById('app').appendChild(banner);
     }
 
     renderBannerTags(bannerTags) {
@@ -158,48 +176,109 @@ export class PhotographerPageBuilder {
                 this.createMediumThumbnail(selectedMedium);
             });
         }
-
     }
 
     //dropdown
-    renderDropdown() {
 
+    renderDropdownMenu() {
         const dropdownMenu = this.createDropdownMenu();
-        document.querySelector('main').appendChild(dropdownMenu);
+        mainApp.appendChild(dropdownMenu);
 
-        const dropdrownButton = document.querySelector('.dropdown__trigger');
-        const dropdrownContent = document.querySelector('.dropdown__content');
+        const dropdown = document.querySelector('.dropdown');
+        const dropdrownTrigger = document.querySelector('.dropdown__trigger');
+        const dropdrownItems = document.querySelectorAll('.dropdown__content__item');
+        const firstDropdrownItem = document.querySelector('.dropdown a:first-child');
+        const lastDropdrownItem = document.querySelector('.dropdown a:last-child');
 
-        dropdrownButton.addEventListener('click', () => {
-            if (this.isDropdownVisible == false) {
-                dropdrownContent.style.display = "block";
-                this.isDropdownVisible = true; //content visibility state 
-            } else {
-                dropdrownContent.style.display = "none";
-                this.isDropdownVisible = false;
-            }
-        });
-
-        const dropdownItems = document.getElementsByClassName("dropdown__content__item");
-        for (let item of dropdownItems) {
-            item.addEventListener('click', () => {
-                this.handleDropdownItemClick(dropdrownButton, item);
+        for (const dropdrownItem of dropdrownItems) {
+            dropdrownItem.addEventListener('click', () => {
+                this.dropdownEvent(dropdrownItem, dropdown);
+            })
+            dropdrownItem.addEventListener('keydown', (e) => {
+                if( e.code === 'Enter') {
+                    this.dropdownEvent(dropdrownItem, dropdown);
+                }
             })
         }
+
+        dropdrownTrigger.addEventListener('click', () => {
+            if(dropdown.classList.contains('open')) {
+                this.closeDropdown();
+            } else {
+                this.openDropdown();
+            }
+        })
+
+        dropdrownTrigger.addEventListener('keydown', (e) => {
+            if(dropdown.classList.contains('open')) {
+                this.closeDropdown();
+            } else if (e.code === 'Enter') {
+                this.openDropdown();
+            }
+        })
+
+        firstDropdrownItem.addEventListener('keydown', (e) => {
+            if(e.code === 'Tab' && e.shiftKey) {
+                    this.closeDropdown()
+            }
+        })
+
+        lastDropdrownItem.addEventListener('keydown', (e) => {
+            if(e.code === 'Tab' && !e.shiftKey) {
+                this.closeDropdown()
+            }
+        })
+    }
+
+    dropdownEvent(dropdrownItem, dropdown) {
+        if (!dropdrownItem.classList.contains('selected')) {
+            const selectedItem = dropdrownItem.parentNode.querySelector('.dropdown__content__item.selected');
+            selectedItem.classList.remove('selected');
+            dropdrownItem.classList.add('selected');
+            dropdrownItem.setAttribute('aria-selected', 'true');
+            dropdown.querySelector('.dropdown__trigger span').innerHTML = dropdrownItem.innerHTML;
+
+            this.closeDropdown();
+            this.handleDropdownItemClick(dropdrownItem);
+        }
+    }
+
+    handleDropdownItemClick(item) {
+        Utils.removeChildOf("#app", "medium_thumbnail");
+        this.sortBy(item.innerHTML);
+    }
+
+    openDropdown() {
+        const dropdown = document.querySelector('.dropdown');
+        const dropdrownTrigger = document.querySelector('.dropdown__trigger');
+        dropdown.classList.add('open');
+        dropdrownTrigger.setAttribute('aria-expanded', 'true');
+    }
+
+    closeDropdown() {
+        const dropdown = document.querySelector('.dropdown');
+        const dropdrownTrigger = document.querySelector('.dropdown__trigger');
+        dropdown.classList.remove('open');
+        dropdrownTrigger.setAttribute('aria-expanded', 'false');
     }
 
     createDropdownMenu() {
         const dropdownMenu = document.createElement('div');
-        dropdownMenu.className = "dropdown_menu";
+        dropdownMenu.className = "dropdown_wrapper";
         dropdownMenu.innerHTML = `
         <span class="sort_by">Trier par</span>
         <div class="dropdown">
-        <button class="dropdown__trigger" role="button" aria-label="sort by" aria-controls="dropdown_content" aria-haspopup="listbox" aria-expanded="false">${this.SortEnum.POPULARITY}</button>
+            <a class="dropdown__trigger" role="button" aria-label="sort by" aria-controls="dropdown_content" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
+                <span>${this.SortEnum.POPULARITY}</span>
+                <i class="expand fas fa-chevron-down"></i>
+            </a>
         
-        <div class="dropdown__content">
-        <a class="dropdown__content__item">${this.SortEnum.DATE}</a>
-        <a class="dropdown__content__item">${this.SortEnum.TITLE}</a>
-        </div></div>`
+            <div class="dropdown__content" role="listbox">
+                <a class="dropdown__content__item selected" role="option" aria-label="sort by popularity" aria-selected="true" tabindex="0">${this.SortEnum.POPULARITY}</a>
+                <a class="dropdown__content__item" role="option" aria-label="sort by date" aria-selected="false" tabindex="0">${this.SortEnum.DATE}</a>
+                <a class="dropdown__content__item" role="option" aria-label="sort by title" aria-selected="false" tabindex="0">${this.SortEnum.TITLE}</a>
+            </div>
+        </div>`
         return dropdownMenu;
     }
 
@@ -220,7 +299,7 @@ export class PhotographerPageBuilder {
         </div>
         <div class="photographer_price">${this.currentPhotographer.getPrice()}€/jour</div>
         `
-        document.querySelector('main').appendChild(stickerSummary);
+        mainApp.appendChild(stickerSummary);
 
     }
 
@@ -237,7 +316,6 @@ export class PhotographerPageBuilder {
                 mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) - 1;
                 totalLikes.innerHTML = parseInt(totalLikes.innerHTML) - 1;
             }
-
         });
     }
 
@@ -248,8 +326,7 @@ export class PhotographerPageBuilder {
     createMediumThumbnail(medium) {
         const mediumThumbnail = this.mediaFactory.renderMedium(medium, this.currentPhotographer);
 
-        const main = document.querySelector('main');
-        main.appendChild(mediumThumbnail);
+        mainApp.appendChild(mediumThumbnail);
 
         const mediumThumbnailMiniature = mediumThumbnail.querySelector('.medium_thumbnail__miniature');
 
@@ -264,19 +341,6 @@ export class PhotographerPageBuilder {
         this.incrementNumberOfLikes(mediumThumbnail);
     }
 
-    handleDropdownItemClick(dropdrownButton, item) {
-        dropdrownButton.click();
-
-        Utils.removeChildOf("#app", "medium_thumbnail");
-        this.sortBy(item.innerHTML);
-        this.swapDropdownItems(item, dropdrownButton);
-    }
-
-    swapDropdownItems(item, dropdrownButton) {
-        var temporary = item.innerHTML;
-        item.innerHTML = dropdrownButton.innerHTML;
-        dropdrownButton.innerHTML = temporary;
-    }
 
     //a & b = media
     sortBy(sortType) {

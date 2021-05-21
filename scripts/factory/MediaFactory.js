@@ -12,9 +12,8 @@ export class MediaFactory {
      */
     renderMedium(medium, currentPhotographer) {
 
-
         let mediumThumbnail = this.createMediumDisplay(medium, currentPhotographer, "medium_thumbnail");
-              
+
         this.appendThumbnailContent(medium, mediumThumbnail);
 
         return mediumThumbnail;
@@ -28,11 +27,11 @@ export class MediaFactory {
      * @param {boolean} controls 
      * @returns 
      */
-     createMediumDisplay(medium, currentPhotographer, className, controls = false) {
+    createMediumDisplay(medium, currentPhotographer, className, controls = false) {
         let mediumThumbnail = document.createElement('article');
         mediumThumbnail.className = className;
         mediumThumbnail.ariaLabel = medium.getTitle();
-        
+
         const mediumType = medium.getMediumType();
 
         let mediumSource = String(medium.getSource());
@@ -50,7 +49,7 @@ export class MediaFactory {
                 source.src = `/static/${currentPhotographer.getName().split(' ')[0]}/${mediumSource}`
                 source.type = "video/mp4"
                 media.controls = controls;
-                if(controls){
+                if (controls) {
                     media.autoplay = true
                 }
                 media.appendChild(source);
@@ -72,21 +71,23 @@ export class MediaFactory {
         mediumThumbnailContent.innerHTML = `
             <h2 class="medium_title">${medium.getTitle()}</h2>
             <div class="price_and_likes">
-              <span class="medium_price" aria-label="price:">${medium.getPrice()}€</span>
+              <span class="medium_price" aria-label="price">${medium.getPrice()}€</span>
+              
               <span class="medium_number_of_likes">${medium.getLikes()}</span>
-              <label class="checkbox__like aria-label="likes"> 
-                <input type="checkbox" class="checkbox__input" name="like" aria-labelledby="likes" tabindex="0">
-                    <i class="far fa-heart like__unchecked"></i>
-                    <i class="fas fa-heart like__checked"></i>
-                </input>   
-                </label>
+                <div class="likes">
+                    <input type="checkbox" id="checkbox__input" class="checkbox__input" name="like" aria-labelledby="like this picture" tabindex="0">
+                        <i class="far fa-heart like__unchecked"></i>
+                        <i class="fas fa-heart like__checked"></i>
+                    </input>   
+                    <label class="checkbox__like" for="checkbox__input" aria-label="like this picture"></label>
+                </div>
             </div>
           </div>`;
 
         mediumThumbnail.appendChild(mediumThumbnailContent);
     }
 
-    
+
 
 }
 

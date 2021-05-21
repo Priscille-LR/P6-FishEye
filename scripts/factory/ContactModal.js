@@ -33,16 +33,7 @@ export class ContactModal {
         this.contactModal = document.querySelector('.contact_modal')
 
         this.appendContactForm();
-        this.createModalButton();
-        
-        
-    }
-
-    eventOnClose() {
-        const closeButton = document.querySelector('.close_button')
-        closeButton.addEventListener('click', () => {
-            this.hideContactModal();
-        });
+        this.createModalButton();   
     }
 
     appendContactForm() {
@@ -62,7 +53,7 @@ export class ContactModal {
 
         inputs.forEach(input => {
             input.addEventListener('blur', () => {
-                if (this.validateFieldsFormat(input) === true) {
+                if (this.validateFieldsFormat(input)) {
                     this.hideErrorMessage(input.parentElement);
                 } else {
                     if (input.id === "email") {
@@ -143,6 +134,29 @@ export class ContactModal {
         this.eventOnSubmit(modalButton, modalBody);
         
         document.querySelector('.contact_modal__body').appendChild(modalButton);
+    }
+
+
+    //modal closing
+
+    eventOnClose() {
+
+        // const header = document.querySelector('.header_photographer_page');
+        // const main = getElementById('app');
+        // const contactModal = document.querySelector('.contact_modal');
+
+        // header.setAttribute('aria-hidden', 'false');
+        // main.setAttribute('aria-hidden', 'false');
+        // contactModal.setAttribute('aria-hidden', 'true');
+
+
+        // const closeButton = document.querySelector('.close_button')
+        // closeButton.addEventListener('click', this.hideContactModal);
+        // document.addEventListener('keydown', (e) => {
+        //     if(e.code === 'Escape') {
+        //         this.hideContactModal();
+        //     }
+        // })
     }
 
     eventOnSubmit(modalButton, modalBody) {

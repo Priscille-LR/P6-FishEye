@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "parcel-plugin-static-files-copy": "^2.6.0",
-    "sass": "^1.32.10"
+    "sass": "^1.32.12"
   },
   "staticFiles": {
     "staticPath": [
