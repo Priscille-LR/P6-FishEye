@@ -1,5 +1,11 @@
 import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
 
+const body = document.getElementById("photographer-page");
+const main = document.getElementById('app');
+
+
+const focusableElements = [];
+
 export class ContactModal {
     /**
      * 
@@ -19,39 +25,126 @@ export class ContactModal {
     createContactModal() {
         const contactModal = document.createElement('dialog');
         contactModal.className = 'contact_modal';
-        contactModal.role = 'dialog';
-        contactModal.ariaLabelledBy = 'contact_modal__body__title';
+        contactModal.setAttribute('role', 'dialog');
+        contactModal.setAttribute('aria-labelledby', 'contact_modal__body__title');
+        contactModal.ariaModal = 'true';
+        contactModal.ariaHidden = 'true';
         contactModal.tabIndex = "-1";
         contactModal.innerHTML = `
         <div class="contact_modal__body">
             <h2 class="contact_modal__body__title">Contactez-moi <br> ${this.currentPhotographer.getName()}</h2>
-            <button class="close_button" aria-label="close dialog">
+            <button id="close_contact_modal" class="close_button" title="fermer la fenêtre" aria-label="close dialog" tabindex="-1">
                 <i class="fas fa-times fa-3x" aria-hidden="true"></i>
-            </button>    
-            <form class="contact_form"></form>    
+            </button>     
         </div> 
         `;
-        document.getElementById("app").appendChild(contactModal);
-        
+        document.getElementById("photographer-page").appendChild(contactModal);
+
+        focusableElements.push(document.getElementById('close_contact_modal'));
+
         this.contactModal = document.querySelector('.contact_modal')
 
-        this.appendContactForm();
-        this.createModalButton();   
+        this.createContactForm();
+        this.createModalButton();
+        this.addEventListenerValidate();
+        // this.keepFocusInModal();  
+        // this.preventFocusOnMain();
     }
 
-    appendContactForm() {
+    createContactForm() {
         const contactForm = document.createElement('form');
         contactForm.className = 'contact_form';
-        contactForm.setAttribute = ("method", "post");
+        contactForm.method = ("method", "post");
         contactForm.setAttribute = ("action", "submit");
 
-        this.createFormFields(contactForm);
-        this.addEventListenerValidate(contactForm);
+        document.querySelector('.contact_modal__body').appendChild(contactForm);
 
-        document.querySelector('.contact_form').appendChild(contactForm);
+        this.createFormFields();
     }
 
-    addEventListenerValidate(contactForm) {
+    createFormFields() {
+        const contactForm = document.querySelector('.contact_form')
+
+        //Firstname
+        let fieldset = this.createFieldset();
+        fieldset.appendChild(this.createLabel("firstname", "Prénom"));
+        fieldset.appendChild(this.createInputField("firstname"));
+        contactForm.appendChild(fieldset);
+        
+
+        //Lastname
+        fieldset = this.createFieldset();
+        fieldset.appendChild(this.createLabel("lastname", "Nom"));
+        fieldset.appendChild(this.createInputField("lastname"));
+        contactForm.appendChild(fieldset);
+        
+
+        //Email
+        fieldset = this.createFieldset();
+        fieldset.appendChild(this.createLabel("email", "Email"));
+        fieldset.appendChild(this.createInputField("email"));
+        contactForm.appendChild(fieldset);
+        
+
+        //Message
+        fieldset = this.createFieldset();
+        fieldset.appendChild(this.createLabel("message", "Votre message"));
+        fieldset.appendChild(this.createTextArea("message"));
+        contactForm.appendChild(fieldset);
+        
+    }
+
+    createFieldset() {
+        const fieldset = document.createElement('div');
+        fieldset.className = 'fieldset';
+        return fieldset;
+    }
+
+    createLabel(forParam, textParam) {
+        const label = document.createElement('label');
+        label.setAttribute("for", forParam);
+        label.innerHTML = `${textParam}`;
+        return label;
+    }
+
+    createInputField(id) {
+        const inputField = document.createElement('input');
+        inputField.className = 'input_field';
+        inputField.type = "text";
+        inputField.tabIndex = '-1';
+        inputField.setAttribute("id", id);
+
+        focusableElements.push(inputField);
+        return inputField;
+    }
+
+    createTextArea(id) {
+        const textAreaInput = document.createElement('textarea');
+        textAreaInput.className = 'input_field';
+        textAreaInput.setAttribute("id", id);
+        textAreaInput.tabIndex = "-1";
+        textAreaInput.setAttribute("rows", 5);
+        focusableElements.push(textAreaInput);
+        return textAreaInput;
+    }
+
+    createModalButton() {
+        const modalBody = document.querySelector('.contact_modal__body');
+        const modalButton = document.createElement('button');
+        modalButton.className = 'button_contact submit_button';
+        modalButton.type = "submit";
+        modalButton.tabIndex = "-1";
+        modalButton.innerHTML = `Envoyer`;
+
+        focusableElements.push(modalButton);
+
+        this.eventOnSubmit(modalButton, modalBody);
+
+        document.querySelector('.contact_modal__body').appendChild(modalButton);
+    }
+
+    addEventListenerValidate() {
+        const contactForm = document.querySelector('.contact_form');
         const inputs = contactForm.querySelectorAll('.input_field');
 
         inputs.forEach(input => {
@@ -71,97 +164,51 @@ export class ContactModal {
         });
     }
 
-    createFieldset() {
-        const fieldset = document.createElement('div');
-        fieldset.className = 'formData';
-        return fieldset;
-    }
+    // keepFocusInModal() {
+    //     const sendButton = document.querySelector('.submit_button');
+    //     const closeButton = document.getElementById('close_contact_modal'); //focus is on 1st fieldset instead of close button??
+    //     const messageField = document.getElementById('message');
 
-    createLabel(forParam, textParam) {
-        const label = document.createElement('label');
-        label.setAttribute("for", forParam);
-        label.innerHTML = `${textParam}`;
-        return label;
-    }
+    //     sendButton.addEventListener('keydown', (e) => {
+    //         //if(e.code === 'Tab') {
+    //         //    closeButton.focus()
+    //         //}
+    //         // if(e.code === 'Tab' && e.shiftKey){
+    //         //     sendButton.focus();
+    //         // }
+    //     })
+    // }
 
-    createInputField(id) {
-        const inputField = document.createElement('input');
-        inputField.className = 'input_field';
-        inputField.type = "text";
-        inputField.setAttribute("id", id);
-        return inputField;
-    }
+    // preventFocusOnMain() {
+    //     const closeButton = document.getElementById('close_contact_modal');
+    //     const firstFieldset = document.getElementById('firstname'); 
 
-    createTextArea(id) {
-        const textAreaInput = document.createElement('textarea');
-        textAreaInput.className = 'input_field';
-        textAreaInput.setAttribute("id", id);
-        textAreaInput.setAttribute("rows", 5);
-        return textAreaInput;
-    }
-
-    createFormFields(contactForm) {
-
-        //Firstname
-        let fieldset = this.createFieldset();
-        fieldset.appendChild(this.createLabel("firstname", "Prénom"));
-        fieldset.appendChild(this.createInputField("firstname"));
-        contactForm.appendChild(fieldset);
-
-        //Lastname
-        fieldset = this.createFieldset();
-        fieldset.appendChild(this.createLabel("lastname", "Nom"));
-        fieldset.appendChild(this.createInputField("lastname"));
-        contactForm.appendChild(fieldset);
-
-        //Email
-        fieldset = this.createFieldset();
-        fieldset.appendChild(this.createLabel("email", "Email"));
-        fieldset.appendChild(this.createInputField("email"));
-        contactForm.appendChild(fieldset);
-
-        //Message
-        fieldset = this.createFieldset();
-        fieldset.appendChild(this.createLabel("message", "Votre message"));
-        fieldset.appendChild(this.createTextArea("message"));
-        contactForm.appendChild(fieldset);
-    }
-
-    createModalButton() {
-        const modalBody = document.querySelector('.contact_modal__body');
-        const modalButton = document.createElement('button');
-        modalButton.className = 'button_contact submit_button';
-        modalButton.type = "submit";
-        modalButton.innerHTML = `Envoyer`;
-
-        this.eventOnSubmit(modalButton, modalBody);
-        
-        document.querySelector('.contact_modal__body').appendChild(modalButton);
-    }
+    //     closeButton.addEventListener('keydown', (e) => {
+    //         //if(e.code === 'Tab' && e.shiftKey) {
+    //         //    firstFieldset.focus();
+    //         //}   
+    //     })
+    // }
 
 
     //modal closing
 
     eventOnClose() {
-        const body = document.querySelector('body');
-       //const header = document.querySelector('.header_photographer_page');
-        //const main = document.getElementById('app');
-        const contactModal = document.querySelector('.contact_modal');
-
-        //header.setAttribute('aria-hidden', 'false');
-        //main.setAttribute('aria-hidden', 'false');
-        body.setAttribute('aria-hidden', 'false');
-        contactModal.setAttribute('aria-hidden', 'true');
-
-
         const closeButton = document.querySelector('.close_button')
         closeButton.addEventListener('click', () => this.hideContactModal());
-        
+
         document.addEventListener('keydown', (e) => {
-            if(e.code === 'Escape') {
+            if (e.code === 'Escape') {
                 this.hideContactModal();
             }
         })
+
+        // window.addEventListener('click', (e) => {
+        //     this.contactModal = document.querySelector('.contact_modal')
+        //     if(e.target === this.contactModal) {
+        //     this.hideContactModal()
+        //     }
+        // });
     }
 
     eventOnSubmit(modalButton, modalBody) {
@@ -185,12 +232,70 @@ export class ContactModal {
     }
 
     showContactModal() {
+        console.log(focusableElements)
+        const contactModal = document.querySelector('.contact_modal');
         this.contactModal.style.display = "block";
+
+        main.setAttribute('aria-hidden', 'true');
+        contactModal.setAttribute('aria-hidden', 'false');
+
+
+        
+        const firstFocusableElement = focusableElements[1];
+        console.log(firstFocusableElement)
+        const lastFocusableElement = focusableElements[focusableElements.length -1];
+        console.log(lastFocusableElement)
+        if(!firstFocusableElement) {
+            return;
+        }
+        
+        console.log("toto")
+        firstFocusableElement.focus();
+
+        focusableElements.forEach(focusableElement => {
+                focusableElement.addEventListener('keydown', (e) => {
+                    if(e.code !=='Tab') {
+                        console.log("return")
+                        return
+                    }
+                    console.log("not return")
+                    if (e.code === 'Tab' && e.shiftKey) {   //je monte
+                        if (e.target === focusableElements[0]) { // si je suis le premier je passe au dernier
+                          e.preventDefault();
+                          lastFocusableElement.focus();
+                        } else {
+                            e.preventDefault();
+
+                            let currentIndex = focusableElements.indexOf(focusableElement)
+                            let previousIndex = currentIndex - 1;
+                            focusableElements[previousIndex].focus();
+
+
+                        }
+                    } else if (e.target === lastFocusableElement) {
+                        console.log("tu passes ici")
+                        e.preventDefault();
+                        focusableElements[0].focus();
+                    } else { //Tab
+                        e.preventDefault();
+                        console.log("tu ne fais rien patate")
+
+                        let currentIndex = focusableElements.indexOf(focusableElement)
+                        let nextIndex = currentIndex + 1
+                        focusableElements[nextIndex].focus();
+                    }
+                })
+            
+        });
+    
     }
 
     hideContactModal() {
+        const contactModal = document.querySelector('.contact_modal');
         this.contactModal.style.display = "none";
-     }
+        main.setAttribute('aria-hidden', 'false');
+        contactModal.setAttribute('aria-hidden', 'true');
+    }
 
 
     //fields validation 

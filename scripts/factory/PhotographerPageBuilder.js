@@ -8,7 +8,8 @@ import { PhotographerProfileModel } from '../models/PhotographerProfileModel';
 import { MediumModel } from '../models/MediumModel';
 
 
-const mainApp = document.getElementById('app');
+const body = document.getElementById("photographer-page");
+const main = document.getElementById('app');
 
 export class PhotographerPageBuilder {
 
@@ -84,7 +85,7 @@ export class PhotographerPageBuilder {
         </a>
         `;
 
-        document.querySelector('body').insertBefore(header, mainApp);
+        document.querySelector('body').insertBefore(header, main);
     }
 
     renderMain() {
@@ -106,7 +107,7 @@ export class PhotographerPageBuilder {
             <p class="photographer_desc">${this.currentPhotographer.getTagline()}</p>
             <div class="tags tags_photographer_page"></div>
         </div>
-        <button class="button_contact button_banner" aria-label="Contact Me" aria-haspopup="dialog" aria-controls="dialog"> Contactez-moi </button>
+        <button class="button_contact button_banner" aria-label="Contact Me" aria-haspopup="dialog" aria-controls="contact_modal"> Contactez-moi </button>
         <div class="photographer__picture">
             <img class="photographer_thumbnail__picture picture_profile" src="/static/Photographers ID Photos/${this.currentPhotographer.getPortrait()}" alt="">
         </div>`
@@ -115,25 +116,28 @@ export class PhotographerPageBuilder {
         
         this.openModalOnClick(banner);
 
-        mainApp.appendChild(banner);
+        main.appendChild(banner);
     }
 
     //contact modal opening
     openModalOnClick(banner) {
-        const body = document.querySelector('body');
-        //const header = document.querySelector('.header_photographer_page');
+        const buttonContact = banner.querySelector(".button_contact");
         const contactModal = document.querySelector('.contact_modal');
         
-        body.classList.add('no-scroll');
-        //header.setAttribute('aria-hidden', 'true');
-        //mainApp.setAttribute('aria-hidden', 'true');
-        body.setAttribute('aria-hidden', 'true');
-        contactModal.setAttribute('aria-hidden', 'false');
-
-        banner.querySelector(".button_banner").addEventListener('click', () => {
+        buttonContact.addEventListener('click', () => {
             this.contactModal.showContactModal();
         });
-
+        
+        // buttonContact.addEventListener('keydown', (e) => {
+        //     if(e.code === 'Enter') {
+        //         contactModal.focus();   
+        //     }
+        // })
+        //body.classList.add('no-scroll');
+        //header.setAttribute('scroll', 'true');
+        //mainApp.setAttribute('aria-hidden', 'true');
+        //body.setAttribute('aria-hidden', 'true');
+        //contactModal.setAttribute('aria-hidden', 'false');
     }
 
     renderBannerTags(bannerTags) {
@@ -185,7 +189,7 @@ export class PhotographerPageBuilder {
     //dropdown
     renderDropdownMenu() {
         const dropdownMenu = this.createDropdownMenu();
-        mainApp.appendChild(dropdownMenu);
+        main.appendChild(dropdownMenu);
 
         const dropdown = document.querySelector('.dropdown');
         const dropdrownTrigger = document.querySelector('.dropdown__trigger');
@@ -226,6 +230,7 @@ export class PhotographerPageBuilder {
             }
         })
 
+
         lastDropdrownItem.addEventListener('keydown', (e) => {
             if(e.code === 'Tab' && !e.shiftKey) {
                 this.closeDropdown()
@@ -255,7 +260,9 @@ export class PhotographerPageBuilder {
 
     dropdownEvent(dropdrownItem, dropdown) {
         if (!dropdrownItem.classList.contains('selected')) {
-            const selectedItem = dropdrownItem.parentNode.querySelector('.dropdown__content__item.selected');
+            const selectedItem = dropdrownItem.querySelector('.dropdown__content__item.selected');
+           
+
             selectedItem.classList.remove('selected');
             dropdrownItem.classList.add('selected');
             dropdrownItem.setAttribute('aria-selected', 'true');
@@ -276,7 +283,7 @@ export class PhotographerPageBuilder {
         const dropdrownTrigger = document.querySelector('.dropdown__trigger');
         dropdown.classList.add('open');
         dropdrownTrigger.setAttribute('aria-expanded', 'true');
-    }
+    }   
 
     closeDropdown() {
         const dropdown = document.querySelector('.dropdown');
@@ -320,7 +327,7 @@ export class PhotographerPageBuilder {
         </div>
         <div class="photographer_price">${this.currentPhotographer.getPrice()}€/jour</div>
         `
-        mainApp.appendChild(stickerSummary);
+        main.appendChild(stickerSummary);
 
     }
 
@@ -347,9 +354,17 @@ export class PhotographerPageBuilder {
     createMediumThumbnail(medium) {
         const mediumThumbnail = this.mediaFactory.renderMedium(medium, this.currentPhotographer);
 
-        mainApp.appendChild(mediumThumbnail);
+        main.appendChild(mediumThumbnail);
 
         const mediumThumbnailMiniature = mediumThumbnail.querySelector('.medium_thumbnail__miniature');
+
+        mediumThumbnailMiniature.addEventListener('click', () => {
+            if (this.selectedMedia.length == 0) {
+                this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.mediaList)
+            } else {
+                this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.selectedMedia)
+            }
+        })
 
         mediumThumbnailMiniature.addEventListener('click', () => {
             if (this.selectedMedia.length == 0) {

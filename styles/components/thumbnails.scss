@@ -162,6 +162,9 @@ main {
   justify-content: center;
   align-items: center;
   //margin: 0.5rem;
+  &:focus-within {
+    border :  2px solid orange;
+  }
 }
   .checkbox__like, 
   .checkbox__input {
@@ -176,6 +179,7 @@ main {
 
   .checkbox__input:checked ~ .like__checked {
     display: inline-block;
+    
   }
 
   .checkbox__input:checked ~ .like__unchecked {
