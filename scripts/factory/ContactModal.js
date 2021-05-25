@@ -1,6 +1,6 @@
 import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
 
-const body = document.getElementById("photographer-page");
+//const body = document.getElementById("photographer-page");
 const main = document.getElementById('app');
 
 
@@ -47,8 +47,6 @@ export class ContactModal {
         this.createContactForm();
         this.createModalButton();
         this.addEventListenerValidate();
-        // this.keepFocusInModal();  
-        // this.preventFocusOnMain();
     }
 
     createContactForm() {
@@ -70,28 +68,28 @@ export class ContactModal {
         fieldset.appendChild(this.createLabel("firstname", "Prénom"));
         fieldset.appendChild(this.createInputField("firstname"));
         contactForm.appendChild(fieldset);
-        
+
 
         //Lastname
         fieldset = this.createFieldset();
         fieldset.appendChild(this.createLabel("lastname", "Nom"));
         fieldset.appendChild(this.createInputField("lastname"));
         contactForm.appendChild(fieldset);
-        
+
 
         //Email
         fieldset = this.createFieldset();
         fieldset.appendChild(this.createLabel("email", "Email"));
         fieldset.appendChild(this.createInputField("email"));
         contactForm.appendChild(fieldset);
-        
+
 
         //Message
         fieldset = this.createFieldset();
         fieldset.appendChild(this.createLabel("message", "Votre message"));
         fieldset.appendChild(this.createTextArea("message"));
         contactForm.appendChild(fieldset);
-        
+
     }
 
     createFieldset() {
@@ -164,37 +162,10 @@ export class ContactModal {
         });
     }
 
-    // keepFocusInModal() {
-    //     const sendButton = document.querySelector('.submit_button');
-    //     const closeButton = document.getElementById('close_contact_modal'); //focus is on 1st fieldset instead of close button??
-    //     const messageField = document.getElementById('message');
-
-    //     sendButton.addEventListener('keydown', (e) => {
-    //         //if(e.code === 'Tab') {
-    //         //    closeButton.focus()
-    //         //}
-    //         // if(e.code === 'Tab' && e.shiftKey){
-    //         //     sendButton.focus();
-    //         // }
-    //     })
-    // }
-
-    // preventFocusOnMain() {
-    //     const closeButton = document.getElementById('close_contact_modal');
-    //     const firstFieldset = document.getElementById('firstname'); 
-
-    //     closeButton.addEventListener('keydown', (e) => {
-    //         //if(e.code === 'Tab' && e.shiftKey) {
-    //         //    firstFieldset.focus();
-    //         //}   
-    //     })
-    // }
-
-
     //modal closing
 
     eventOnClose() {
-        const closeButton = document.querySelector('.close_button')
+        const closeButton = document.querySelector('.close_button');
         closeButton.addEventListener('click', () => this.hideContactModal());
 
         document.addEventListener('keydown', (e) => {
@@ -203,7 +174,7 @@ export class ContactModal {
             }
         })
 
-        // window.addEventListener('click', (e) => {
+        // main.addEventListener('click', (e) => {
         //     this.contactModal = document.querySelector('.contact_modal')
         //     if(e.target === this.contactModal) {
         //     this.hideContactModal()
@@ -232,62 +203,54 @@ export class ContactModal {
     }
 
     showContactModal() {
-        console.log(focusableElements)
         const contactModal = document.querySelector('.contact_modal');
         this.contactModal.style.display = "block";
 
         main.setAttribute('aria-hidden', 'true');
         contactModal.setAttribute('aria-hidden', 'false');
 
+        this.keepFocusInModal();
 
-        
-        const firstFocusableElement = focusableElements[1];
-        console.log(firstFocusableElement)
-        const lastFocusableElement = focusableElements[focusableElements.length -1];
-        console.log(lastFocusableElement)
-        if(!firstFocusableElement) {
+    }
+
+    keepFocusInModal() {
+        const firstFocusableElement = focusableElements[0]; // close button
+        const secondFocusableElement = focusableElements[1]; //first fieldset
+        const lastFocusableElement = focusableElements[focusableElements.length - 1]; //submit button
+
+        //return if no focusable element
+        if (!secondFocusableElement) {
             return;
         }
-        
-        console.log("toto")
-        firstFocusableElement.focus();
 
+        //focus on first input
+        secondFocusableElement.focus();
+
+        //trap focus in modal
         focusableElements.forEach(focusableElement => {
-                focusableElement.addEventListener('keydown', (e) => {
-                    if(e.code !=='Tab') {
-                        console.log("return")
-                        return
+            focusableElement.addEventListener('keydown', (e) => {
+                if (e.code !== 'Tab') {
+                    return;
+                }
+                e.preventDefault();
+                if (e.code === 'Tab' && e.shiftKey) { //going upwards
+                    if (e.target === firstFocusableElement) { //if focus on close button => tab + shift => focus on submit button 
+                        lastFocusableElement.focus();
+                    } else {
+                        let currentIndex = focusableElements.indexOf(focusableElement);
+                        let previousIndex = currentIndex - 1;
+                        focusableElements[previousIndex].focus();
                     }
-                    console.log("not return")
-                    if (e.code === 'Tab' && e.shiftKey) {   //je monte
-                        if (e.target === focusableElements[0]) { // si je suis le premier je passe au dernier
-                          e.preventDefault();
-                          lastFocusableElement.focus();
-                        } else {
-                            e.preventDefault();
+                } else if (e.target === lastFocusableElement) { //going downwards
+                    firstFocusableElement.focus(); //if focus on submit button => tab => focus on close button
+                } else {
+                    let currentIndex = focusableElements.indexOf(focusableElement);
+                    let nextIndex = currentIndex + 1;
+                    focusableElements[nextIndex].focus();
+                }
+            });
 
-                            let currentIndex = focusableElements.indexOf(focusableElement)
-                            let previousIndex = currentIndex - 1;
-                            focusableElements[previousIndex].focus();
-
-
-                        }
-                    } else if (e.target === lastFocusableElement) {
-                        console.log("tu passes ici")
-                        e.preventDefault();
-                        focusableElements[0].focus();
-                    } else { //Tab
-                        e.preventDefault();
-                        console.log("tu ne fais rien patate")
-
-                        let currentIndex = focusableElements.indexOf(focusableElement)
-                        let nextIndex = currentIndex + 1
-                        focusableElements[nextIndex].focus();
-                    }
-                })
-            
         });
-    
     }
 
     hideContactModal() {
