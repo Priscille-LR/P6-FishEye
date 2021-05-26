@@ -1,4 +1,5 @@
 import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
+import { Utils } from "../utils/Utils";
 
 const body = document.getElementById("photographer-page");
 const main = document.getElementById('app');
@@ -169,6 +170,12 @@ export class ContactModal {
 
         closeButton.addEventListener('click', () => this.hideContactModal());
 
+        closeButton.addEventListener('keydown',(e) => {
+            if(e.code === 'Enter') {
+                this.hideContactModal();
+            }
+        })
+
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Escape') {
                 this.hideContactModal();
@@ -219,41 +226,11 @@ export class ContactModal {
         const secondFocusableElement = this.focusableElements[1]; //first fieldset
         const lastFocusableElement = this.focusableElements[this.focusableElements.length - 1]; //submit button
 
-        //return if no focusable element
-        if (!secondFocusableElement) {
-            return;
-        }
-
         //focus on first input
         secondFocusableElement.focus();
 
         //trap focus in modal
-        this.focusableElements.forEach(focusableElement => {
-            focusableElement.addEventListener('keydown', (e) => {
-                if (e.code !== 'Tab') {
-                    return;
-                }
-                e.preventDefault();
-                if (e.code === 'Tab' && e.shiftKey) { //going upwards
-                    if (e.target === firstFocusableElement) { //if focus on close button => tab + shift => focus on submit button 
-                        lastFocusableElement.focus();
-                    } else {
-                        let currentIndex = this.focusableElements.indexOf(focusableElement);
-                        let previousIndex = currentIndex - 1;
-                        this.focusableElements[previousIndex].focus();
-                    }
-                } else if (e.code === 'Tab') {
-                    if (e.target === lastFocusableElement) { //going downwards
-                        firstFocusableElement.focus(); //if focus on submit button => tab => focus on close button
-                    } else {
-                        let currentIndex = this.focusableElements.indexOf(focusableElement);
-                        let nextIndex = currentIndex + 1;
-                        this.focusableElements[nextIndex].focus();
-                    }
-                }
-            });
-
-        });
+        Utils.trapFocusInModal(this.focusableElements, firstFocusableElement, lastFocusableElement)
     }
 
     hideContactModal() {

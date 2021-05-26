@@ -68,24 +68,6 @@ export class LightboxMedia {
 
     }
 
-    eventOnClose() {
-        const closeButton = document.querySelector('.close_button_lightbox');
-
-        closeButton.addEventListener('click', () => this.hideLightboxMedia());
-
-        closeButton.addEventListener('keydown',(e) => {
-            if(e.code === 'Enter') {
-                this.hideLightboxMedia();
-            }
-        })
-
-        document.addEventListener('keydown', (e) => { //TODO
-            if (e.code === 'Escape') {
-                this.hideLightboxMedia();
-            }
-        });
-    }
-
     createNavButton(buttonClass, buttonIcon, accessibleName) {
         const button = document.createElement('button');
         button.className = buttonClass;
@@ -102,6 +84,7 @@ export class LightboxMedia {
         lightboxBody.appendChild(previousButton);
         lightboxBody.appendChild(nextButton);
 
+        //add buttons to focusable elements array
         this.focusableElements.push(previousButton);
         this.focusableElements.push(nextButton);
     }
@@ -119,8 +102,24 @@ export class LightboxMedia {
             this.showNextMedia(lightboxBody, nextButton);
         });
 
-        this.handleKeyboardNav();
+        this.handleKeyboardNav(lightboxBody);
 
+    }
+
+    showPreviousMedia(lightboxBody, previousButton) {
+        const currentIndex = this.mediaList.indexOf(this.medium);
+        const newIndex = currentIndex - 1;
+
+        const nextButton = lightboxBody.querySelector('.next_button');
+        nextButton.style.display = "block";
+
+        if (newIndex >= 0) {
+            this.showLightboxMedia(this.mediaList[newIndex], this.currentPhotographer, this.mediaList);
+        }
+
+        if (newIndex == 0) {
+            previousButton.style.display = "none";
+        }
     }
 
     showNextMedia(lightboxBody, nextButton) {
@@ -139,19 +138,37 @@ export class LightboxMedia {
         }
     }
 
-    showPreviousMedia(lightboxBody, previousButton) {
-        const currentIndex = this.mediaList.indexOf(this.medium);
-        const newIndex = currentIndex - 1;
+    handleKeyboardNav(lightboxBody) {
+        const firstFocusableElement = this.focusableElements[0]; //close button
+        const secondFocusableElement = this.focusableElements[1]; //previous button
+        const lastFocusableElement = this.focusableElements[2]; //next button
 
-        const nextButton = lightboxBody.querySelector('.next_button');
-        nextButton.style.display = "block";
-        if (newIndex >= 0) {
-            this.showLightboxMedia(this.mediaList[newIndex], this.currentPhotographer, this.mediaList);
-        }
+        const lightboxMedia = document.querySelector('.lightbox_media');
 
-        if (newIndex == 0) {
-            previousButton.style.display = "none";
-        }
+        //navigate with left & right arrows
+        lightboxMedia.addEventListener('keydown', (e) => {
+            if (e.code === 'ArrowLeft') {
+                this.showPreviousMedia(lightboxBody, secondFocusableElement);
+            } else if (e.code === 'ArrowRight') {
+                this.showNextMedia(lightboxBody, lastFocusableElement);
+            }
+        });
+
+        //navigate with tab + enter
+        secondFocusableElement.addEventListener('keydown', (e) => {
+            if(e.code === 'Enter') {
+                this.showPreviousMedia(lightboxBody, secondFocusableElement);
+            }
+        })
+
+        lastFocusableElement.addEventListener('keydown', (e) => {
+            if(e.code === 'Enter') {
+                this.showNextMedia(lightboxBody, lastFocusableElement);
+            }
+        })
+        
+        //trap focus in modal
+        Utils.trapFocusInModal(this.focusableElements, firstFocusableElement, lastFocusableElement);
     }
 
     appendMediumBox(lightboxBody) {
@@ -168,79 +185,54 @@ export class LightboxMedia {
     }
 
     showLightboxMedia(medium, currentPhotographer, mediaList) {
-        const lightboxMedia = document.querySelector('.lightbox_media');
         this.mediaList = mediaList;
         this.medium = medium;
+        
         Utils.removeChildOf('.medium_box', 'lightbox_medium');
-
-        const mediumTitle = document.querySelector('.lightbox_title');
-        mediumTitle.innerHTML = medium.getTitle();
-
-        const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, "lightbox_medium", true);
-        lightboxMedium.querySelector(".lightbox_medium__miniature").tabIndex = "-1"
-        document.querySelector('.medium_box').insertBefore(lightboxMedium, mediumTitle);
-
+        
+        //display lightbox
+        const lightboxMedia = document.querySelector('.lightbox_media');
         this.lightboxMedia.style.display = "flex";
 
         main.setAttribute('aria-hidden', 'true');
         lightboxMedia.setAttribute('aria-hidden', 'false');
 
-        this.setFocus();
-    }
+        //add title dynamically
+        const mediumTitle = document.querySelector('.lightbox_title');
+        mediumTitle.innerHTML = medium.getTitle();
 
-    setFocus() {
-        const previousButton = this.focusableElements[0];
-        previousButton.focus();
-    }
+        //display medium 
+        const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, "lightbox_medium", true);
+        lightboxMedium.querySelector(".lightbox_medium__miniature").tabIndex = "-1"
+        document.querySelector('.medium_box').insertBefore(lightboxMedium, mediumTitle);
 
-    handleKeyboardNav() {
+        //focus on close button
         const closeButton = this.focusableElements[0];
-        const previousButton = this.focusableElements[1];
-        const nextButton = this.focusableElements[2];
-        const lightboxMedia = document.querySelector('.lightbox_media');
+        closeButton.focus();
+    }
 
-        //navigate with left & right arrows
-        lightboxMedia.addEventListener('keydown', (e) => {
-            const ligthboxBody = document.querySelector('.lightbox_media__body');
-            if (e.code === 'ArrowLeft') {
-                this.showPreviousMedia(ligthboxBody, previousButton);
-            } else if (e.code === 'ArrowRight') {
-                this.showNextMedia(ligthboxBody, nextButton);
+    eventOnClose() {
+        const closeButton = document.querySelector('.close_button_lightbox');
+
+        closeButton.addEventListener('click', () => this.hideLightboxMedia());
+
+        closeButton.addEventListener('keydown',(e) => {
+            if(e.code === 'Enter') {
+                this.hideLightboxMedia();
             }
+        })
 
+        document.addEventListener('keydown', (e) => { //TODO
+            if (e.code === 'Escape') {
+                this.hideLightboxMedia();
+            }
         });
-        
-        //trap focus in modal
-        this.focusableElements.forEach(focusableElement => {
-            focusableElement.addEventListener('keydown', (e) => {
-                e.preventDefault();
-
-                if (e.code === 'Tab' && e.shiftKey) { //going upwards
-                    if (e.target === closeButton) { //if focus on close button => tab + shift => focus on submit button 
-                        nextButton.focus();
-                    } else {
-                        let currentIndex = this.focusableElements.indexOf(focusableElement);
-                        let previousIndex = currentIndex - 1;
-                        this.focusableElements[previousIndex].focus();
-                    }
-                } else if(e.code === 'Tab') {
-                    if (e.target === nextButton) { //going downwards
-                        closeButton.focus(); //if focus on submit button => tab => focus on close button
-                    } else {
-                        let currentIndex = this.focusableElements.indexOf(focusableElement);
-                        let nextIndex = currentIndex + 1;
-                        this.focusableElements[nextIndex].focus();
-                    }
-                }
-            });
-        });
-
-        
     }
 
     hideLightboxMedia() {
         const lightboxMedia = document.querySelector('.lightbox_media');
         this.lightboxMedia.style.display = "none";
+        
         main.setAttribute('aria-hidden', 'false');
         lightboxMedia.setAttribute('aria-hidden', 'true');
     }
