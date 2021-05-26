@@ -32,6 +32,7 @@ export class MediaFactory {
         mediumThumbnail.className = className;
         mediumThumbnail.ariaLabel = medium.getTitle();
 
+        
         const mediumType = medium.getMediumType();
 
         let mediumSource = String(medium.getSource());
@@ -60,7 +61,7 @@ export class MediaFactory {
         }
         media.className = `${className}__miniature`;
         media.alt = medium.getTitle();
-        media.tabIndex = 0;
+        media.tabIndex = "0";
         mediumThumbnail.appendChild(media);
         return mediumThumbnail;
     }

@@ -84,7 +84,7 @@
     }
   }
 
-  .formData[data-error]::after {
+  .fieldset[data-error]::after {
     content: attr(data-error);
     font-size: 18px;
     font-weight: 700;
@@ -95,10 +95,10 @@
     opacity: 0;
     transition: 0.3s;
   }
-  .formData[data-error-visible="true"]::after {
+  .fieldset[data-error-visible="true"]::after {
     opacity: 1;
   }
-  .formData[data-error-visible="true"] .input_field {
+  .fieldset[data-error-visible="true"] .input_field {
     border: 2px solid $color-primary;
   }
 }

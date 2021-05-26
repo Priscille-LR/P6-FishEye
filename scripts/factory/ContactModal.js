@@ -1,10 +1,9 @@
 import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
 
-//const body = document.getElementById("photographer-page");
+const body = document.getElementById("photographer-page");
 const main = document.getElementById('app');
 
 
-const focusableElements = [];
 
 export class ContactModal {
     /**
@@ -13,6 +12,7 @@ export class ContactModal {
      */
     constructor(currentPhotographer) {
         this.currentPhotographer = currentPhotographer;
+        this.focusableElements = [];
     }
 
     //modal creation 
@@ -38,9 +38,9 @@ export class ContactModal {
             </button>     
         </div> 
         `;
-        document.getElementById("photographer-page").appendChild(contactModal);
+        body.appendChild(contactModal);
 
-        focusableElements.push(document.getElementById('close_contact_modal'));
+        this.focusableElements.push(document.getElementById('close_contact_modal'));
 
         this.contactModal = document.querySelector('.contact_modal')
 
@@ -112,7 +112,7 @@ export class ContactModal {
         inputField.tabIndex = '-1';
         inputField.setAttribute("id", id);
 
-        focusableElements.push(inputField);
+        this.focusableElements.push(inputField);
         return inputField;
     }
 
@@ -122,7 +122,7 @@ export class ContactModal {
         textAreaInput.setAttribute("id", id);
         textAreaInput.tabIndex = "-1";
         textAreaInput.setAttribute("rows", 5);
-        focusableElements.push(textAreaInput);
+        this.focusableElements.push(textAreaInput);
         return textAreaInput;
     }
 
@@ -134,7 +134,7 @@ export class ContactModal {
         modalButton.tabIndex = "-1";
         modalButton.innerHTML = `Envoyer`;
 
-        focusableElements.push(modalButton);
+        this.focusableElements.push(modalButton);
 
         this.eventOnSubmit(modalButton, modalBody);
 
@@ -166,6 +166,7 @@ export class ContactModal {
 
     eventOnClose() {
         const closeButton = document.querySelector('.close_button');
+
         closeButton.addEventListener('click', () => this.hideContactModal());
 
         document.addEventListener('keydown', (e) => {
@@ -214,9 +215,9 @@ export class ContactModal {
     }
 
     keepFocusInModal() {
-        const firstFocusableElement = focusableElements[0]; // close button
-        const secondFocusableElement = focusableElements[1]; //first fieldset
-        const lastFocusableElement = focusableElements[focusableElements.length - 1]; //submit button
+        const firstFocusableElement = this.focusableElements[0]; // close button
+        const secondFocusableElement = this.focusableElements[1]; //first fieldset
+        const lastFocusableElement = this.focusableElements[this.focusableElements.length - 1]; //submit button
 
         //return if no focusable element
         if (!secondFocusableElement) {
@@ -227,7 +228,7 @@ export class ContactModal {
         secondFocusableElement.focus();
 
         //trap focus in modal
-        focusableElements.forEach(focusableElement => {
+        this.focusableElements.forEach(focusableElement => {
             focusableElement.addEventListener('keydown', (e) => {
                 if (e.code !== 'Tab') {
                     return;
@@ -237,16 +238,18 @@ export class ContactModal {
                     if (e.target === firstFocusableElement) { //if focus on close button => tab + shift => focus on submit button 
                         lastFocusableElement.focus();
                     } else {
-                        let currentIndex = focusableElements.indexOf(focusableElement);
+                        let currentIndex = this.focusableElements.indexOf(focusableElement);
                         let previousIndex = currentIndex - 1;
-                        focusableElements[previousIndex].focus();
+                        this.focusableElements[previousIndex].focus();
                     }
-                } else if (e.target === lastFocusableElement) { //going downwards
-                    firstFocusableElement.focus(); //if focus on submit button => tab => focus on close button
-                } else {
-                    let currentIndex = focusableElements.indexOf(focusableElement);
-                    let nextIndex = currentIndex + 1;
-                    focusableElements[nextIndex].focus();
+                } else if (e.code === 'Tab') {
+                    if (e.target === lastFocusableElement) { //going downwards
+                        firstFocusableElement.focus(); //if focus on submit button => tab => focus on close button
+                    } else {
+                        let currentIndex = this.focusableElements.indexOf(focusableElement);
+                        let nextIndex = currentIndex + 1;
+                        this.focusableElements[nextIndex].focus();
+                    }
                 }
             });
 

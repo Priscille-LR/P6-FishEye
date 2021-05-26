@@ -163,7 +163,6 @@ export class PhotographerPageBuilder {
         this.activeTags.forEach(clickedPhotographerTag => {
             this.mediaList.forEach(medium => {
                 medium.getTags().forEach(tag => {
-                    console.log(tag)
                     if (tag == clickedPhotographerTag) {
                         this.selectedMedia.push(medium)
                     }
@@ -366,11 +365,16 @@ export class PhotographerPageBuilder {
             }
         })
 
-        mediumThumbnailMiniature.addEventListener('click', () => {
-            if (this.selectedMedia.length == 0) {
-                this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.mediaList)
-            } else {
-                this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.selectedMedia)
+        //to change
+        mediumThumbnailMiniature.addEventListener('keydown', (e) => {
+            
+            if(e.code === 'Enter') {
+                e.preventDefault()
+                if (this.selectedMedia.length == 0) {
+                    this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.mediaList)
+                } else {
+                    this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.selectedMedia)
+                }
             }
         })
 
