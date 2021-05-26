@@ -95,18 +95,18 @@ export class LightboxMedia {
         const nextButton = lightboxBody.querySelector('.next_button');
 
         previousButton.addEventListener('click', () => {
-            this.showPreviousMedia(lightboxBody, previousButton);
+            this.showPreviousMedium(lightboxBody, previousButton);
         });
 
         nextButton.addEventListener('click', () => {
-            this.showNextMedia(lightboxBody, nextButton);
+            this.showNextMedium(lightboxBody, nextButton);
         });
 
         this.handleKeyboardNav(lightboxBody);
 
     }
 
-    showPreviousMedia(lightboxBody, previousButton) {
+    showPreviousMedium(lightboxBody, previousButton) {
         const currentIndex = this.mediaList.indexOf(this.medium);
         const newIndex = currentIndex - 1;
 
@@ -122,7 +122,7 @@ export class LightboxMedia {
         }
     }
 
-    showNextMedia(lightboxBody, nextButton) {
+    showNextMedium(lightboxBody, nextButton) {
         const currentIndex = this.mediaList.indexOf(this.medium);
         const newIndex = currentIndex + 1;
 
@@ -148,22 +148,22 @@ export class LightboxMedia {
         //navigate with left & right arrows
         lightboxMedia.addEventListener('keydown', (e) => {
             if (e.code === 'ArrowLeft') {
-                this.showPreviousMedia(lightboxBody, secondFocusableElement);
+                this.showPreviousMedium(lightboxBody, secondFocusableElement);
             } else if (e.code === 'ArrowRight') {
-                this.showNextMedia(lightboxBody, lastFocusableElement);
+                this.showNextMedium(lightboxBody, lastFocusableElement);
             }
         });
 
         //navigate with tab + enter
         secondFocusableElement.addEventListener('keydown', (e) => {
             if(e.code === 'Enter') {
-                this.showPreviousMedia(lightboxBody, secondFocusableElement);
+                this.showPreviousMedium(lightboxBody, secondFocusableElement);
             }
         })
 
         lastFocusableElement.addEventListener('keydown', (e) => {
             if(e.code === 'Enter') {
-                this.showNextMedia(lightboxBody, lastFocusableElement);
+                this.showNextMedium(lightboxBody, lastFocusableElement);
             }
         })
         
@@ -205,6 +205,23 @@ export class LightboxMedia {
         const lightboxMedium = this.mediaFactory.createMediumDisplay(medium, currentPhotographer, "lightbox_medium", true);
         lightboxMedium.querySelector(".lightbox_medium__miniature").tabIndex = "-1"
         document.querySelector('.medium_box').insertBefore(lightboxMedium, mediumTitle);
+
+        //if first medium is displayed, hide previous button;
+        //if last one, hide next button
+        const previousButton = document.querySelector('.previous_button');
+        const nextButton = document.querySelector('.next_button');
+
+        if(this.mediaList.indexOf(this.medium) == 0) {
+            previousButton.style.display = "none";  
+        } else {
+            previousButton.style.display = "block";
+        }
+
+        if (this.mediaList.indexOf(this.medium) == this.mediaList.length - 1) {
+            nextButton.style.display = "none";
+        } else {
+            nextButton.style.display = "block";
+        }
 
         //focus on close button
         const closeButton = this.focusableElements[0];

@@ -193,8 +193,8 @@ export class PhotographerPageBuilder {
         const dropdown = document.querySelector('.dropdown');
         const dropdrownTrigger = document.querySelector('.dropdown__trigger');
         const dropdrownItems = document.querySelectorAll('.dropdown__content__item');
-        const firstDropdrownItem = document.querySelector('.dropdown a:first-child');
-        const lastDropdrownItem = document.querySelector('.dropdown a:last-child');
+        const secondDropdownItem = dropdrownItems[1];
+        const lastDropdownItem = dropdrownItems[2];
 
         for (const dropdrownItem of dropdrownItems) {
             dropdrownItem.addEventListener('click', () => {
@@ -216,21 +216,20 @@ export class PhotographerPageBuilder {
         })
 
         dropdrownTrigger.addEventListener('keydown', (e) => {
-            if(dropdown.classList.contains('open')) {
+            if((dropdown.classList.contains('open')) && (e.code === 'Enter')) {
                 this.closeDropdown();
             } else if (e.code === 'Enter') {
                 this.openDropdown();
             }
         })
 
-        firstDropdrownItem.addEventListener('keydown', (e) => {
+        secondDropdownItem.addEventListener('keydown', (e) => {
             if(e.code === 'Tab' && e.shiftKey) {
-                    this.closeDropdown()
+                this.closeDropdown()
             }
         })
 
-
-        lastDropdrownItem.addEventListener('keydown', (e) => {
+        lastDropdownItem.addEventListener('keydown', (e) => {
             if(e.code === 'Tab' && !e.shiftKey) {
                 this.closeDropdown()
             }
@@ -259,8 +258,7 @@ export class PhotographerPageBuilder {
 
     dropdownEvent(dropdrownItem, dropdown) {
         if (!dropdrownItem.classList.contains('selected')) {
-            const selectedItem = dropdrownItem.querySelector('.dropdown__content__item.selected');
-           
+            const selectedItem = dropdown.querySelector('.dropdown__content__item.selected');
 
             selectedItem.classList.remove('selected');
             dropdrownItem.classList.add('selected');
@@ -357,27 +355,26 @@ export class PhotographerPageBuilder {
 
         const mediumThumbnailMiniature = mediumThumbnail.querySelector('.medium_thumbnail__miniature');
 
-        mediumThumbnailMiniature.addEventListener('click', () => {
-            if (this.selectedMedia.length == 0) {
-                this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.mediaList)
-            } else {
-                this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.selectedMedia)
-            }
+        mediumThumbnailMiniature.addEventListener('click', (e) => {
+            this.displayMedium(e, medium);
         })
 
-        //to change
         mediumThumbnailMiniature.addEventListener('keydown', (e) => {
-            
             if(e.code === 'Enter') {
-                e.preventDefault()
-                if (this.selectedMedia.length == 0) {
-                    this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.mediaList)
-                } else {
-                    this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.selectedMedia)
-                }
+                this.displayMedium(e, medium);
             }
         })
 
         this.incrementNumberOfLikes(mediumThumbnail);
     }    
+
+
+    displayMedium(e, medium) {
+        e.preventDefault();
+        if (this.selectedMedia.length == 0) {
+            this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.mediaList);
+        } else {
+            this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.selectedMedia);
+        }
+    }
 }
