@@ -2,6 +2,10 @@ import { Utils } from "../utils/Utils";
 import { Tags } from "./Tags";
 import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
 import { HomePageModel } from "../models/HomePageModel";
+
+const body = document.getElementById("page");
+const main = document.getElementById('app');
+
 export class HomePageBuilder {
     /**
      * 
@@ -19,8 +23,8 @@ export class HomePageBuilder {
                 this.photographers = homePageModel.photographersList
                 this.allTags = homePageModel.tagsList
 
-                this.renderHeader()
-                this.renderMain(this.photographers)
+                this.renderHeader();
+                this.renderMain(this.photographers);
             })
     }
 
@@ -33,14 +37,26 @@ export class HomePageBuilder {
         <a class="logo" href="/">
             <img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />
         </a>
-        <a class="go_main" href="#app">Passer au contenu</a>
+        <a class="go_main" href="#app" aria-label="go to main content" tabindex="0">Passer au contenu</a>
         <nav class="main_nav" role="navigation" aria-label="photographers categories">
         </nav>
         `;
         this.renderNavTags(header.querySelector(".main_nav"))
 
-        const main = document.getElementById('app');
-        document.querySelector('body').insertBefore(header, main);
+        body.insertBefore(header, main);
+
+        this.onScrollEvent();
+    }
+
+    //go to main button is diplayed if user scrolls on page
+    onScrollEvent() {
+        const goMainButton = document.querySelector('.go_main');
+        window.addEventListener('scroll', () => {
+            goMainButton.style.display = 'block';
+        })
+        if(window.scrollY === 0) {
+            goMainButton.style.display = 'none';
+        }
     }
 
     renderNavTags(mainNav) {
@@ -67,9 +83,9 @@ export class HomePageBuilder {
 
     sortPhotographers(photographers) {
         let selectedPhotographers = [];
-        this.activeNavTags.forEach(clickedNavTag => {
+        this.activeNavTags.forEach(activeNavTag => {
             photographers.forEach(photographer => {
-                if (photographer.getTags().includes(clickedNavTag)) {
+                if (photographer.getTags().includes(activeNavTag)) {
                     selectedPhotographers.push(photographer)
                 }
             });
@@ -95,7 +111,7 @@ export class HomePageBuilder {
         title.className = 'main_title'
         title.ariaLabel = 'photographers'
         title.innerHTML = `Nos photographes`
-        document.getElementById("app").appendChild(title)
+        main.appendChild(title)
     }
 
     createPhotographersWrapper() {

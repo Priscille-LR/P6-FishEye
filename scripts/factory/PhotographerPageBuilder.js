@@ -7,8 +7,7 @@ import { PhotographerPageModel } from "../models/PhotographerPageModel";
 import { PhotographerProfileModel } from '../models/PhotographerProfileModel';
 import { MediumModel } from '../models/MediumModel';
 
-
-const body = document.getElementById("photographer-page");
+const body = document.getElementById("page");
 const main = document.getElementById('app');
 
 export class PhotographerPageBuilder {
@@ -85,7 +84,7 @@ export class PhotographerPageBuilder {
         </a>
         `;
 
-        document.querySelector('body').insertBefore(header, main);
+        body.insertBefore(header, main);
     }
 
     renderMain() {
@@ -114,25 +113,24 @@ export class PhotographerPageBuilder {
         
         this.renderBannerTags(banner.querySelector(".tags_photographer_page"));
         
-        this.openModalOnClick(banner);
+        this.openContactModal(banner);
 
         main.appendChild(banner);
     }
 
     //contact modal opening
-    openModalOnClick(banner) {
+    openContactModal(banner) {
         const buttonContact = banner.querySelector(".button_contact");
-        const contactModal = document.querySelector('.contact_modal');
         
         buttonContact.addEventListener('click', () => {
             this.contactModal.showContactModal();
         });
         
-        // buttonContact.addEventListener('keydown', (e) => {
-        //     if(e.code === 'Enter') {
-        //         contactModal.focus();   
-        //     }
-        // })
+        buttonContact.addEventListener('keydown', (e) => {
+            if((e.code === 'Enter') || (e.code === 'Space')) {
+                this.contactModal.showContactModal();   
+            }
+        })
     }
 
     renderBannerTags(bannerTags) {

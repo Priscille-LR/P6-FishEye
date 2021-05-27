@@ -3,7 +3,7 @@ import { MediumModel } from '../models/MediumModel';
 import { PhotographerProfileModel } from '../models/PhotographerProfileModel';
 import { Utils } from '../utils/Utils';
 
-const body = document.getElementById("photographer-page");
+const body = document.getElementById("page");
 const main = document.getElementById('app');
 
 
