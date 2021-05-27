@@ -12,15 +12,17 @@ main {
 }
 
 //photographer thumbnail on home page
+.photographer_thumbnail_wrapper {
+  margin: 2rem;
+  @include desktop {
+    margin: 3rem;
+  }
+}
 .photographer_thumbnail {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 2rem;
-  @include desktop {
-    //margin: 3rem;
-  }
   &__picture {
     border-radius: 50%;
     width: 200px;

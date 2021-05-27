@@ -29,9 +29,8 @@ export class PhotographerPageBuilder {
 
     render(id) {
         this.idPhotographer = id;
-        this.isDropdownVisible = false; //dropdown menu hidden by default
         this.mediaList = [];
-        this.activeTags = [];
+        this.activePhotographerTags = [];
         this.selectedMedia = [];
         this.mediaFactory = new MediaFactory();
 
@@ -72,6 +71,7 @@ export class PhotographerPageBuilder {
                 this.mediaList.push(medium);
             }
         });
+        this.selectedMedia = this.mediaList
     }
 
     renderHeader() {
@@ -133,55 +133,50 @@ export class PhotographerPageBuilder {
         //         contactModal.focus();   
         //     }
         // })
-        //body.classList.add('no-scroll');
-        //header.setAttribute('scroll', 'true');
-        //mainApp.setAttribute('aria-hidden', 'true');
-        //body.setAttribute('aria-hidden', 'true');
-        //contactModal.setAttribute('aria-hidden', 'false');
     }
 
     renderBannerTags(bannerTags) {
         const tags = new Tags(this.currentPhotographer.getTags());
         tags.appendTags(bannerTags, 'photographer_tags__item')
-        tags.addEventOnChange(bannerTags, (isChecked, tag) => this.handleTagClick(isChecked, tag));
+        tags.addEventOnChange(bannerTags, (isChecked, tagId) => this.handleTagClick(isChecked, tagId));
     }
 
-    handleTagClick(isChecked, tag) {
+    handleTagClick(isChecked, tagId) {
+        const checkboxTag = document.getElementById(tagId);
         if (isChecked) {
-            this.activeTags.push(tag);
-            this.activeTags = [...new Set(this.activeTags)];
+            checkboxTag.setAttribute('aria-checked', 'true');
+            this.activePhotographerTags.push(tagId);
+            this.activePhotographerTags = [...new Set(this.activePhotographerTags)];
         } else {
-            const currentIndex = this.activeTags.indexOf(tag);
-            this.activeTags.splice(currentIndex, 1);
+            checkboxTag.setAttribute('aria-checked', 'false');
+            const currentIndex = this.activePhotographerTags.indexOf(tagId);
+            this.activePhotographerTags.splice(currentIndex, 1);
         }
         Utils.removeChildOf("#app", "medium_thumbnail");
         this.sortMedia()
     }
 
+    //sort media when medium tag = active photographer tag
     sortMedia() {
         this.selectedMedia = [];
-        this.activeTags.forEach(clickedPhotographerTag => {
+        this.activePhotographerTags.forEach(activePhotographerTag => {
             this.mediaList.forEach(medium => {
                 medium.getTags().forEach(tag => {
-                    if (tag == clickedPhotographerTag) {
+                    if (tag == activePhotographerTag) {
                         this.selectedMedia.push(medium)
                     }
                 })
             });
         });
 
-        if (this.selectedMedia.length == 0) {
-            this.mediaList.forEach(medium => {
-                this.createMediumThumbnail(medium)
-
-            });
-        } else {
-            this.selectedMedia = [...new Set(this.selectedMedia)];
-
-            this.selectedMedia.forEach(selectedMedium => {
-                this.createMediumThumbnail(selectedMedium);
-            });
+        if (this.selectedMedia.length == 0) { //if there are no media selected => display all thumbnails
+            this.selectedMedia = this.mediaList
+        } else { //display selected media only 
+            this.selectedMedia = [...new Set(this.selectedMedia)]; //remove duplicates
         }
+
+        const selectedItem = document.querySelector('.dropdown__content__item.selected'); 
+        this.handleDropdownItemClick(selectedItem) //double sort => sort according to dropdown filter
     }
 
 
@@ -207,6 +202,7 @@ export class PhotographerPageBuilder {
             })
         }
 
+        //handle dropdown opening and closing with keayboard nav
         dropdrownTrigger.addEventListener('click', () => {
             if(dropdown.classList.contains('open')) {
                 this.closeDropdown();
@@ -291,21 +287,23 @@ export class PhotographerPageBuilder {
 
     sortBy(sortType) {
         let sortedMedia = null;
+
         switch (sortType) {
             case this.SortEnum.DATE:
-                sortedMedia = this.mediaList.sort((a, b) => new Date(b.getDate()) - new Date(a.getDate()));
+                sortedMedia = this.selectedMedia.sort((a, b) => new Date(b.getDate()) - new Date(a.getDate()));
                 break;
             case this.SortEnum.POPULARITY:
-                sortedMedia = this.mediaList.sort((a, b) => b.getLikes() - a.getLikes());
+                sortedMedia = this.selectedMedia.sort((a, b) => b.getLikes() - a.getLikes());
                 break;
             case this.SortEnum.TITLE:
-                sortedMedia = this.mediaList.sort((a, b) => a.getTitle().localeCompare(b.getTitle(), 'fr'));
+                sortedMedia = this.selectedMedia.sort((a, b) => a.getTitle().localeCompare(b.getTitle(), 'fr'));
                 break;
         }
         sortedMedia.forEach(sortedMedium => {
             this.createMediumThumbnail(sortedMedium)
         })
     }
+
     
 
     //sticker photographer total number of likes and price
@@ -328,7 +326,7 @@ export class PhotographerPageBuilder {
 
     }
 
-    incrementNumberOfLikes(mediumThumbnail) {
+    handleLikeButton(mediumThumbnail) {
         const likeButton = mediumThumbnail.querySelector('.checkbox__input');
         const mediumLikes = mediumThumbnail.querySelector('.medium_number_of_likes');
         const totalLikes = document.querySelector('.total_number_of_likes');
@@ -350,26 +348,24 @@ export class PhotographerPageBuilder {
      */
     createMediumThumbnail(medium) {
         const mediumThumbnail = this.mediaFactory.renderMedium(medium, this.currentPhotographer);
-
         main.appendChild(mediumThumbnail);
 
         const mediumThumbnailMiniature = mediumThumbnail.querySelector('.medium_thumbnail__miniature');
-
         mediumThumbnailMiniature.addEventListener('click', (e) => {
-            this.displayMedium(e, medium);
+            this.displayMediumInLightbox(e, medium);
         })
 
         mediumThumbnailMiniature.addEventListener('keydown', (e) => {
             if(e.code === 'Enter') {
-                this.displayMedium(e, medium);
+                this.displayMediumInLightbox(e, medium);
             }
         })
 
-        this.incrementNumberOfLikes(mediumThumbnail);
+        this.handleLikeButton(mediumThumbnail);
     }    
 
 
-    displayMedium(e, medium) {
+    displayMediumInLightbox(e, medium) {
         e.preventDefault();
         if (this.selectedMedia.length == 0) {
             this.lightboxMedia.showLightboxMedia(medium, this.currentPhotographer, this.mediaList);

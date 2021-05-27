@@ -22,10 +22,9 @@ export class Tags {
             checkboxTag.type = "checkbox";
             checkboxTag.className = "tag_checkbox";
             checkboxTag.id = tag;
-            //checkboxTag.setAttribute = ("aria-labelledby", `#${tag}`);
-            checkboxTag.ariaLabelledBy = `#${tag}`;
+            checkboxTag.setAttribute("aria-labelledby", tag);
             checkboxTag.ariaChecked = "false";
-            checkboxTag.tabIndex = 0;
+            checkboxTag.tabIndex = '0';
             tagItem.appendChild(checkboxTag);
 
             const labelTag = document.createElement('label');

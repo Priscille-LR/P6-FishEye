@@ -9,7 +9,7 @@ export class HomePageBuilder {
      */
     constructor(homePageModel) {
         this.homePageModelPromise = homePageModel
-        this.clickedNavTags = [];
+        this.activeNavTags = [];
     }
 
     //display header and main (home page)
@@ -46,25 +46,28 @@ export class HomePageBuilder {
     renderNavTags(mainNav) {
         const tags = new Tags(this.allTags)
         tags.appendTags(mainNav, 'main_nav__item');
-        tags.addEventOnChange(mainNav, (isChecked, tag) => this.handleTagClick(isChecked, tag));
+        tags.addEventOnChange(mainNav, (isChecked, tagId) => this.handleTagClick(isChecked, tagId));
     }
 
-    handleTagClick(isChecked, tag) {
+    handleTagClick(isChecked, tagId) {
+        const checkboxTag = document.getElementById(tagId);
         if (isChecked) {
-            this.clickedNavTags.push(tag);
-            this.clickedNavTags = [...new Set(this.clickedNavTags)];
+            checkboxTag.setAttribute('aria-checked', 'true');
+            this.activeNavTags.push(tagId);
+            this.activeNavTags = [...new Set(this.activeNavTags)];
         } else {
-            const currentIndex = this.clickedNavTags.indexOf(tag);
-            this.clickedNavTags.splice(currentIndex, 1);
+            checkboxTag.setAttribute('aria-checked', 'false');
+            const currentIndex = this.activeNavTags.indexOf(tagId);
+            this.activeNavTags.splice(currentIndex, 1); //remove tag from active tags
         }
         
-        Utils.removeChildOf(".photographers", "article")
+        Utils.removeChildOf(".photographers", "photographer_thumbnail_wrapper")
         this.sortPhotographers(this.photographers)
     }
 
     sortPhotographers(photographers) {
         let selectedPhotographers = [];
-        this.clickedNavTags.forEach(clickedNavTag => {
+        this.activeNavTags.forEach(clickedNavTag => {
             photographers.forEach(photographer => {
                 if (photographer.getTags().includes(clickedNavTag)) {
                     selectedPhotographers.push(photographer)
@@ -72,7 +75,7 @@ export class HomePageBuilder {
             });
         });
 
-        if (this.clickedNavTags.length == 0) {
+        if (this.activeNavTags.length == 0) {
             this.createArticle(photographers)
         } else {
             selectedPhotographers = [...new Set(selectedPhotographers)];
@@ -111,9 +114,9 @@ export class HomePageBuilder {
         photographers.forEach(photographer => {
 
             const article = document.createElement('article')
-            article.className = 'article';
+            article.className = 'photographer_thumbnail_wrapper';
             article.innerHTML = `<a class="photographer_thumbnail" href="/photographers-profile/${photographer.getId()}" aria-label="${photographer.getName()}">`;
-
+            article.ariaLabel = `${photographer.getName()}`;
             this.appendPhotographerThumbnailPicture(article, photographer);
             this.appendPhotographerThumbnailContent(article, photographer);
 

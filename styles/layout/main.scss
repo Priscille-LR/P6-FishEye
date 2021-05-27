@@ -36,11 +36,9 @@ main {
     align-items: center;
     flex-wrap: nowrap;
     @include desktop {
-      display: grid;
-      grid-template-columns: repeat(3, 33%);
-      // flex-direction: row;
-      // flex-wrap: wrap;
-      // justify-content: center;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     article {
         @include desktop {
