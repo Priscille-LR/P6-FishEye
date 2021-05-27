@@ -1,5 +1,4 @@
 import { HomePageModel } from "../models/HomePageModel";
-import { MediumModel } from "./MediumModel";
 import { PhotographerPageModel } from "./PhotographerPageModel";
 
 

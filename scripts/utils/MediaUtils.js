@@ -6,18 +6,6 @@ export const mediaEnum = {
 
 export class MediaUtils {
 
-    // static getMediaTitle(medium) {
-    //     let tmpMedium = this.getMediaSource(medium)
-    //     let mediumTitle = tmpMedium.toLowerCase();
-    //     let mediumTitleArray = mediumTitle.split(".");
-    //     mediumTitle = mediumTitleArray[0];
-    //     mediumTitleArray = mediumTitle.split("_");
-    //     mediumTitle = mediumTitleArray.shift(); //remove 1st element in array 
-    //     mediumTitle = mediumTitleArray.join(" "); //add elements of array into a string
-    //     mediumTitle = mediumTitle.charAt(0).toUpperCase() + mediumTitle.slice(1);
-    //     return mediumTitle;
-    // }
-
     static getMediaSource(medium) {
         let source = medium.image;
         if (source == null) {

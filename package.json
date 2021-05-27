@@ -26,6 +26,8 @@
     "javascript": "^1.0.0"
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.27.0",
     "parcel-plugin-static-files-copy": "^2.6.0",
     "sass": "^1.32.12"
   },
