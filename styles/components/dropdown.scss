@@ -1,7 +1,7 @@
-@import "../utils/variables.scss";
-@import "../utils/mixins.scss";
+@import '../utils/variables.scss';
+@import '../utils/mixins.scss';
 
-.dropdown_menu {
+.dropdown_wrapper {
   display: none;
   @include desktop {
     display: flex;
@@ -12,41 +12,73 @@
       font-size: 18px;
       font-weight: bold;
     }
-    .dropdown {
-      background-color: $color-primary;
+
+    .dropdown__trigger {
+      position: relative;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
       width: 170px;
+      height: 70px;
+      background: $color-primary;
       border-radius: 5px;
+      color: #ffffff;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .expand {
+      position: relative;
+      width: 15px;
+      height: 15px;
+      color: #ffffff;
+    }
+
+    .dropdown {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 170px;
       margin: 2rem;
-      &__button {
-        width: 170px;
-        height: 70px;
-        background: none;
-        border: none;
-        color: #fff;
-        font-size: 18px;
-      }
       &__content {
-        display: none;
         position: absolute;
+        display: block;
+        top: 100%;
+        left: 0;
+        right: 0;
         background-color: $color-primary;
-        width: inherit;
-        height: inherit;
-        & ::after {
-          content: "";
-          position: absolute;
-          height: 1px;
-          top: 2.7rem;
-          left: 0;
-          width: inherit;
-          background: #fff;
-        }
-        & a {
+        border-radius: 5px;
+        opacity: 0;
+        visibility: hidden;
+        &__item {
+          position: relative;
+          display: block;
           color: #fff;
           font-size: 18px;
-          padding: 0.5rem;
+          padding: 1rem;
+          cursor: pointer;
           text-decoration: none;
-          display: block;
+          &:hover,
+          &:focus {
+            text-decoration: underline;
+          }
+          &.selected {
+            display: none;
+          }
+          &:not(.selected) {
+            border-top: solid 1px white;
+          }
         }
+      }
+    }
+
+    .dropdown.open {
+      .dropdown__content {
+        opacity: 1;
+        visibility: visible;
+      }
+      .expand {
+        display: none;
       }
     }
   }

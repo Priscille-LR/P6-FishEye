@@ -12,15 +12,17 @@ main {
 }
 
 //photographer thumbnail on home page
+.photographer_thumbnail_wrapper {
+  margin: 2rem;
+  @include desktop {
+    margin: 3rem;
+  }
+}
 .photographer_thumbnail {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  //   @include desktop {
-  //       margin: 2rem;
-  //   }
   &__picture {
     border-radius: 50%;
     width: 200px;
@@ -33,23 +35,38 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: auto;
+    margin: 2rem auto;
+    @include desktop {
+      margin: 1rem auto;
+    }
     .photographer_name {
       color: $color-secondary;
-      font-size: 36px;
+      font-size: 3.5rem;
+      @include desktop {
+        font-size: 2rem;
+      }
     }
     .photographer_location {
       color: $color-primary;
-      font-size: 13px;
+      font-size: 1.8rem;
+      @include desktop {
+        font-size: 1rem;
+      }
     }
     .photographer_desc {
       color: black;
-      font-size: 11px;
+      font-size: 1.7rem;
       margin: 0.2rem;
+      @include desktop {
+        font-size: 0.8rem;
+      }
     }
     .photographer_price {
       color: #757575;
-      font-size: 10px;
+      font-size: 1.6rem;
+      @include desktop {
+        font-size: 0.7rem;
+      }
     }
   }
 }
@@ -74,14 +91,14 @@ main {
   &__item {
     text-decoration: none;
     color: $color-primary;
-    font-size: 13px;
+    font-size: 1.8rem;
     font-weight: 500;
     border-radius: 20px;
     border: solid 1px #c4c4c4;
     padding: 0.1rem 0.3rem;
     margin: 0.2rem;
     @include desktop {
-      font-size: 18px;
+      font-size: 1rem;
     }
   }
 }
@@ -92,6 +109,7 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin: 0 1rem;
   @include desktop {
     width: 350px;
     margin: 3rem;
@@ -112,36 +130,83 @@ main {
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0.3rem 0;
     .price_and_likes {
       display: flex;
       align-items: center;
-      justify-content: space-around;
+      justify-content: space-between;
     }
     .medium_title,
     .medium_price,
     .medium_number_of_likes {
       color: $color-primary;
       font-size: 14px;
-      margin: 0.4rem;
+      //margin: 0.4rem;
       @include desktop {
         font-size: 24px;
       }
     }
     .medium_title {
+      margin: 0;
+      overflow: hidden;
+      white-space: nowrap;
       text-overflow: ellipsis;
+    }
+    .medium_price {
+      margin: 0 0.3rem;
+    }
+  }
+
+.likes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  //margin: 0.5rem;
+  &:focus-within {
+    border :  2px solid orange;
+  }
+}
+  .checkbox__like, 
+  .checkbox__input {
+    opacity: 0;
+    width: 0px;
+    height: 0px;
+  }
+  
+  .like__checked {
+    display: none;
+  }
+
+  .checkbox__input:checked ~ .like__checked {
+    display: inline-block;
+    
+  }
+
+  .checkbox__input:checked ~ .like__unchecked {
+    display: none;
+  }
+
+  .far,
+  .fas {
+    color: $color-primary;
+    font-size: 13px;
+    @include desktop {
+      font-size: 20px;
     }
   }
 }
 
 #medium_thumbnail__miniature {
   width: 335px;
-    height: 190px;
-    border-radius: 5px;
-    object-fit: cover;
-    @include desktop {
-      width: 350px;
-      height: 300px;
-    }
+  height: 190px;
+  border-radius: 5px;
+  object-fit: cover;
+  @include desktop {
+    width: 350px;
+    height: 300px;
+  }
 }
 
 .sticker_summary {
@@ -157,6 +222,7 @@ main {
     right: 2rem;
     bottom: 2rem;
     border-radius: 5px;
+    margin: 1rem;
     .total_likes {
       display: flex;
       align-items: center;

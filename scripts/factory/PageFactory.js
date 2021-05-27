@@ -1,18 +1,20 @@
-import { PhotographerPageBuilder } from "./PhotographerPageBuilder";
 import { HomePageBuilder } from "./HomePageBuilder";
+import { PhotographerPageBuilder } from "./PhotographerPageBuilder";
 
-export const PagesFactoryEnum = {
-    HOME: "HOME",
-    PHOTOGRAPHER : "PHOTOGRAPHER",
+
+export const PageFactoryEnum = {
+    HOME: "home",
+    PHOTOGRAPHER : "photographer",
 }
 //Map[key] = value
-let registeredPages = {};
-registeredPages[PagesFactoryEnum.PHOTOGRAPHER] = PhotographerPageBuilder;
-registeredPages[PagesFactoryEnum.HOME] = HomePageBuilder;
+let registeredPages = new Map([
+    [PageFactoryEnum.PHOTOGRAPHER, PhotographerPageBuilder],
+    [PageFactoryEnum.HOME, HomePageBuilder]
+])
 
 export class PageFactory {
-    getPage(type, props) {
-        return new registeredPages[type](props);
+    getPage(type, pageModel) {
+        return new (registeredPages.get(type))(pageModel);
     }
 }
 

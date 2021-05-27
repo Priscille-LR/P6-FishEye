@@ -1,159 +1,138 @@
+import { Utils } from "../utils/Utils";
+import { Tags } from "./Tags";
+import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
+import { HomePageModel } from "../models/HomePageModel";
+
+const body = document.getElementById("page");
+const main = document.getElementById('app');
+
 export class HomePageBuilder {
-    constructor(props) {
-        this.dataPromise = props.json
-        this.clickedNavTags = [];
+    /**
+     * 
+     * @param {Promise<HomePageModel>} homePageModel 
+     */
+    constructor(homePageModel) {
+        this.homePageModelPromise = homePageModel
+        this.activeNavTags = [];
     }
 
     //display header and main (home page)
     render() {
-        this.dataPromise
-            .then((jsonData) => {
-                let photographers = jsonData.photographers
+        this.homePageModelPromise
+            .then((homePageModel) => {
+                this.photographers = homePageModel.photographersList
+                this.allTags = homePageModel.tagsList
 
-                this.renderHeader(photographers)
-                this.renderMain(photographers)
+                this.renderHeader();
+                this.renderMain(this.photographers);
             })
     }
 
-    renderHeader(photographers) {
-        const header = this.createHeader()
-        this.appendLogo(header)
-        this.appendMainNav(photographers, header)
-
-        const main = document.querySelector("main");
-        document.querySelector('body').insertBefore(header, main);
-    }
-
-    createHeader() {
+    renderHeader() {
         const header = document.createElement('header');
         header.className = 'header_home';
-        return header;
-    }
-
-    appendLogo(header) {
-        const logo = document.createElement('a');
-        logo.className = 'logo';
-        logo.innerHTML = `
-        <img class="logo_img" src="/static/logo.svg" alt="logo" />
+        header.role = 'heading';
+        header.ariaLabel = 'Fisheye home page heading';
+        header.innerHTML = `
+        <a class="logo" href="/">
+            <img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />
+        </a>
+        <a class="go_main" href="#app" aria-label="go to main content" tabindex="0">Passer au contenu</a>
+        <nav class="main_nav" role="navigation" aria-label="photographers categories">
+        </nav>
         `;
+        this.renderNavTags(header.querySelector(".main_nav"))
 
-        header.appendChild(logo);
+        body.insertBefore(header, main);
+
+        this.onScrollEvent();
     }
 
-    appendMainNav(photographers, header) {
-        const mainNav = document.createElement('nav');
-        mainNav.className = 'main_nav';
-
-        this.appendNavTags(photographers, mainNav)
-        header.appendChild(mainNav);
-    }
-
-    appendNavTags(photographers, nav) {
-        const allTags = photographers.map(photographer => photographer.tags).flat()
-        const distinctTags = [...new Set(allTags)] //remove duplicates
-
-        //add each tag dynamically in the nav
-        distinctTags.forEach(tag => {
-            const tagName = tag.charAt(0).toUpperCase() + tag.substring(1);
-            const headerTag = document.createElement('div');
-            headerTag.className = 'main_nav__item';
-
-            const checkboxTag = document.createElement('input');
-            checkboxTag.type = "checkbox";
-            checkboxTag.className = "tag_checkbox"
-            checkboxTag.id = tagName;
-            headerTag.appendChild(checkboxTag)
-
-            const labelTag = document.createElement('label');
-            labelTag.className = "tag_name"
-            labelTag.setAttribute("for", tagName);
-            labelTag.innerHTML = `#${tagName}`;
-            headerTag.appendChild(labelTag)
-
-            nav.appendChild(headerTag);
-
-            //listen to clicks on main nav tags
-            headerTag.addEventListener("change", () => {
-
-                if (checkboxTag.checked) {
-                this.clickedNavTags.push(tag);
-                this.clickedNavTags = [...new Set(this.clickedNavTags)];
-                } else {
-                    const currentIndex = this.clickedNavTags.indexOf(tag);
-                    this.clickedNavTags.splice(currentIndex, 1);
-                }
-                this.handleTagClick(photographers)
-            });
-        });
-    }
-
-    createLabel(forParam, textParam) {
-        const label = document.createElement('label');
-        label.setAttribute("for", forParam);
-        label.innerHTML = `${textParam}`;
-        return label;
-    }
-
-    createInputField(id) {
-        const inputField = document.createElement('input');
-        inputField.className = 'input_field';
-        inputField.type = "text";
-        inputField.setAttribute("id", id);
-        return inputField;
-    }
-
-    handleTagClick(photographers) {
-        this.removeAllThumbnails();
-        this.sortPhotographers(photographers)
-    }
-
-    removeAllThumbnails() {
-        const photographersNode = document.querySelector('.photographers')
-        for (let index = photographersNode.childNodes.length - 1; index >= 0 ; index--) {
-            const child = photographersNode.childNodes[index];
-            photographersNode.removeChild(child)
+    //go to main button is diplayed if user scrolls on page
+    onScrollEvent() {
+        const goMainButton = document.querySelector('.go_main');
+        window.addEventListener('scroll', () => {
+            goMainButton.style.display = 'block';
+        })
+        if(window.scrollY === 0) {
+            goMainButton.style.display = 'none';
         }
+    }
+
+    renderNavTags(mainNav) {
+        const tags = new Tags(this.allTags)
+        tags.appendTags(mainNav, 'main_nav__item');
+        tags.addEventOnChange(mainNav, (isChecked, tagId) => this.handleTagClick(isChecked, tagId));
+    }
+
+    handleTagClick(isChecked, tagId) {
+        const checkboxTag = document.getElementById(tagId);
+        if (isChecked) {
+            checkboxTag.setAttribute('aria-checked', 'true');
+            this.activeNavTags.push(tagId);
+            this.activeNavTags = [...new Set(this.activeNavTags)];
+        } else {
+            checkboxTag.setAttribute('aria-checked', 'false');
+            const currentIndex = this.activeNavTags.indexOf(tagId);
+            this.activeNavTags.splice(currentIndex, 1); //remove tag from active tags
+        }
+        
+        Utils.removeChildOf(".photographers", "photographer_thumbnail_wrapper")
+        this.sortPhotographers(this.photographers)
     }
 
     sortPhotographers(photographers) {
         let selectedPhotographers = [];
-        this.clickedNavTags.forEach(clickedNavTag => {
+        this.activeNavTags.forEach(activeNavTag => {
             photographers.forEach(photographer => {
-                if (photographer.tags.includes(clickedNavTag)) {
+                if (photographer.getTags().includes(activeNavTag)) {
                     selectedPhotographers.push(photographer)
                 }
             });
         });
 
-        if (this.clickedNavTags.length == 0) {
+        if (this.activeNavTags.length == 0) {
             this.createArticle(photographers)
         } else {
             selectedPhotographers = [...new Set(selectedPhotographers)];
             this.createArticle(selectedPhotographers)
         }
-        
-    }    
+
+    }
 
     renderMain(photographers) {
         this.createMainTitle()
+        this.createPhotographersWrapper()
         this.createArticle(photographers)
     }
 
     createMainTitle() {
         const title = document.createElement('h1')
         title.className = 'main_title'
+        title.ariaLabel = 'photographers'
         title.innerHTML = `Nos photographes`
-        document.querySelector("main").appendChild(title)
+        main.appendChild(title)
     }
 
+    createPhotographersWrapper() {
+        const photographersWrapper = document.createElement('div')
+        photographersWrapper.className = 'photographers'
+        photographersWrapper.ariaLabelledby = 'photographers'
+        document.getElementById("app").appendChild(photographersWrapper)
+    }
+
+    /**
+     * create article for each photographer; add their picture and content
+     * @param {Array<PhotographerProfileModel>} photographers 
+     */
     createArticle(photographers) {
 
         photographers.forEach(photographer => {
 
             const article = document.createElement('article')
-            article.className = 'article';
-            article.innerHTML = `<a class="photographer_thumbnail" href="/photographers-profile/${photographer.id}">`;
-
+            article.className = 'photographer_thumbnail_wrapper';
+            article.innerHTML = `<a class="photographer_thumbnail" href="/photographers-profile/${photographer.getId()}" aria-label="${photographer.getName()}">`;
+            article.ariaLabel = `${photographer.getName()}`;
             this.appendPhotographerThumbnailPicture(article, photographer);
             this.appendPhotographerThumbnailContent(article, photographer);
 
@@ -161,28 +140,37 @@ export class HomePageBuilder {
         });
     }
 
+    /**
+     * 
+     * @param {PhotographerProfileModel} photographer 
+     */
     appendPhotographerThumbnailPicture(article, photographer) {
         const thumbnailPicture = document.createElement('a')
         thumbnailPicture.className = 'photographer_thumbnail__picture';
         thumbnailPicture.innerHTML = `
         <img class="photographer_thumbnail__picture"
-        src="/static/Photographers ID Photos/${photographer.portrait}"
-        alt="photographer's thumbnail picture" />`;
+        src="/static/Photographers ID Photos/${photographer.getPortrait()}"
+        alt="${photographer.getName()}'s thumbnail picture" />`;
 
         article.querySelector('.photographer_thumbnail').appendChild(thumbnailPicture);
     }
 
+    /**
+     * 
+     * @param {PhotographerProfileModel} photographer 
+     */
     appendPhotographerThumbnailContent(article, photographer) {
         const thumbnailContent = document.createElement('div')
         thumbnailContent.className = 'photographer_thumbnail__content';
+        thumbnailContent.ariaLabel = `${photographer.getName()} info`
         thumbnailContent.innerHTML = `
-        <h2 class="photographer_name">${photographer.name}</h2>
-        <h3 class="photographer_location">${photographer.city}, ${photographer.country}</h3>
-        <p class="photographer_desc">${photographer.tagline}</p>
-        <p class="photographer_price">${photographer.price}€/jour</p>
+        <h2 class="photographer_name">${photographer.getName()}</h2>
+        <h3 class="photographer_location">${photographer.getLocation()}</h3>
+        <p class="photographer_desc">${photographer.getTagline()}</p>
+        <p class="photographer_price">${photographer.getPrice()}€/jour</p>
         <div class="tags"></div>`;
 
-        photographer.tags.forEach(photographerTag => {
+        photographer.getTags().forEach(photographerTag => {
             const tag = document.createElement('a')
             tag.className = 'tags__item';
             tag.innerHTML = `<span>#${photographerTag}</span>`

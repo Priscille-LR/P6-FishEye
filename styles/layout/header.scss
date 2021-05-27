@@ -7,52 +7,74 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  margin: 2rem;
+  margin: 3rem;
   @include desktop {
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
     width: 80%;
   }
-  .logo {
-    //margin: 1rem;
-    width: 150px;
+  .logo_img {
+    width: 70%;
     @include desktop {
       display: flex;
-      width: 20%;
+      width: 90%;
     }
+  }
+  .go_main {
+    visibility: hidden;
+    position: fixed;
+    top: 1%;
+    left: 45%;
+    background-color: $color-tertiary;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.3rem;
+    margin: 0 auto;
   }
   .main_nav {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-self: flex-end;
     flex-wrap: wrap;
-    width: 23rem;
-    margin: 1rem auto;
+    width: 70%;
+    margin: 3rem auto;
     @include desktop {
-      //flex-wrap: nowrap;
-      width: 80%;
+      justify-content: flex-start;
+      margin: auto 0;
     }
     &__item {
-      margin: 0.3rem;
+      margin: 0.5rem 0rem;
       .tag_name {
         border-radius: 30px;
         border: solid 1px #c4c4c4;
         padding: 0.2rem 0.5rem;
         color: $color-primary;
         font-weight: bold;
+        font-size: 1.8rem;
+        @include desktop {
+          font-size: 1rem;
+        }
       }
       .tag_checkbox {
-        display: none;
-      }
+        opacity: 0;
+        width: 0px;
+        height: 0px;
+      
+  }
       .tag_checkbox:hover ~ .tag_name,
+      .tag_checkbox:focus ~ .tag_name{
+        background-color: $color-tertiary;
+        color: #ffffff;
+      }
       .tag_checkbox:checked ~ .tag_name {
         background-color: $color-primary;
         border-radius: 20px;
         border: solid 1px $color-primary;
         color: #ffffff;
         font-weight: bold;
-        padding: 0.2rem;
+        padding: 0.2rem 0.5rem;
         margin: 0.3rem;
       }
     }

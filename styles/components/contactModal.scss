@@ -10,14 +10,18 @@
   top: 0%;
   height: 100%;
   width: 100%;
+  padding: 0;
   overflow: auto;
   background-color: $color-tertiary;
   border-radius: 5px;
+  border: none;
   @include desktop {
-    left: auto;
     top: 10%;
-    height: 900px;
-    width: 670px;
+    //height: 900px;
+    //width: 670px;
+    height: 80%;
+    width: 50%;
+    padding: 1rem;
   }
   &__body {
     display: flex;
@@ -51,7 +55,7 @@
       flex-direction: column;
       width: 100%;
       margin: 1.5rem 0;
-      .formData {
+      .fieldset {
         display: flex;
         flex-direction: column;
         margin: 1rem 0;
@@ -80,7 +84,7 @@
     }
   }
 
-  .formData[data-error]::after {
+  .fieldset[data-error]::after {
     content: attr(data-error);
     font-size: 18px;
     font-weight: 700;
@@ -91,10 +95,10 @@
     opacity: 0;
     transition: 0.3s;
   }
-  .formData[data-error-visible="true"]::after {
+  .fieldset[data-error-visible="true"]::after {
     opacity: 1;
   }
-  .formData[data-error-visible="true"] .input_field {
+  .fieldset[data-error-visible="true"] .input_field {
     border: 2px solid $color-primary;
   }
 }

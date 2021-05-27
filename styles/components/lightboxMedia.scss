@@ -10,22 +10,27 @@
   top: 0%;
   height: 100%;
   width: 100%;
-  overflow: auto;
+  padding: 0;
+  //overflow: auto;
   background-color: #ffffff;
   &__body {
     display: flex;
-    justify-content: space-around;
-    align-items: center;
+    justify-content: center;
+    margin: auto;
+    width: 340px;
+    height: 250px;
     @include desktop {
       width: 1250px;
       height: 985px;
-      margin: 7rem auto;
     }
     .close_button_lightbox {
       position: absolute;
-      top: 2rem;
-      right: 2rem;
+      top: 3rem;
+      right: 3rem;
+      font-size: 1rem;
+      margin: 1rem 3rem;
     }
+
     .close_button_lightbox,
     .previous_button,
     .next_button {
@@ -37,26 +42,36 @@
     }
     .medium_box {
       display: flex;
-      //flex-direction: column;
+      flex-direction: column;
+      //align-items: center;
+      justify-content: center;
+      margin: 1rem;
       .lightbox_medium {
-        width: 1050px;
-        height: 900px;
-        border-radius: 5px;
+        width: 290px;
+        height: 250px;
+        //margin: 0 auto;
+        
+        align-items: center;
+        @include desktop {
+          width: 1050px;
+          height: 900px;
+          
+        }
         &__miniature {
           width: 100%;
           height: 100%;
+          border-radius: 5px;
           object-fit: cover;
         }
       }
     }
     .lightbox_title {
-      align-self: flex-end;
-      justify-self: flex-end;
       color: $color-primary;
       font-size: 14px;
-      margin: 0.4rem;
+      margin: 0.5rem;
       @include desktop {
         font-size: 24px;
+        margin: 1rem 0;
       }
     }
   }

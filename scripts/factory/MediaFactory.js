@@ -1,109 +1,95 @@
+import { MediumModel } from "../models/MediumModel";
+import { mediaEnum } from "../utils/MediaUtils";
+import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
+
 export class MediaFactory {
-    constructor() {
-    }
 
-    mediaEnum = {
-        PICTURE: "picture",
-        VIDEO: "video",
-    }
-
-    getMediumType(tmpMedium) {
-        let extension = tmpMedium.split('.').pop();
-        if (/(jpg)$/ig.test(extension)) {
-            return this.mediaEnum.PICTURE;
-        }
-        if (/(mp4)$/ig.test(extension)) {
-            return this.mediaEnum.VIDEO;
-        }
-    }
-
-    extractMediumTitle(medium) {
-        let tmpMedium = this.getMediumFile(medium)
-        let mediumTitle = tmpMedium.toLowerCase();
-        let mediumTitleArray = mediumTitle.split(".");
-        mediumTitle = mediumTitleArray[0];
-        mediumTitleArray = mediumTitle.split("_");
-        mediumTitle = mediumTitleArray.shift(); //remove 1st element in array 
-        mediumTitle = mediumTitleArray.join(" "); //add elements of array into a string
-        mediumTitle = mediumTitle.charAt(0).toUpperCase() + mediumTitle.slice(1);
-        return mediumTitle;
-    }
-
-
+    /**
+     * 
+     * @param {MediumModel} medium 
+     * @param {PhotographerProfileModel} currentPhotographer 
+     * @returns 
+     */
     renderMedium(medium, currentPhotographer) {
 
-        let mediumTitle = this.extractMediumTitle(medium);
+        let mediumThumbnail = this.createMediumDisplay(medium, currentPhotographer, "medium_thumbnail");
 
-        let mediumThumbnail = this.createMediumDisplay(medium, currentPhotographer, mediumTitle, "medium_thumbnail");
-              
-        this.appendThumbnailContent(mediumTitle, medium, mediumThumbnail);
+        this.appendThumbnailContent(medium, mediumThumbnail);
 
         return mediumThumbnail;
     }
 
-    appendThumbnailContent(mediumTitle, medium, mediumThumbnail) {
+    /**
+     * 
+     * @param {MediumModel} medium 
+     * @param {PhotographerProfileModel} currentPhotographer 
+     * @param {string} className 
+     * @param {boolean} controls 
+     * @returns 
+     */
+    createMediumDisplay(medium, currentPhotographer, className, controls = false) {
+        let mediumThumbnail = document.createElement('article');
+        mediumThumbnail.className = className;
+        mediumThumbnail.ariaLabel = medium.getTitle();
+
+        
+        const mediumType = medium.getMediumType();
+
+        let mediumSource = String(medium.getSource());
+
+        var media;
+        switch (mediumType) {
+            case mediaEnum.PICTURE: {
+                media = document.createElement('img');
+                media.src = `/static/${currentPhotographer.getName().split(' ')[0]}/${mediumSource}`
+                break;
+            }
+            case mediaEnum.VIDEO: {
+                media = document.createElement('video');
+                let source = document.createElement('source');
+                source.src = `/static/${currentPhotographer.getName().split(' ')[0]}/${mediumSource}`
+                source.type = "video/mp4"
+                media.controls = controls;
+                if (controls) {
+                    media.autoplay = true
+                }
+                media.appendChild(source);
+                break;
+            }
+            default: mediumSource = String("");
+
+        }
+        media.className = `${className}__miniature`;
+        media.alt = medium.getTitle();
+        media.tabIndex = "0";
+        mediumThumbnail.appendChild(media);
+        return mediumThumbnail;
+    }
+
+    appendThumbnailContent(medium, mediumThumbnail) {
         let mediumThumbnailContent = document.createElement('div');
         mediumThumbnailContent.className = "medium_thumbnail__content";
         mediumThumbnailContent.innerHTML = `
-            <h2 class="medium_title">${mediumTitle}</h2>
+            <h2 class="medium_title">${medium.getTitle()}</h2>
             <div class="price_and_likes">
-              <span class="medium_price">${medium.price}€</span>
-              <span class="medium_number_of_likes">${medium.likes}</span>
-              <label class="checkbox__like"> 
-                <input type="checkbox" class="checkbox__input" name="like">
-                    <i class="far fa-heart like__unchecked"></i>
-                    <i class="fas fa-heart like__checked"></i>
-                </input>   
-                </label>
+              <span class="medium_price" aria-label="price">${medium.getPrice()}€</span>
+              
+              <span class="medium_number_of_likes">${medium.getLikes()}</span>
+                <div class="likes">
+                    <input type="checkbox" id="checkbox__input" class="checkbox__input" name="like" aria-labelledby="like this picture" tabindex="0">
+                        <i class="far fa-heart like__unchecked"></i>
+                        <i class="fas fa-heart like__checked"></i>
+                    </input>   
+                    <label class="checkbox__like" for="checkbox__input" aria-label="like this picture"></label>
+                </div>
             </div>
           </div>`;
 
         mediumThumbnail.appendChild(mediumThumbnailContent);
     }
 
-    createMediumDisplay(medium, currentPhotographer, mediumTitle, className, controls = false) {
-        let mediumThumbnail = document.createElement('div');
-        mediumThumbnail.className = className;
-        
-        const mediumType = this.getMediumType(this.getMediumFile(medium));
 
-        var media;
-        switch (mediumType) {
-            case this.mediaEnum.PICTURE: {
-                let tmpMedium = String(medium.image);
-                media = document.createElement('img');
-                media.src = `/static/${currentPhotographer.name.split(' ')[0]}/${tmpMedium}`;
-                break;
-            }
-            case this.mediaEnum.VIDEO: {
-                let tmpMedium = String(medium.video);
-                media = document.createElement('video');
-                let source = document.createElement('source');
-                source.src = `/static/${currentPhotographer.name.split(' ')[0]}/${tmpMedium}`
-                source.type = "video/mp4"
-                media.controls = controls;
-                if(controls){
-                    media.autoplay = true
-                }
-                media.appendChild(source);
-                break;
-            }
-            default: tmpMedium = String("");
 
-        }
-        media.className = `${className}__miniature`;
-        media.alt = mediumTitle;
-        mediumThumbnail.appendChild(media);
-        return mediumThumbnail;
-    }
-
-    getMediumFile(medium) {
-        let tmpMedium = medium.image;
-        if (tmpMedium == null) {
-            tmpMedium = medium.video;
-        }
-        return tmpMedium;
-    }
 }
 
 
