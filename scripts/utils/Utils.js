@@ -15,9 +15,8 @@ export class Utils {
     static trapFocusInModal(focusableElements, firstFocusableElement, lastFocusableElement) {
         focusableElements.forEach(focusableElement => {
             focusableElement.addEventListener('keydown', (e) => {
-                e.preventDefault();
-
                 if (e.code === 'Tab' && e.shiftKey) { //going upwards
+                    e.preventDefault();
                     if (e.target === firstFocusableElement) { //if focus on close button => tab + shift => focus on submit button 
                         lastFocusableElement.focus();
                     } else {
@@ -26,6 +25,7 @@ export class Utils {
                         focusableElements[previousIndex].focus();
                     }
                 } else if (e.code === 'Tab') {
+                    e.preventDefault();
                     if (e.target === lastFocusableElement) { //going downwards
                         firstFocusableElement.focus(); //if focus on submit button => tab => focus on close button
                     } else {

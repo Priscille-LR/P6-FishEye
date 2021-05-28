@@ -13,7 +13,7 @@ const routes = [
         component: pageFactory.getPage(PageFactoryEnum.HOME, json.then(appModel => appModel.homePageModel))
     },
     {
-        regex: /\/[A-Za-z\-]{1,}\/[0-9]{0,3}?$/,
+        regex: /\/[A-Za-z-]{1,}\/[0-9]{0,3}?$/,
         component: pageFactory.getPage(PageFactoryEnum.PHOTOGRAPHER, json.then(appModel => appModel.photographerPageModel))
     },
 ];

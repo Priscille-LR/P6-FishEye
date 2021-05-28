@@ -147,6 +147,7 @@ export class LightboxMedia {
 
         //navigate with left & right arrows
         lightboxMedia.addEventListener('keydown', (e) => {
+            e.preventDefault();
             if (e.code === 'ArrowLeft') {
                 this.showPreviousMedium(lightboxBody, secondFocusableElement);
             } else if (e.code === 'ArrowRight') {
@@ -156,12 +157,14 @@ export class LightboxMedia {
 
         //navigate with tab + enter
         secondFocusableElement.addEventListener('keydown', (e) => {
+            e.preventDefault();
             if(e.code === 'Enter') {
                 this.showPreviousMedium(lightboxBody, secondFocusableElement);
             }
         })
 
         lastFocusableElement.addEventListener('keydown', (e) => {
+                e.preventDefault();
             if(e.code === 'Enter') {
                 this.showNextMedium(lightboxBody, lastFocusableElement);
             }
@@ -239,7 +242,7 @@ export class LightboxMedia {
             }
         })
 
-        document.addEventListener('keydown', (e) => { //TODO
+        document.addEventListener('keydown', (e) => {
             if (e.code === 'Escape') {
                 this.hideLightboxMedia();
             }
