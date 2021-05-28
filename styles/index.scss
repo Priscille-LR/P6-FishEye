@@ -1,14 +1,14 @@
-@import "../styles/base/fonts.scss";
+@import "./base/fonts.scss";
 
-@import "../styles/utils/variables.scss";
-@import "../styles/utils/mixins.scss";
+@import "./utils/variables.scss";
+@import "./utils/mixins.scss";
 
-@import "../styles/layout/header.scss";
-@import "../styles/layout/main.scss";
-@import "../styles/layout/banner.scss";
+@import "./layout/header.scss";
+@import "./layout/main.scss";
+@import "./layout/banner.scss";
 
-@import "../styles/components/thumbnails.scss";
-@import "../styles/components/buttons.scss";
-@import "../styles/components/dropdown.scss";
-@import "../styles/components/ContactModal.scss";
-@import "../styles/components/lightboxMedia.scss";
+@import "./components/thumbnails.scss";
+@import "./components/buttons.scss";
+@import "./components/dropdown.scss";
+@import "./components/contactModal.scss";
+@import "./components/lightboxMedia.scss";
