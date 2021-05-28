@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "parcel": "parcel index.html",
+    "build": "parcel build index.html --no-minify",
+    "deploy": "gh-pages -d dist",
+    "lint": "eslint ./scripts/**/*.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,8 +30,11 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
+    "cssnano": "^5.0.4",
     "eslint": "^7.27.0",
+    "gh-pages": "^3.2.0",
     "parcel-plugin-static-files-copy": "^2.6.0",
+    "postcss": "^8.3.0",
     "sass": "^1.32.12"
   },
   "staticFiles": {
