@@ -83,8 +83,8 @@ export class PhotographerPageBuilder {
         <img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />
         </a>
         `;
-
-        body.insertBefore(header, main);
+        const pageInner = document.querySelector('.page_inner');
+        pageInner.insertBefore(header, main);
     }
 
     renderMain() {

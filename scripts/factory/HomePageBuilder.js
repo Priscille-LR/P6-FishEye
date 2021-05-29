@@ -43,7 +43,8 @@ export class HomePageBuilder {
         `;
         this.renderNavTags(header.querySelector(".main_nav"))
 
-        body.insertBefore(header, main);
+        const pageInner = document.querySelector('.page_inner');
+        pageInner.insertBefore(header, main);
 
         this.onScrollEvent();
     }
