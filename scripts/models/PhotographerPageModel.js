@@ -13,10 +13,10 @@ export class PhotographerPageModel {
     }
 
     getPhotographersList() {
-        return this.photographersList
+        return this.photographersList;
     }
 
     getMediaList() {
-        return this.mediaList
+        return this.mediaList;
     }
 }

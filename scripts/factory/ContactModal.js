@@ -170,8 +170,8 @@ export class ContactModal {
 
         closeButton.addEventListener('click', () => this.hideContactModal());
 
-        closeButton.addEventListener('keydown',(e) => {
-            if(e.code === 'Enter') {
+        closeButton.addEventListener('keydown', (e) => {
+            if (e.code === 'Enter') {
                 this.hideContactModal();
             }
         })
@@ -194,16 +194,16 @@ export class ContactModal {
         modalButton.addEventListener('click', (e) => {
             const inputs = [...modalBody.querySelectorAll('.input_field')];
             e.preventDefault();
-            if (this.validateFields(modalBody) === true) {
+            if (this.validateFields(modalBody)) {
                 this.hideContactModal();
-                inputs.map(input => {
+                inputs.map(input => { //map inputs to key value pairs 
                     const fields = {
                         input: input.id,
                         inputValue: input.value,
                     };
                     return fields;
-                })
-                    .forEach((field) => console.log(field.input + " : " + field.inputValue));
+                }).forEach((field) => console.log(field.input + " : " + field.inputValue)); //for each input, console log field value
+                this.clearInputs();
             } else {
                 console.log("Merci de rensigner les champs");
             }
@@ -240,6 +240,12 @@ export class ContactModal {
         contactModal.setAttribute('aria-hidden', 'true');
     }
 
+    clearInputs() {
+        const inputs = document.querySelectorAll('.input_field');
+        inputs.forEach(input => {
+            input.value = '';
+        })
+    }
 
     //fields validation 
 

@@ -15,21 +15,27 @@
     width: 75%;
   }
   .logo_img {
-    width: 70%;
+    //width: 70%;
+    width: 9rem;
+    height: 2rem;
     @include desktop {
       display: flex;
-      width: 90%;
+      //width: 80%;
+      width: 12.5rem;
+      height: 3rem;
     }
   }
   .go_main {
-    visibility: hidden;
+    display: none;
     position: fixed;
     top: 1%;
     left: 45%;
     background-color: $color-tertiary;
     border-radius: 5px;
     font-size: 1rem;
+    //font-size: 18px;
     font-weight: 700;
+    color: black;
     padding: 0.3rem;
     margin: 0 auto;
   }
@@ -52,9 +58,9 @@
         padding: 0.2rem 0.5rem;
         color: $color-primary;
         font-weight: bold;
-        font-size: 1.8rem;
+        font-size: 12px;
         @include desktop {
-          font-size: 1rem;
+          //font-size: 1rem;
         }
       }
       .tag_checkbox {
@@ -88,5 +94,16 @@
   margin: 2rem;
   @include desktop {
     width: 100%;
+  }
+  .logo_img {
+    //width: 70%;
+    width: 9rem;
+    height: 2rem;
+    @include desktop {
+      display: flex;
+      //width: 80%;
+      width: 12.5rem;
+      height: 3rem;
+    }
   }
 }

@@ -7,7 +7,7 @@ import { PhotographerPageModel } from "../models/PhotographerPageModel";
 import { PhotographerProfileModel } from '../models/PhotographerProfileModel';
 import { MediumModel } from '../models/MediumModel';
 
-const body = document.getElementById("page");
+//const body = document.getElementById("page");
 const main = document.getElementById('app');
 
 export class PhotographerPageBuilder {
@@ -90,6 +90,7 @@ export class PhotographerPageBuilder {
     renderMain() {
         this.renderBanner();
         this.renderDropdownMenu();
+        this.createMediaWrapper();
         this.renderSummary();
         this.sortBy(this.SortEnum.POPULARITY);
     }
@@ -265,7 +266,7 @@ export class PhotographerPageBuilder {
     }
 
     handleDropdownItemClick(item) {
-        Utils.removeChildOf("#app", "medium_thumbnail");
+        Utils.removeChildOf(".media_wrapper", "medium_thumbnail");
         this.sortBy(item.innerHTML);
     }
 
@@ -340,13 +341,21 @@ export class PhotographerPageBuilder {
         });
     }
 
+    createMediaWrapper() {
+        const mediaWrapper = document.createElement('div');
+        mediaWrapper.className = 'media_wrapper';
+        mediaWrapper.ariaLabelledby = 'media';
+        document.getElementById("app").appendChild(mediaWrapper);
+    }
+
     /**
      * 
      * @param {MediumModel} medium 
      */
     createMediumThumbnail(medium) {
+        const mediaWrapper = document.querySelector('.media_wrapper');
         const mediumThumbnail = this.mediaFactory.renderMedium(medium, this.currentPhotographer);
-        main.appendChild(mediumThumbnail);
+        mediaWrapper.appendChild(mediumThumbnail);
 
         const mediumThumbnailMiniature = mediumThumbnail.querySelector('.medium_thumbnail__miniature');
         mediumThumbnailMiniature.addEventListener('click', (e) => {

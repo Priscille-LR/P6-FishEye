@@ -6,7 +6,7 @@ export const PageFactoryEnum = {
     HOME: "home",
     PHOTOGRAPHER : "photographer",
 }
-//Map[key] = value
+
 let registeredPages = new Map([
     [PageFactoryEnum.PHOTOGRAPHER, PhotographerPageBuilder],
     [PageFactoryEnum.HOME, HomePageBuilder]

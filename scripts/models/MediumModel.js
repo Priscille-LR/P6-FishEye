@@ -10,7 +10,7 @@ export class MediumModel {
     }
 
     getSource() {
-        return MediaUtils.getMediaSource(this.medium)
+        return MediaUtils.getMediumSource(this.medium)
     }
 
     getTitle() {

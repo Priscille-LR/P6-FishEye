@@ -3,7 +3,7 @@ import { Tags } from "./Tags";
 import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
 import { HomePageModel } from "../models/HomePageModel";
 
-const body = document.getElementById("page");
+//const body = document.getElementById("page");
 const main = document.getElementById('app');
 
 export class HomePageBuilder {
@@ -78,7 +78,7 @@ export class HomePageBuilder {
             this.activeNavTags.splice(currentIndex, 1); //remove tag from active tags
         }
         
-        Utils.removeChildOf(".photographers", "photographer_thumbnail_wrapper")
+        Utils.removeChildOf(".photographers_wrapper", "photographer_thumbnail_wrapper")
         this.sortPhotographers(this.photographers)
     }
 
@@ -117,8 +117,8 @@ export class HomePageBuilder {
 
     createPhotographersWrapper() {
         const photographersWrapper = document.createElement('div')
-        photographersWrapper.className = 'photographers'
-        photographersWrapper.ariaLabelledby = 'photographers'
+        photographersWrapper.className = 'photographers_wrapper';
+        photographersWrapper.ariaLabelledby = 'photographers';
         document.getElementById("app").appendChild(photographersWrapper)
     }
 
@@ -137,7 +137,7 @@ export class HomePageBuilder {
             this.appendPhotographerThumbnailPicture(article, photographer);
             this.appendPhotographerThumbnailContent(article, photographer);
 
-            document.querySelector('.photographers').appendChild(article);
+            document.querySelector('.photographers_wrapper').appendChild(article);
         });
     }
 
