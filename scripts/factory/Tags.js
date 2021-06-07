@@ -30,7 +30,7 @@ export class Tags {
             const labelTag = document.createElement('label');
             labelTag.className = "tag_name";
             labelTag.setAttribute("for", tag);
-            labelTag.ariaLabel = `#${tag}`;
+            //labelTag.ariaLabel = `#${tag}`;
             labelTag.innerHTML = `#${tag}`;
             tagItem.appendChild(labelTag)
 

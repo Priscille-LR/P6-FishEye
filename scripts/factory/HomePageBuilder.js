@@ -133,7 +133,7 @@ export class HomePageBuilder {
             const article = document.createElement('article')
             article.className = 'photographer_thumbnail_wrapper';
             article.innerHTML = `<a class="photographer_thumbnail" href="/photographers-profile/${photographer.getId()}" aria-label="${photographer.getName()}">`;
-            article.ariaLabel = `${photographer.getName()}`;
+            //article.ariaLabel = `${photographer.getName()}`;
             this.appendPhotographerThumbnailPicture(article, photographer);
             this.appendPhotographerThumbnailContent(article, photographer);
 
@@ -163,7 +163,7 @@ export class HomePageBuilder {
     appendPhotographerThumbnailContent(article, photographer) {
         const thumbnailContent = document.createElement('div')
         thumbnailContent.className = 'photographer_thumbnail__content';
-        thumbnailContent.ariaLabel = `${photographer.getName()} info`
+        //thumbnailContent.ariaLabel = `${photographer.getName()} info`
         thumbnailContent.innerHTML = `
         <h2 class="photographer_name">${photographer.getName()}</h2>
         <h3 class="photographer_location">${photographer.getLocation()}</h3>

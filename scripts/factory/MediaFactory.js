@@ -72,15 +72,15 @@ export class MediaFactory {
         mediumThumbnailContent.innerHTML = `
             <h2 class="medium_title">${medium.getTitle()}</h2>
             <div class="price_and_likes">
-              <span class="medium_price" aria-label="price">${medium.getPrice()}€</span>
+              <span class="medium_price">${medium.getPrice()}€</span>
               
               <span class="medium_number_of_likes">${medium.getLikes()}</span>
                 <div class="likes">
-                    <input type="checkbox" id="checkbox__input" class="checkbox__input" name="like" aria-labelledby="like this picture" tabindex="0">
+                    <input type="checkbox" id="checkbox__input ${medium.getTitle().toLowerCase().replace(" ", "_")}" class="checkbox__input" name="like" tabindex="0">
                         <i class="far fa-heart like__unchecked"></i>
                         <i class="fas fa-heart like__checked"></i>
                     </input>   
-                    <label class="checkbox__like" for="checkbox__input" aria-label="like this picture"></label>
+                    <label class="checkbox__like" for="checkbox__input ${medium.getTitle().toLowerCase().replace(" ", "_")}"></label>
                 </div>
             </div>
           </div>`;

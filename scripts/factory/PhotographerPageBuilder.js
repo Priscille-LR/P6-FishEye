@@ -101,15 +101,15 @@ export class PhotographerPageBuilder {
         const banner = document.createElement('section');
         banner.className = 'banner';
         banner.innerHTML = `
-        <div class="banner__text_content" aria-label="${this.currentPhotographer.getName()} info" >
-            <h2 class="photographer_name">${this.currentPhotographer.getName()}</h2>
-            <h3 class="photographer_location">${this.currentPhotographer.getLocation()}</h3>
+        <div class="banner__text_content">
+            <h1 class="photographer_name">${this.currentPhotographer.getName()}</h1>
+            <h2 class="photographer_location">${this.currentPhotographer.getLocation()}</h2>
             <p class="photographer_desc">${this.currentPhotographer.getTagline()}</p>
             <div class="tags tags_photographer_page"></div>
         </div>
-        <button class="button_contact button_banner" aria-label="Contact Me" aria-haspopup="dialog" aria-controls="contact_modal"> Contactez-moi </button>
+        <button class="button_contact button_banner" aria-label="Contact Me" aria-haspopup="dialog"> Contactez-moi </button>
         <div class="banner__photographer_picture">
-            <img class="profile_picture" src="/static/Photographers ID Photos/${this.currentPhotographer.getPortrait()}" alt="">
+            <img class="profile_picture" src="/static/Photographers ID Photos/${this.currentPhotographer.getPortrait()}" alt="${this.currentPhotographer.getName()}">
         </div>`
         
         this.renderBannerTags(banner.querySelector(".tags_photographer_page"));
@@ -303,7 +303,6 @@ export class PhotographerPageBuilder {
         })
     }
 
-    
 
     //sticker photographer total number of likes and price
     renderSummary() {
@@ -332,9 +331,11 @@ export class PhotographerPageBuilder {
 
         likeButton.addEventListener('change', () => {
             if (likeButton.checked) {
+                likeButton.setAttribute('aria-checked', 'true');
                 mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
                 totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
             } else {
+                likeButton.setAttribute('aria-checked', 'false');
                 mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) - 1;
                 totalLikes.innerHTML = parseInt(totalLikes.innerHTML) - 1;
             }
