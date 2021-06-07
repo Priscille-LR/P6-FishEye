@@ -28,9 +28,12 @@
 }
 
 .submit_button {
+  position: absolute;
+  bottom: -5rem;
   align-self: center;
   @include desktop {
     align-self: flex-start;
+    bottom: -8rem;
   }
 }
 

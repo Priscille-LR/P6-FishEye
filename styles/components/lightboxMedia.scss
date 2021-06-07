@@ -1,5 +1,5 @@
-@import "../utils/variables.scss";
-@import "../utils/mixins.scss";
+@import '../utils/variables.scss';
+@import '../utils/mixins.scss';
 
 .lightbox_media {
   display: none;
@@ -11,6 +11,7 @@
   height: 100%;
   width: 100%;
   padding: 0;
+  //margin: 0;
   background-color: #ffffff;
   &__body {
     display: flex;
@@ -31,7 +32,7 @@
       margin: 1rem 3rem;
       cursor: pointer;
     }
-    
+
     .close_button_lightbox,
     .previous_button,
     .next_button {
@@ -51,14 +52,13 @@
         width: 290px;
         height: 250px;
         //margin: 0 auto;
-        
+
         align-items: center;
         @include desktop {
           // width: 1050px;
           // height: 900px;
           width: 65rem;
           height: 56rem;
-          
         }
         &__miniature {
           width: 100%;
@@ -79,3 +79,8 @@
     }
   }
 }
+// .lightbox_media.open {
+//   .lightbox_media__body {
+//     overflow: hidden;
+//   }
+// }

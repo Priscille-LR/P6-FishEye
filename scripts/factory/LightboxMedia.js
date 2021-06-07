@@ -198,6 +198,8 @@ export class LightboxMedia {
         this.lightboxMedia.style.display = "flex";
 
         main.setAttribute('aria-hidden', 'true');
+        body.style.overflow = "hidden";
+        lightboxMedia.classList.add('open');
         lightboxMedia.setAttribute('aria-hidden', 'false');
 
         //add title dynamically
@@ -254,6 +256,8 @@ export class LightboxMedia {
         this.lightboxMedia.style.display = "none";
         
         main.setAttribute('aria-hidden', 'false');
+        body.style.overflow = "visible";
+        lightboxMedia.classList.remove('open');
         lightboxMedia.setAttribute('aria-hidden', 'true');
     }
 

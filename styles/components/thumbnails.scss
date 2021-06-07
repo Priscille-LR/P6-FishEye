@@ -74,17 +74,7 @@
   }
 }
 
-.picture_profile {
-  border-radius: 50%;
-  width: 140px;
-  height: 140px;
-  object-fit: cover;
-  box-shadow: $shadow;
-  @include desktop {
-    width: 200px;
-    height: 200px;
-  }
-}
+
 
 .tags {
   display: flex;

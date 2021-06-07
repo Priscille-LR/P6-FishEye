@@ -26,18 +26,19 @@
     }
   }
   .go_main {
-    display: none;
     position: fixed;
-    top: 1%;
+    top: -10%;
     left: 45%;
     background-color: $color-tertiary;
     border-radius: 5px;
     font-size: 1rem;
-    //font-size: 18px;
     font-weight: 700;
     color: black;
     padding: 0.3rem;
     margin: 0 auto;
+    &:focus {
+      top: 1%;
+    }
   }
   .main_nav {
     display: flex;

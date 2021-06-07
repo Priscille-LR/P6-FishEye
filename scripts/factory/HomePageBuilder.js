@@ -46,19 +46,19 @@ export class HomePageBuilder {
         const pageInner = document.querySelector('.page_inner');
         pageInner.insertBefore(header, main);
 
-        this.onScrollEvent();
+        //this.onScrollEvent();
     }
 
     //go to main button is diplayed if user scrolls on page
-    onScrollEvent() {
-        const goMainButton = document.querySelector('.go_main');
-        window.addEventListener('scroll', () => {
-            goMainButton.style.display = 'block';
-        })
-        if(window.scrollY === 0) {
-            goMainButton.style.display = 'none';
-        }
-    }
+    // onScrollEvent() {
+    //     const goMainButton = document.querySelector('.go_main');
+    //     window.addEventListener('scroll', () => {
+    //         goMainButton.style.display = 'block';
+    //     })
+    //     if(window.scrollY === 0) {
+    //         goMainButton.style.display = 'none';
+    //     }
+    // }
 
     renderNavTags(mainNav) {
         const tags = new Tags(this.allTags)

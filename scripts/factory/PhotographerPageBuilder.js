@@ -108,8 +108,8 @@ export class PhotographerPageBuilder {
             <div class="tags tags_photographer_page"></div>
         </div>
         <button class="button_contact button_banner" aria-label="Contact Me" aria-haspopup="dialog" aria-controls="contact_modal"> Contactez-moi </button>
-        <div class="photographer__picture">
-            <img class="photographer_thumbnail__picture picture_profile" src="/static/Photographers ID Photos/${this.currentPhotographer.getPortrait()}" alt="">
+        <div class="banner__photographer_picture">
+            <img class="profile_picture" src="/static/Photographers ID Photos/${this.currentPhotographer.getPortrait()}" alt="">
         </div>`
         
         this.renderBannerTags(banner.querySelector(".tags_photographer_page"));

@@ -4,7 +4,7 @@
 .contact_modal {
   display: none;
   position: fixed;
-  z-index: 1;
+  z-index: 3;
   animation: modalOpen 500ms;
   left: 0%;
   top: 0%;
@@ -16,13 +16,14 @@
   border-radius: 5px;
   border: none;
   @include desktop {
-    top: 10%;
-    height: 80%;
-    width: 50%;
+    top: 5%;
+    height: 85%;
+    width: 40%;
     padding: 1rem;
   }
   &__body {
     display: flex;
+    position: relative;
     flex-direction: column;
     justify-content: space-around;
     align-items: flex-start;
@@ -33,7 +34,7 @@
       flex-wrap: wrap;
       margin: 0;
       @include desktop {
-        font-size: 64px;
+        font-size: 3.5rem;
       }
     }
     .close_button {
@@ -66,7 +67,7 @@
           display: inline-block;
           margin-bottom: 0.2rem;
           @include desktop {
-            font-size: 36px;
+            font-size: 2rem;
           }
         }
         .input_field,
@@ -75,7 +76,7 @@
           border: 0.8px solid #ccc;
           border-radius: 5px;
           font-family: "DM sans", sans-serif;
-          font-size: 30px;
+          font-size: 1.5rem;
           outline: none;
         }
       }
@@ -84,7 +85,7 @@
 
   .fieldset[data-error]::after {
     content: attr(data-error);
-    font-size: 18px;
+    font-size: 12px;
     font-weight: 700;
     color: #54251A;
     display: block;

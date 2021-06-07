@@ -3,6 +3,8 @@ import { Utils } from "../utils/Utils";
 
 const body = document.getElementById("page");
 const main = document.getElementById('app');
+const backdrop = document.getElementById('backdrop');
+
 
 
 
@@ -166,13 +168,15 @@ export class ContactModal {
     //modal closing
 
     eventOnClose() {
+        backdrop.addEventListener('click', () => this.hideContactModal())
+        
         const closeButton = document.querySelector('.close_button');
-
         closeButton.addEventListener('click', () => this.hideContactModal());
 
         closeButton.addEventListener('keydown', (e) => {
             if (e.code === 'Enter') {
                 this.hideContactModal();
+                this.toggleBackdrop();
             }
         })
 
@@ -182,12 +186,7 @@ export class ContactModal {
             }
         })
 
-        // main.addEventListener('click', (e) => {
-        //     this.contactModal = document.querySelector('.contact_modal')
-        //     if(e.target === this.contactModal) {
-        //     this.hideContactModal()
-        //     }
-        // });
+
     }
 
     eventOnSubmit(modalButton, modalBody) {
@@ -215,12 +214,17 @@ export class ContactModal {
         this.contactModal.style.display = "block";
 
         main.setAttribute('aria-hidden', 'true');
+        body.style.overflow = "hidden";
         contactModal.setAttribute('aria-hidden', 'false');
-
+        this.toggleBackdrop();
         this.keepFocusInModal();
 
     }
 
+    toggleBackdrop() {
+        backdrop.classList.toggle('visible');
+    }
+    
     keepFocusInModal() {
         const firstFocusableElement = this.focusableElements[0]; // close button
         const secondFocusableElement = this.focusableElements[1]; //first fieldset
@@ -237,8 +241,11 @@ export class ContactModal {
         const contactModal = document.querySelector('.contact_modal');
         this.contactModal.style.display = "none";
         main.setAttribute('aria-hidden', 'false');
+        body.style.overflow = "visible";
         contactModal.setAttribute('aria-hidden', 'true');
+        this.toggleBackdrop()
     }
+
 
     clearInputs() {
         const inputs = document.querySelectorAll('.input_field');
