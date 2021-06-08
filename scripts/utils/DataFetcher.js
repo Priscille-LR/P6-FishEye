@@ -20,6 +20,11 @@ export class DataFetcher {
         return result;
     }
 
+    /**
+     * create app data model
+     * @param {*} json 
+     * @returns 
+     */
     appPageWrapper(json) {
         const photographersList = json.photographers.map(photographer => new PhotographerProfileModel(photographer));
         const tagsList = this.createTagsList(json);

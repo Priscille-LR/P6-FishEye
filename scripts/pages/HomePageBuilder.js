@@ -1,5 +1,5 @@
 import { Utils } from "../utils/Utils";
-import { Tags } from "./Tags";
+import { Tags } from "../components/Tags";
 import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
 import { HomePageModel } from "../models/HomePageModel";
 

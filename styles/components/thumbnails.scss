@@ -16,7 +16,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 375px;
+  width: 300px;
   margin: 1rem;
   @include desktop {
     margin: 2rem;
@@ -41,8 +41,8 @@
       color: $color-secondary;
       //font-size: 3.5rem;
       font-size: 36px;
+      white-space: nowrap;
       @include desktop {
-        white-space: nowrap;
         font-size: 2rem;
       }
     }

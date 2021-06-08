@@ -32,37 +32,27 @@ export class MediaFactory {
         mediumThumbnail.className = className;
         mediumThumbnail.ariaLabel = medium.getTitle();
 
-        
+
         const mediumType = medium.getMediumType();
 
         let mediumSource = String(medium.getSource());
 
-        var media;
+        let media;
         switch (mediumType) {
             case mediaEnum.PICTURE: {
-                media = document.createElement('img');
-                media.src = `/static/${currentPhotographer.getName().split(' ')[0]}/${mediumSource}`
+                media = new Picture(className, medium, currentPhotographer, mediumSource);
+                media.render()
                 break;
             }
             case mediaEnum.VIDEO: {
-                media = document.createElement('video');
-                let source = document.createElement('source');
-                source.src = `/static/${currentPhotographer.getName().split(' ')[0]}/${mediumSource}`
-                source.type = "video/mp4"
-                media.controls = controls;
-                if (controls) {
-                    media.autoplay = true
-                }
-                media.appendChild(source);
+                media = new Video(className, medium, currentPhotographer, mediumSource, controls);
+                media.render()
                 break;
             }
             default: mediumSource = String("");
 
         }
-        media.className = `${className}__miniature`;
-        media.alt = medium.getTitle();
-        media.tabIndex = "0";
-        mediumThumbnail.appendChild(media);
+        mediumThumbnail.appendChild(media.htmlElement);
         return mediumThumbnail;
     }
 
@@ -87,9 +77,51 @@ export class MediaFactory {
 
         mediumThumbnail.appendChild(mediumThumbnailContent);
     }
-
-
-
 }
 
+class Media {
+    constructor(type, className, medium) {
+        this.type = type
+        this.className = className
+        this.medium = medium
+    }
+    render() { 
+        this.htmlElement = document.createElement(this.type);
+        this.htmlElement.className = `${this.className}__miniature`;
+        this.htmlElement.alt = this.medium.getAlt();
+        this.htmlElement.tabIndex = "0";
+    }
+}
 
+class Picture extends Media {
+    constructor(className, medium, currentPhotographer, mediumSource) {
+        super("img", className, medium)
+        this.currentPhotographer = currentPhotographer
+        this.mediumSource = mediumSource
+    }
+    render() {    
+        super.render()
+
+        this.htmlElement.src = `/static/${this.currentPhotographer.getName().split(' ')[0]}/${this.mediumSource}`
+    }
+}
+
+class Video extends Media {
+    constructor(className, medium, currentPhotographer, mediumSource, controls) {
+        super("video", className, medium)
+        this.currentPhotographer = currentPhotographer
+        this.mediumSource = mediumSource
+        this.controls = controls
+    }
+    render() { 
+        super.render()
+        let source = document.createElement('source');
+        source.src = `/static/${this.currentPhotographer.getName().split(' ')[0]}/${this.mediumSource}`
+        source.type = "video/mp4"
+        this.htmlElement.controls = this.controls;
+        if (this.controls) {
+            this.htmlElement.autoplay = true
+        }
+        this.htmlElement.appendChild(source);
+    }
+}

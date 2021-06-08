@@ -1,7 +1,7 @@
-import { MediaFactory } from './MediaFactory';
-import { ContactModal } from "./ContactModal";
-import { LightboxMedia } from "./LightboxMedia";
-import { Tags } from "./Tags";
+import { MediaFactory } from '../factory/MediaFactory';
+import { ContactModal } from "../components/ContactModal";
+import { LightboxMedia } from "../components/LightboxMedia";
+import { Tags } from "../components/Tags";
 import { Utils } from "../utils/Utils";
 import { PhotographerPageModel } from "../models/PhotographerPageModel";
 import { PhotographerProfileModel } from '../models/PhotographerProfileModel';

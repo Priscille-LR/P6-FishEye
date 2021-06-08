@@ -1,4 +1,4 @@
-import { MediaFactory } from './MediaFactory';
+import { MediaFactory } from '../factory/MediaFactory';
 import { MediumModel } from '../models/MediumModel';
 import { PhotographerProfileModel } from '../models/PhotographerProfileModel';
 import { Utils } from '../utils/Utils';

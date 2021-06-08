@@ -1,5 +1,5 @@
-import { PageFactory, PageFactoryEnum } from './scripts/factory/PageFactory';
-import { DataFetcher } from './scripts/utils/DataFetcher';
+import { PageFactory, PageFactoryEnum } from '../factory/PageFactory';
+import { DataFetcher } from '../utils/DataFetcher';
 
 const dataFetcher = new DataFetcher('/static/FishEyeData-new.json');
 const json = dataFetcher.fetchSource();

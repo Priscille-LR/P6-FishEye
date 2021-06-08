@@ -5,7 +5,7 @@ import { PhotographerPageModel } from "./PhotographerPageModel";
 export class AppModel {
 
     /**
-   * @param {HomePageModel} homePage
+    * @param {HomePageModel} homePage
     * @param {PhotographerPageModel} photographerPageModel
     */
     constructor(homePage, photographerPageModel) {

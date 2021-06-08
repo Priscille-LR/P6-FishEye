@@ -21,6 +21,10 @@ export class MediumModel {
         return this.medium.price
     }
 
+    getAlt() {
+        return this.medium.alt
+    }
+
     getLikes() {
         return this.medium.likes
     }

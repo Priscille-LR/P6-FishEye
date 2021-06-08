@@ -61,10 +61,11 @@ main {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     @include desktop {
       flex-direction: row;
       flex-wrap: wrap;
+      justify-content: center;
     }
   }
 

@@ -11,7 +11,6 @@ export class HomePageModel {
         this.tagsList = tagsList;
     }
 
-
     getPhotographersList() {
         return this.photographersList
     }
