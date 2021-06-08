@@ -1,17 +1,18 @@
 import { Utils } from "../utils/Utils";
-import { Tags } from "./Tags";
+import { Tags } from "../components/Tags";
 import { PhotographerProfileModel } from "../models/PhotographerProfileModel";
 import { HomePageModel } from "../models/HomePageModel";
+import { PageBuilder } from "./PageBuilder";
 
-//const body = document.getElementById("page");
 const main = document.getElementById('app');
 
-export class HomePageBuilder {
+export class HomePageBuilder extends PageBuilder{
     /**
      * 
      * @param {Promise<HomePageModel>} homePageModel 
      */
     constructor(homePageModel) {
+        super()
         this.homePageModelPromise = homePageModel
         this.activeNavTags = [];
     }
@@ -29,11 +30,11 @@ export class HomePageBuilder {
     }
 
     renderHeader() {
-        const header = document.createElement('header');
-        header.className = 'header_home';
-        header.role = 'heading';
-        header.ariaLabel = 'Fisheye home page heading';
-        header.innerHTML = `
+        super.renderHeader()
+        this.header.className = 'header_home';
+        this.header.role = 'heading';
+        this.header.ariaLabel = 'Fisheye home page heading';
+        this.header.innerHTML = `
         <a class="logo" href="/">
             <img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />
         </a>
@@ -41,24 +42,8 @@ export class HomePageBuilder {
         <nav class="main_nav" role="navigation" aria-label="photographers categories">
         </nav>
         `;
-        this.renderNavTags(header.querySelector(".main_nav"))
-
-        const pageInner = document.querySelector('.page_inner');
-        pageInner.insertBefore(header, main);
-
-        //this.onScrollEvent();
+        this.renderNavTags( this.header.querySelector(".main_nav"))
     }
-
-    //go to main button is diplayed if user scrolls on page
-    // onScrollEvent() {
-    //     const goMainButton = document.querySelector('.go_main');
-    //     window.addEventListener('scroll', () => {
-    //         goMainButton.style.display = 'block';
-    //     })
-    //     if(window.scrollY === 0) {
-    //         goMainButton.style.display = 'none';
-    //     }
-    // }
 
     renderNavTags(mainNav) {
         const tags = new Tags(this.allTags)
@@ -67,17 +52,7 @@ export class HomePageBuilder {
     }
 
     handleTagClick(isChecked, tagId) {
-        const checkboxTag = document.getElementById(tagId);
-        if (isChecked) {
-            checkboxTag.setAttribute('aria-checked', 'true');
-            this.activeNavTags.push(tagId);
-            this.activeNavTags = [...new Set(this.activeNavTags)];
-        } else {
-            checkboxTag.setAttribute('aria-checked', 'false');
-            const currentIndex = this.activeNavTags.indexOf(tagId);
-            this.activeNavTags.splice(currentIndex, 1); //remove tag from active tags
-        }
-        
+        super.handleTagClick(isChecked, tagId, this.activeNavTags)
         Utils.removeChildOf(".photographers_wrapper", "photographer_thumbnail_wrapper")
         this.sortPhotographers(this.photographers)
     }

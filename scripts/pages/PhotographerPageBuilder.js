@@ -1,16 +1,17 @@
-import { MediaFactory } from './MediaFactory';
-import { ContactModal } from "./ContactModal";
-import { LightboxMedia } from "./LightboxMedia";
-import { Tags } from "./Tags";
+import { MediaFactory } from '../factory/MediaFactory';
+import { ContactModal } from "../components/ContactModal";
+import { LightboxMedia } from "../components/LightboxMedia";
+import { Tags } from "../components/Tags";
 import { Utils } from "../utils/Utils";
 import { PhotographerPageModel } from "../models/PhotographerPageModel";
 import { PhotographerProfileModel } from '../models/PhotographerProfileModel';
 import { MediumModel } from '../models/MediumModel';
+import { PageBuilder } from './PageBuilder';
 
 //const body = document.getElementById("page");
 const main = document.getElementById('app');
 
-export class PhotographerPageBuilder {
+export class PhotographerPageBuilder extends PageBuilder{
 
     SortEnum = {
         DATE: "Date",
@@ -23,6 +24,7 @@ export class PhotographerPageBuilder {
      * @param {Promise<PhotographerPageModel>} photographerPageModel 
      */
     constructor(photographerPageModel) {
+        super()
         this.photographerPageModelPromise = photographerPageModel;
     }
 
@@ -74,17 +76,15 @@ export class PhotographerPageBuilder {
     }
 
     renderHeader() {
-        const header = document.createElement('header');
-        header.className = 'header_photographer_page';
-        header.role = 'heading';
-        header.ariaLabel = 'Fisheye photographer page heading';
-        header.innerHTML = `
+        super.renderHeader()
+        this.header.className = 'header_photographer_page';
+        this.header.role = 'heading';
+        this.header.ariaLabel = 'Fisheye photographer page heading';
+        this.header.innerHTML = `
         <a class="logo" href="/">
         <img class="logo_img" src="/static/logo.svg" alt="Fisheye Home Page" />
         </a>
         `;
-        const pageInner = document.querySelector('.page_inner');
-        pageInner.insertBefore(header, main);
     }
 
     renderMain() {
@@ -141,16 +141,7 @@ export class PhotographerPageBuilder {
     }
 
     handleTagClick(isChecked, tagId) {
-        const checkboxTag = document.getElementById(tagId);
-        if (isChecked) {
-            checkboxTag.setAttribute('aria-checked', 'true');
-            this.activePhotographerTags.push(tagId);
-            this.activePhotographerTags = [...new Set(this.activePhotographerTags)];
-        } else {
-            checkboxTag.setAttribute('aria-checked', 'false');
-            const currentIndex = this.activePhotographerTags.indexOf(tagId);
-            this.activePhotographerTags.splice(currentIndex, 1);
-        }
+        super.handleTagClick(isChecked, tagId, this.activePhotographerTags)
         Utils.removeChildOf("#app", "medium_thumbnail");
         this.sortMedia()
     }
