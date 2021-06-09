@@ -16,6 +16,11 @@ export class AppPageWrapper {
         this.appModel = json.then(json => this.appPageWrapper(json))
     }
 
+    /**
+     * transform json data in typed class data model (appModel with 2 subclasses : homePageModel & PhotogrpaherPageModel)
+     * @param {Promise} json 
+     * @returns {AppModel}
+     */
      appPageWrapper(json) {
         const photographersList = json.photographers.map(photographer => new PhotographerProfileModel(photographer));
         const tagsList = this.createTagsList(json);
@@ -28,8 +33,8 @@ export class AppPageWrapper {
 
     createTagsList(json) {
         let photographers = json.photographers;
-        const allTags = photographers.map(photographer => photographer.tags).flat();
-        const tagsList = [...new Set(allTags)];
+        const allTags = photographers.map(photographer => photographer.tags).flat(); //transform tags for each photographer in a flattened array (un-nested array)
+        const tagsList = [...new Set(allTags)]; //new array with unique tags => remove duplicates with spread operator + set
         return tagsList;
     }
 

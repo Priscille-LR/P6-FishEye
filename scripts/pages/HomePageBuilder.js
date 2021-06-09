@@ -13,14 +13,14 @@ export class HomePageBuilder extends PageBuilder{
      */
     constructor(homePageModel) {
         super()
-        this.homePageModelPromise = homePageModel
-        this.activeNavTags = [];
+        this.homePageModelPromise = homePageModel //save homePageModel as class variable
+        this.activeNavTags = []; //create array of tags as class variable
     }
 
     //display header and main (home page)
     render() {
-        this.homePageModelPromise
-            .then((homePageModel) => {
+        this.homePageModelPromise //uses promise 
+            .then((homePageModel) => { //then => homePageModel => sets photographers and allTags as class vars
                 this.photographers = homePageModel.photographersList
                 this.allTags = homePageModel.tagsList
 
@@ -29,6 +29,9 @@ export class HomePageBuilder extends PageBuilder{
             })
     }
 
+    /**
+     * renders header gotten from the super + add specific logic
+     */
     renderHeader() {
         super.renderHeader()
         this.header.className = 'header_home';
@@ -45,18 +48,30 @@ export class HomePageBuilder extends PageBuilder{
         this.renderNavTags( this.header.querySelector(".main_nav"))
     }
 
+    /**
+     * creates new instance of Tags then appends tags to the main nav in the header
+     * adds event listeners: handleTagClick() called on change
+     */
     renderNavTags(mainNav) {
         const tags = new Tags(this.allTags)
         tags.appendTags(mainNav, 'main_nav__item');
         tags.addEventOnChange(mainNav, (isChecked, tagId) => this.handleTagClick(isChecked, tagId));
     }
 
+    /**
+     * calls method in super + removes photographer thumbnails, then sorts with the right tags
+     */
     handleTagClick(isChecked, tagId) {
         super.handleTagClick(isChecked, tagId, this.activeNavTags)
         Utils.removeChildOf(".photographers_wrapper", "photographer_thumbnail_wrapper")
         this.sortPhotographers(this.photographers)
     }
 
+    /**
+     * for each photographer, checks if tag == active (clicked) tag; if so, tag is push to selected photographers array
+     * if array is empty => create thumbnails of all photographers
+     * if not => create thumbnails of photographers who have the active tags
+     */
     sortPhotographers(photographers) {
         let selectedPhotographers = [];
         this.activeNavTags.forEach(activeNavTag => {
@@ -108,7 +123,6 @@ export class HomePageBuilder extends PageBuilder{
             const article = document.createElement('article')
             article.className = 'photographer_thumbnail_wrapper';
             article.innerHTML = `<a class="photographer_thumbnail" href="/photographers-profile/${photographer.getId()}" aria-label="${photographer.getName()}">`;
-            //article.ariaLabel = `${photographer.getName()}`;
             this.appendPhotographerThumbnailPicture(article, photographer);
             this.appendPhotographerThumbnailContent(article, photographer);
 

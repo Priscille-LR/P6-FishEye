@@ -8,6 +8,9 @@ export class PageBuilder {
         pageInner.insertBefore( this.header, main);
     }
 
+    /**
+     * checks if checkbox is checked; if it is, tag is pushed into active tags array, if not, it is removed from it
+     */
     handleTagClick(isChecked, tagId, tagArray) {
         const checkboxTag = document.getElementById(tagId);
         if (isChecked) {

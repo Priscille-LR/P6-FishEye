@@ -25,9 +25,13 @@ export class PhotographerPageBuilder extends PageBuilder{
      */
     constructor(photographerPageModel) {
         super()
-        this.photographerPageModelPromise = photographerPageModel;
+        this.photographerPageModelPromise = photographerPageModel; //save photographerPageModel as class variable
     }
 
+    /**
+     * render page; with current photographer and their media list
+     * @param {String} id 
+     */
     render(id) {
         this.idPhotographer = id;
         this.mediaList = [];
@@ -39,7 +43,7 @@ export class PhotographerPageBuilder extends PageBuilder{
             this.determineCurrentPhotographer(photographerPageModel.getPhotographersList());
             this.determineCurrentPhotographerMedia(photographerPageModel.getMediaList());
             this.contactModal = new ContactModal(this.currentPhotographer);
-            this.lightboxMedia = new LightboxMedia(this.allMedia, this.currentPhotographer);
+            this.lightboxMedia = new LightboxMedia(this.selectedMedia, this.currentPhotographer);
             
             this.contactModal.renderContactModal();
             this.lightboxMedia.renderLightboxMedia();
@@ -75,6 +79,9 @@ export class PhotographerPageBuilder extends PageBuilder{
         this.selectedMedia = this.mediaList
     }
 
+    /**
+     * renders header gotten from the super + add specific logic
+     */
     renderHeader() {
         super.renderHeader()
         this.header.className = 'header_photographer_page';
@@ -92,11 +99,9 @@ export class PhotographerPageBuilder extends PageBuilder{
         this.renderDropdownMenu();
         this.createMediaWrapper();
         this.renderSummary();
-        this.sortBy(this.SortEnum.POPULARITY);
+        this.sortBy(this.SortEnum.POPULARITY); //by default, sort is done based on popularity
     }
 
-
-    //Banner
     renderBanner() {
         const banner = document.createElement('section');
         banner.className = 'banner';
@@ -119,7 +124,6 @@ export class PhotographerPageBuilder extends PageBuilder{
         main.appendChild(banner);
     }
 
-    //contact modal opening
     openContactModal(banner) {
         const buttonContact = banner.querySelector(".button_contact");
         
@@ -134,19 +138,28 @@ export class PhotographerPageBuilder extends PageBuilder{
         })
     }
 
+    /**
+     * creates new instance of Tags then appends tags to the banner
+     * adds event listeners: handleTagClick() called on change
+     */
     renderBannerTags(bannerTags) {
         const tags = new Tags(this.currentPhotographer.getTags());
         tags.appendTags(bannerTags, 'photographer_tags__item')
         tags.addEventOnChange(bannerTags, (isChecked, tagId) => this.handleTagClick(isChecked, tagId));
     }
 
+    /**
+     * calls method in super + removes photographer thumbnails, then sorts with the right tags
+     */
     handleTagClick(isChecked, tagId) {
         super.handleTagClick(isChecked, tagId, this.activePhotographerTags)
         Utils.removeChildOf("#app", "medium_thumbnail");
         this.sortMedia()
     }
 
-    //sort media when medium tag = active photographer tag
+    /**
+     * sort media when medium tag = active photographer tag
+     * */
     sortMedia() {
         this.selectedMedia = [];
         this.activePhotographerTags.forEach(activePhotographerTag => {
@@ -169,8 +182,6 @@ export class PhotographerPageBuilder extends PageBuilder{
         this.handleDropdownItemClick(selectedItem) //double sort => sort according to dropdown filter
     }
 
-
-    //dropdown
     renderDropdownMenu() {
         const dropdownMenu = this.createDropdownMenu();
         main.appendChild(dropdownMenu);
@@ -181,6 +192,7 @@ export class PhotographerPageBuilder extends PageBuilder{
         const secondDropdownItem = dropdrownItems[1];
         const lastDropdownItem = dropdrownItems[2];
 
+        //listens to click or keydown on each dropdownItem; calls dropdownEvent() on events
         for (const dropdrownItem of dropdrownItems) {
             dropdrownItem.addEventListener('click', () => {
                 this.dropdownEvent(dropdrownItem, dropdown);
@@ -192,7 +204,7 @@ export class PhotographerPageBuilder extends PageBuilder{
             })
         }
 
-        //handle dropdown opening and closing with keayboard nav
+        //handle dropdown opening and closing on click/keydown on the dropdown button 
         dropdrownTrigger.addEventListener('click', () => {
             if(dropdown.classList.contains('open')) {
                 this.closeDropdown();
@@ -209,12 +221,14 @@ export class PhotographerPageBuilder extends PageBuilder{
             }
         })
 
+        //closes dropdown if tab+shift keys pressed
         secondDropdownItem.addEventListener('keydown', (e) => {
             if(e.code === 'Tab' && e.shiftKey) {
                 this.closeDropdown()
             }
         })
 
+        //closes dropdown if tab+!shift keys pressed
         lastDropdownItem.addEventListener('keydown', (e) => {
             if(e.code === 'Tab' && !e.shiftKey) {
                 this.closeDropdown()
@@ -226,13 +240,15 @@ export class PhotographerPageBuilder extends PageBuilder{
         const dropdownMenu = document.createElement('div');
         dropdownMenu.className = "dropdown_wrapper";
         dropdownMenu.innerHTML = `
+        
         <span class="sort_by">Trier par</span>
         <div class="dropdown">
-            <a class="dropdown__trigger" role="button" aria-label="sort by" aria-controls="dropdown_content" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
+        <div aria-live="polite">
+            <a class="dropdown__trigger" role="button" aria-label="sort by ${this.SortEnum.POPULARITY}" aria-controls="dropdown_content" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
                 <span>${this.SortEnum.POPULARITY}</span>
                 <i class="expand fas fa-chevron-down"></i>
             </a>
-        
+            </div>
             <div class="dropdown__content" role="listbox">
                 <a class="dropdown__content__item selected" role="option" aria-label="sort by popularity" aria-selected="true" tabindex="0">${this.SortEnum.POPULARITY}</a>
                 <a class="dropdown__content__item" role="option" aria-label="sort by date" aria-selected="false" tabindex="0">${this.SortEnum.DATE}</a>
@@ -242,14 +258,20 @@ export class PhotographerPageBuilder extends PageBuilder{
         return dropdownMenu;
     }
 
+    /**
+     * clicked dropdown item becomes selected item (swap)
+     */
     dropdownEvent(dropdrownItem, dropdown) {
         if (!dropdrownItem.classList.contains('selected')) {
             const selectedItem = dropdown.querySelector('.dropdown__content__item.selected');
 
             selectedItem.classList.remove('selected');
-            dropdrownItem.classList.add('selected');
+            dropdrownItem.classList.add('selected'); 
             dropdrownItem.setAttribute('aria-selected', 'true');
             dropdown.querySelector('.dropdown__trigger span').innerHTML = dropdrownItem.innerHTML;
+
+            const dropdrownTrigger = document.querySelector('.dropdown__trigger');
+            dropdrownTrigger.ariaLabel = "sort by " + dropdrownItem.innerHTML
 
             this.closeDropdown();
             this.handleDropdownItemClick(dropdrownItem);
@@ -315,6 +337,9 @@ export class PhotographerPageBuilder extends PageBuilder{
 
     }
 
+    /**
+     * increments number of likes for the medium + increments total number of likes
+     */
     handleLikeButton(mediumThumbnail) {
         const likeButton = mediumThumbnail.querySelector('.checkbox__input');
         const mediumLikes = mediumThumbnail.querySelector('.medium_number_of_likes');
@@ -363,7 +388,10 @@ export class PhotographerPageBuilder extends PageBuilder{
         this.handleLikeButton(mediumThumbnail);
     }    
 
-
+    /**
+     * if there's no selected media, lightbox shows all media of the photographer
+     * else, it shows only the selected media
+     */
     displayMediumInLightbox(e, medium) {
         e.preventDefault();
         if (this.selectedMedia.length == 0) {

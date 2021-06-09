@@ -66,7 +66,7 @@ export class MediaFactory {
               
               <span class="medium_number_of_likes">${medium.getLikes()}</span>
                 <div class="likes">
-                    <input type="checkbox" id="checkbox__input ${medium.getTitle().toLowerCase().replace(" ", "_")}" class="checkbox__input" name="like" tabindex="0">
+                    <input type="checkbox" id="checkbox__input ${medium.getTitle().toLowerCase().replace(" ", "_")}" class="checkbox__input" name="like" tabindex="0" aria-label="like this picture">
                         <i class="far fa-heart like__unchecked"></i>
                         <i class="fas fa-heart like__checked"></i>
                     </input>   
@@ -101,7 +101,7 @@ class Picture extends Media {
     }
     render() {    
         super.render()
-
+        
         this.htmlElement.src = `/static/${this.currentPhotographer.getName().split(' ')[0]}/${this.mediumSource}`
     }
 }

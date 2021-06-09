@@ -13,7 +13,7 @@ export class LightboxMedia {
      * @param {Array<MediumModel>} mediaList 
      * @param {PhotographerProfileModel} currentPhotographer 
      */
-    constructor(mediaList = [], currentPhotographer) {
+    constructor(mediaList = [], currentPhotographer) { //default value for mediaList 
         this.mediaList = mediaList;
         this.currentPhotographer = currentPhotographer;
         this.focusableElements = [];
@@ -187,6 +187,12 @@ export class LightboxMedia {
         lightboxBody.querySelector('.medium_box').appendChild(mediumTitle);
     }
 
+    /**
+     * 
+     * @param {MediumModel} medium 
+     * @param {PhotographerProfileModel} currentPhotographer 
+     * @param {Array<MediumModel>} mediaList 
+     */
     showLightboxMedia(medium, currentPhotographer, mediaList) {
         this.mediaList = mediaList;
         this.medium = medium;
