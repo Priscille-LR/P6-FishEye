@@ -21,8 +21,8 @@ let registeredPages = new Map([
  * @returns {PageBuilder}
  */
 export class PageFactory {
-    getPage(type, pageModel) {
-        return new (registeredPages.get(type))(pageModel);
+    getPage(type, pageModelPromise) {
+        return new (registeredPages.get(type))(pageModelPromise);
     }
 }
 

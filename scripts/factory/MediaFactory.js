@@ -66,11 +66,12 @@ export class MediaFactory {
               
               <span class="medium_number_of_likes">${medium.getLikes()}</span>
                 <div class="likes">
-                    <input type="checkbox" id="checkbox__input ${medium.getTitle().toLowerCase().replace(" ", "_")}" class="checkbox__input" name="like" tabindex="0" aria-label="like this picture">
+                    <input type="checkbox" id="checkbox__input_${medium.getTitle().toLowerCase().replaceAll(" ", "_")}" class="checkbox__input" aria-label="like this medium" aria-checked="false">
+                    </input>   
+                    <label class="checkbox__like" for="checkbox__input_${medium.getTitle().toLowerCase().replaceAll(" ", "_")}">
                         <i class="far fa-heart like__unchecked"></i>
                         <i class="fas fa-heart like__checked"></i>
-                    </input>   
-                    <label class="checkbox__like" for="checkbox__input ${medium.getTitle().toLowerCase().replace(" ", "_")}"></label>
+                    </label>
                 </div>
             </div>
           </div>`;
@@ -85,7 +86,7 @@ class Media {
         this.className = className
         this.medium = medium
     }
-    render() { 
+    render() {
         this.htmlElement = document.createElement(this.type);
         this.htmlElement.className = `${this.className}__miniature`;
         this.htmlElement.alt = this.medium.getAlt();
@@ -99,9 +100,8 @@ class Picture extends Media {
         this.currentPhotographer = currentPhotographer
         this.mediumSource = mediumSource
     }
-    render() {    
+    render() {
         super.render()
-        
         this.htmlElement.src = `/static/${this.currentPhotographer.getName().split(' ')[0]}/${this.mediumSource}`
     }
 }
@@ -113,7 +113,7 @@ class Video extends Media {
         this.mediumSource = mediumSource
         this.controls = controls
     }
-    render() { 
+    render() {
         super.render()
         let source = document.createElement('source');
         source.src = `/static/${this.currentPhotographer.getName().split(' ')[0]}/${this.mediumSource}`

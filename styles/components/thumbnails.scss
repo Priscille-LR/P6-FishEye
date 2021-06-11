@@ -159,28 +159,26 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  //margin: 0.5rem;
   &:focus-within {
     border :  2px solid orange;
   }
 }
-  .checkbox__like, 
+
   .checkbox__input {
-    opacity: 0;
-    width: 0px;
-    height: 0px;
+    position: absolute;
+    left: -9999rem;
   }
   
   .like__checked {
     display: none;
   }
 
-  .checkbox__input:checked ~ .like__checked {
+  .checkbox__input:checked ~ .checkbox__like .like__checked {
     display: inline-block;
     
   }
 
-  .checkbox__input:checked ~ .like__unchecked {
+  .checkbox__input:checked ~ .checkbox__like .like__unchecked {
     display: none;
   }
 

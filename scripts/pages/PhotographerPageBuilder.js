@@ -11,7 +11,7 @@ import { PageBuilder } from './PageBuilder';
 //const body = document.getElementById("page");
 const main = document.getElementById('app');
 
-export class PhotographerPageBuilder extends PageBuilder{
+export class PhotographerPageBuilder extends PageBuilder {
 
     SortEnum = {
         DATE: "Date",
@@ -44,13 +44,13 @@ export class PhotographerPageBuilder extends PageBuilder{
             this.determineCurrentPhotographerMedia(photographerPageModel.getMediaList());
             this.contactModal = new ContactModal(this.currentPhotographer);
             this.lightboxMedia = new LightboxMedia(this.selectedMedia, this.currentPhotographer);
-            
+
             this.contactModal.renderContactModal();
             this.lightboxMedia.renderLightboxMedia();
 
             this.renderHeader();
             this.renderMain();
-            
+
         })
     }
 
@@ -116,9 +116,9 @@ export class PhotographerPageBuilder extends PageBuilder{
         <div class="banner__photographer_picture">
             <img class="profile_picture" src="/static/Photographers ID Photos/${this.currentPhotographer.getPortrait()}" alt="${this.currentPhotographer.getName()}">
         </div>`
-        
+
         this.renderBannerTags(banner.querySelector(".tags_photographer_page"));
-        
+
         this.openContactModal(banner);
 
         main.appendChild(banner);
@@ -126,14 +126,14 @@ export class PhotographerPageBuilder extends PageBuilder{
 
     openContactModal(banner) {
         const buttonContact = banner.querySelector(".button_contact");
-        
+
         buttonContact.addEventListener('click', () => {
             this.contactModal.showContactModal();
         });
-        
+
         buttonContact.addEventListener('keydown', (e) => {
-            if((e.code === 'Enter') || (e.code === 'Space')) {
-                this.contactModal.showContactModal();   
+            if ((e.code === 'Enter') || (e.code === 'Space')) {
+                this.contactModal.showContactModal();
             }
         })
     }
@@ -178,7 +178,7 @@ export class PhotographerPageBuilder extends PageBuilder{
             this.selectedMedia = [...new Set(this.selectedMedia)]; //remove duplicates
         }
 
-        const selectedItem = document.querySelector('.dropdown__content__item.selected'); 
+        const selectedItem = document.querySelector('.dropdown__content__item.selected');
         this.handleDropdownItemClick(selectedItem) //double sort => sort according to dropdown filter
     }
 
@@ -198,7 +198,7 @@ export class PhotographerPageBuilder extends PageBuilder{
                 this.dropdownEvent(dropdrownItem, dropdown);
             })
             dropdrownItem.addEventListener('keydown', (e) => {
-                if( e.code === 'Enter') {
+                if (e.code === 'Enter') {
                     this.dropdownEvent(dropdrownItem, dropdown);
                 }
             })
@@ -206,7 +206,7 @@ export class PhotographerPageBuilder extends PageBuilder{
 
         //handle dropdown opening and closing on click/keydown on the dropdown button 
         dropdrownTrigger.addEventListener('click', () => {
-            if(dropdown.classList.contains('open')) {
+            if (dropdown.classList.contains('open')) {
                 this.closeDropdown();
             } else {
                 this.openDropdown();
@@ -214,7 +214,7 @@ export class PhotographerPageBuilder extends PageBuilder{
         })
 
         dropdrownTrigger.addEventListener('keydown', (e) => {
-            if((dropdown.classList.contains('open')) && (e.code === 'Enter')) {
+            if ((dropdown.classList.contains('open')) && (e.code === 'Enter')) {
                 this.closeDropdown();
             } else if (e.code === 'Enter') {
                 this.openDropdown();
@@ -223,19 +223,19 @@ export class PhotographerPageBuilder extends PageBuilder{
 
         //closes dropdown if tab+shift keys pressed
         secondDropdownItem.addEventListener('keydown', (e) => {
-            if(e.code === 'Tab' && e.shiftKey) {
+            if (e.code === 'Tab' && e.shiftKey) {
                 this.closeDropdown()
             }
         })
 
         //closes dropdown if tab+!shift keys pressed
         lastDropdownItem.addEventListener('keydown', (e) => {
-            if(e.code === 'Tab' && !e.shiftKey) {
+            if (e.code === 'Tab' && !e.shiftKey) {
                 this.closeDropdown()
             }
         })
     }
-    
+
     createDropdownMenu() {
         const dropdownMenu = document.createElement('div');
         dropdownMenu.className = "dropdown_wrapper";
@@ -266,7 +266,7 @@ export class PhotographerPageBuilder extends PageBuilder{
             const selectedItem = dropdown.querySelector('.dropdown__content__item.selected');
 
             selectedItem.classList.remove('selected');
-            dropdrownItem.classList.add('selected'); 
+            dropdrownItem.classList.add('selected');
             dropdrownItem.setAttribute('aria-selected', 'true');
             dropdown.querySelector('.dropdown__trigger span').innerHTML = dropdrownItem.innerHTML;
 
@@ -288,7 +288,7 @@ export class PhotographerPageBuilder extends PageBuilder{
         const dropdrownTrigger = document.querySelector('.dropdown__trigger');
         dropdown.classList.add('open');
         dropdrownTrigger.setAttribute('aria-expanded', 'true');
-    }   
+    }
 
     closeDropdown() {
         const dropdown = document.querySelector('.dropdown');
@@ -337,26 +337,7 @@ export class PhotographerPageBuilder extends PageBuilder{
 
     }
 
-    /**
-     * increments number of likes for the medium + increments total number of likes
-     */
-    handleLikeButton(mediumThumbnail) {
-        const likeButton = mediumThumbnail.querySelector('.checkbox__input');
-        const mediumLikes = mediumThumbnail.querySelector('.medium_number_of_likes');
-        const totalLikes = document.querySelector('.total_number_of_likes');
 
-        likeButton.addEventListener('change', () => {
-            if (likeButton.checked) {
-                likeButton.setAttribute('aria-checked', 'true');
-                mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
-                totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
-            } else {
-                likeButton.setAttribute('aria-checked', 'false');
-                mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) - 1;
-                totalLikes.innerHTML = parseInt(totalLikes.innerHTML) - 1;
-            }
-        });
-    }
 
     createMediaWrapper() {
         const mediaWrapper = document.createElement('div');
@@ -380,13 +361,66 @@ export class PhotographerPageBuilder extends PageBuilder{
         })
 
         mediumThumbnailMiniature.addEventListener('keydown', (e) => {
-            if(e.code === 'Enter') {
+            if (e.code === 'Enter') {
                 this.displayMediumInLightbox(e, medium);
             }
         })
 
-        this.handleLikeButton(mediumThumbnail);
-    }    
+        this.handleLikeButton(mediumThumbnail, medium);
+    }
+
+    /**
+     * increments number of likes for the medium + increments total number of likes
+     * @param {MediumModel} medium
+     */
+    // handleLikeButton(mediumThumbnail, medium) {
+    //     //const likeButton = mediumThumbnail.querySelector('.likes');
+    //     const checkboxes = document.querySelectorAll("checkbox__input");
+        
+    //     checkboxes.forEach(checkbox => {
+    //         checkbox.addEventListener('change', () => {
+    //             const mediumLikes = mediumThumbnail.querySelector('.medium_number_of_likes');
+    //             const totalLikes = document.querySelector('.total_number_of_likes');
+    //             //e.preventDefault();
+    //             if (checkbox.checked) {
+    //                 console.log("checked")
+    //                 //checkbox.setAttribute("checked", "false")
+    //                 //checkbox.checked = false;
+    //                 checkbox.setAttribute('aria-checked', 'true');
+    //                 mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
+    //                 totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
+    //             } else {
+    //                 console.log("unchecked")
+    //                 // checkbox.setAttribute("checked", "true")
+    //                 // checkbox.checked = true;
+    //                 checkbox.setAttribute('aria-checked', 'false');
+    //                 mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) - 1;
+    //                 totalLikes.innerHTML = parseInt(totalLikes.innerHTML) - 1;
+    //             }
+    //         });
+    //     });
+
+    // }
+
+    handleLikeButton(mediumThumbnail) {
+        const likeButton = mediumThumbnail.querySelector('.checkbox__input');
+        const mediumLikes = mediumThumbnail.querySelector('.medium_number_of_likes');
+        const totalLikes = document.querySelector('.total_number_of_likes');
+
+        likeButton.addEventListener('change', () => {
+            if (likeButton.checked) {
+                likeButton.setAttribute('aria-checked', 'true');
+                mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) + 1;
+                totalLikes.innerHTML = parseInt(totalLikes.innerHTML) + 1;
+            } else {
+                likeButton.setAttribute('aria-checked', 'false');
+                mediumLikes.innerHTML = parseInt(mediumLikes.innerHTML) - 1;
+                totalLikes.innerHTML = parseInt(totalLikes.innerHTML) - 1;
+            }
+
+        });
+    }
+    
 
     /**
      * if there's no selected media, lightbox shows all media of the photographer
